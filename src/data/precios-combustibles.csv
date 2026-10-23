@@ -1,0 +1,6 @@
+combustible,precio_ARS,unidad,fuente,fecha
+nafta_super,2089,$/L,"El Destape 15-10-2026, datos oficiales Res. 314/2016 (YPF CABA-PBA)",2026-10-15
+nafta_premium,2299,$/L,"El Destape 15-10-2026, datos oficiales Res. 314/2016 (YPF CABA-PBA)",2026-10-15
+gasoil,2195,$/L,"El Destape 15-10-2026, datos oficiales Res. 314/2016 (YPF CABA-PBA)",2026-10-15
+gasoil_premium,2379,$/L,"El Destape 15-10-2026, datos oficiales Res. 314/2016 (YPF CABA-PBA)",2026-10-15
+gnc,680,$/m3,"El Destape 15-10-2026, datos oficiales Res. 314/2016 (YPF CABA-PBA)",2026-10-15
