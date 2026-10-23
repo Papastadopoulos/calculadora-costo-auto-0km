@@ -8,7 +8,7 @@ import combustiblesCsv from "@/data/precios-combustibles.csv?raw";
 import sellosCsv from "@/data/sellos-provincias.csv?raw";
 
 /** Parser CSV mínimo con soporte de comillas dobles. */
-export function parseCsv(text: string): Record<string, string>[] {
+export function parseCsv<K extends string = string>(text: string): Record<K, string>[] {
   const rows: string[][] = [];
   let row: string[] = [];
   let cell = "";
@@ -30,8 +30,8 @@ export function parseCsv(text: string): Record<string, string>[] {
   }
   row.push(cell);
   if (row.some((v) => v !== "")) rows.push(row);
-  const [head, ...body] = rows;
-  return body.map((r) => Object.fromEntries(head.map((h, i) => [h.trim(), (r[i] ?? "").trim()])));
+  const [head = [], ...body] = rows;
+  return body.map((r) => Object.fromEntries(head.map((h, i) => [h.trim(), (r[i] ?? "").trim()])) as Record<K, string>);
 }
 
 export type Combustible = "nafta" | "diésel" | "híbrido";
@@ -64,8 +64,8 @@ function intervalo(modelo: string) {
   return 10000;
 }
 
-export const MODELOS: Modelo[] = parseCsv(modelosCsv).map((r) => {
-  const fuenteService = r.fuente.split("| seguro")[0];
+export const MODELOS: Modelo[] = parseCsv<"marca" | "modelo" | "version" | "combustible" | "consumo_mixto_l_100km" | "precio_0km_ref_ARS" | "seguro_mensual_min_ARS" | "seguro_mensual_max_ARS" | "service_10k_ref_ARS" | "fuente">(modelosCsv).map((r) => {
+  const fuenteService = r.fuente.split("| seguro")[0] ?? "";
   const rango = fuenteService.match(/\[ESTIMADO\]\s*\$([\d.]+)-\$([\d.]+)/);
   const service = Number(r.service_10k_ref_ARS);
   return {
@@ -93,12 +93,12 @@ const NOMBRES: Record<string, string> = {
   nafta_super: "Nafta súper", nafta_premium: "Nafta premium", gasoil: "Gasoil",
   gasoil_premium: "Gasoil premium", gnc: "GNC",
 };
-export const COMBUSTIBLES: PrecioCombustible[] = parseCsv(combustiblesCsv).map((r) => ({
+export const COMBUSTIBLES: PrecioCombustible[] = parseCsv<"combustible" | "precio_ARS" | "unidad" | "fuente" | "fecha">(combustiblesCsv).map((r) => ({
   clave: r.combustible, nombre: NOMBRES[r.combustible] ?? r.combustible,
   precio: Number(r.precio_ARS), unidad: r.unidad, fecha: r.fecha, fuente: r.fuente,
 }));
 
-export const SELLOS = parseCsv(sellosCsv).map((r) => ({
+export const SELLOS = parseCsv<"provincia" | "alicuota_sellos_pct" | "fecha">(sellosCsv).map((r) => ({
   provincia: r.provincia, pct: Number(r.alicuota_sellos_pct), fecha: r.fecha,
 }));
 
@@ -140,7 +140,7 @@ export function calcular(e: Entradas) {
     Cochera: [e.cochera * 12, e.cochera * 12],
     Financiación: [e.cuota * 12, e.cuota * 12],
     Otros: [e.otros * 12, e.otros * 12],
-  } as Record<string, [number, number]>;
+  } satisfies Record<string, [number, number]> as Record<string, [number, number]> & { Combustible: [number, number] };
   const anualMin = Object.values(rubros).reduce((a, r) => a + r[0], 0);
   const anualMax = Object.values(rubros).reduce((a, r) => a + r[1], 0);
   return {
