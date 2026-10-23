@@ -26,7 +26,7 @@ export const Route = createFileRoute("/")({
 /* ---------- Piezas de UI chiquitas ---------- */
 
 const Estimado = () => (
-  <span className="ml-1.5 rounded-full border border-estimado/40 bg-estimado/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-estimado">
+  <span className="ml-1.5 border-b border-dotted border-estimado text-[10px] font-medium uppercase tracking-wider text-estimado">
     estimado
   </span>
 );
@@ -48,7 +48,7 @@ function Num({ value, onChange, step = 1 }: { value: number; onChange: (n: numbe
 }
 
 const Card = ({ children, className = "" }: { children: ReactNode; className?: string }) => (
-  <div className={`rounded-xl border border-border bg-card p-5 shadow-sm ${className}`}>{children}</div>
+  <div className={`rounded-sm border border-border bg-card p-5 ${className}`}>{children}</div>
 );
 
 const COLORES = Array.from({ length: 8 }, (_, i) => `var(--chart-${i + 1})`);
@@ -123,18 +123,22 @@ function Index() {
   return (
     <div className="min-h-screen">
       {/* 1. Hero */}
-      <header className="bg-primary text-primary-foreground">
-        <div className="mx-auto max-w-5xl px-5 py-16 md:py-24">
-          <p className="mb-4 inline-block rounded-full bg-highlight px-3 py-1 text-xs font-bold text-highlight-foreground">
-            Precios de referencia actualizados a octubre 2026
-          </p>
-          <h1 className="text-4xl font-bold md:text-6xl">¿Cuánto cuesta tu auto?</h1>
-          <p className="mt-4 max-w-xl text-lg opacity-85">
-            Descubrí cuánto te sale cada kilómetro que manejás: combustible, seguro, patente, VTV, service y más.
-          </p>
-          <a href="#calculadora" className="mt-8 inline-flex rounded-md bg-highlight px-6 py-3 font-bold text-highlight-foreground transition hover:opacity-90">
-            Calcular ahora ↓
-          </a>
+      <header className="border-b border-border">
+        <div className="mx-auto max-w-5xl px-5 pb-12 pt-10 md:pb-20 md:pt-14">
+          <div className="flex items-center justify-between border-b border-foreground pb-3 text-xs uppercase tracking-[0.18em]">
+            <span>Costo real · Argentina</span>
+            <span className="text-muted-foreground">Ref. octubre 2026</span>
+          </div>
+          <h1 className="mt-10 text-5xl leading-[0.95] md:text-8xl">¿Cuánto cuesta<br /><em className="text-accent">tu auto?</em></h1>
+          <div className="mt-8 grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
+            <p className="max-w-lg text-lg text-muted-foreground">
+              Descubrí cuánto te sale cada kilómetro que manejás: combustible, seguro, patente, VTV, service y más.
+            </p>
+            <a href="#calculadora" className="inline-flex w-fit border-b-2 border-accent pb-1 font-medium transition hover:text-accent">
+              Ir a la calculadora ↓
+            </a>
+          </div>
+          <p className="mt-6 text-xs text-muted-foreground">Precios de referencia actualizados a octubre 2026.</p>
         </div>
       </header>
 
@@ -143,7 +147,7 @@ function Index() {
         <section id="calculadora" className="grid gap-6 lg:grid-cols-[1.15fr_1fr]">
           <div className="space-y-6">
             <Card>
-              <h2 className="mb-4 text-xl font-bold">Tu auto</h2>
+              <h2 className="mb-4 text-2xl">Tu auto</h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <Campo label="Modelo">
@@ -182,7 +186,7 @@ function Index() {
             </Card>
 
             <Card>
-              <h2 className="mb-4 text-xl font-bold">Gastos fijos</h2>
+              <h2 className="mb-4 text-2xl">Gastos fijos</h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Campo label="Seguro mensual mín." est nota="Terceros completo. Ajustalo con tu cotización.">
                   <Num value={seguroMin} onChange={setSeguroMin} />
@@ -220,7 +224,7 @@ function Index() {
             </Card>
 
             <Card>
-              <h2 className="mb-4 text-xl font-bold">Uso y extras</h2>
+              <h2 className="mb-4 text-2xl">Uso y extras</h2>
               <Campo label={`Kilómetros por año: ${kmAnio.toLocaleString("es-AR")} km`}>
                 <input type="range" min={5000} max={60000} step={1000} value={kmAnio} onChange={(e) => setKmAnio(Number(e.target.value))} className="w-full accent-primary" />
               </Campo>
@@ -236,13 +240,13 @@ function Index() {
           <div className="space-y-6 lg:sticky lg:top-6 lg:self-start">
             <Card className="bg-primary text-primary-foreground">
               <p className="text-sm opacity-80">Mantener {nombreAuto} te sale</p>
-              <p className="mt-1 font-display text-3xl font-bold leading-tight">
+              <p className="mt-1 font-display text-4xl leading-tight">
                 entre {ars(r.mensualMin)} y {ars(r.mensualMax)} <span className="text-lg font-medium opacity-80">por mes</span>
               </p>
               <p className="mt-2 text-sm opacity-80">{ars(r.anualMin)} – {ars(r.anualMax)} al año</p>
-              <div className="mt-5 rounded-lg bg-highlight p-4 text-highlight-foreground">
+              <div className="mt-5 rounded-sm bg-highlight p-4 text-highlight-foreground">
                 <p className="text-xs font-bold uppercase tracking-wide">Costo por km</p>
-                <p className="font-display text-2xl font-bold">{ars(r.kmMin)} – {ars(r.kmMax)}</p>
+                <p className="font-display text-3xl">{ars(r.kmMin)} – {ars(r.kmMax)}</p>
               </div>
               <button onClick={compartir} className="mt-5 w-full rounded-md border border-primary-foreground/30 px-4 py-2 text-sm font-medium transition hover:bg-primary-foreground/10">
                 {copiado ? "¡Copiado al portapapeles!" : "Compartir mi resultado"}
@@ -250,7 +254,7 @@ function Index() {
             </Card>
 
             <Card>
-              <h3 className="mb-2 font-bold">Desglose anual (promedio)</h3>
+              <h3 className="mb-2 text-xl">Desglose anual (promedio)</h3>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -276,7 +280,7 @@ function Index() {
 
             {g && (
               <Card>
-                <h3 className="font-bold">¿Y a GNC?</h3>
+                <h3 className="text-xl">¿Y a GNC?</h3>
                 <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                   <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Nafta / km</p><p className="font-bold">{ars(g.kmNafta)}</p></div>
                   <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">GNC / km</p><p className="font-bold">{ars(g.kmGnc)}</p></div>
@@ -295,7 +299,7 @@ function Index() {
         {/* Patentamiento: costo único */}
         <section>
           <Card>
-            <h2 className="text-xl font-bold">Costo único de compra: patentamiento</h2>
+            <h2 className="text-2xl">Costo único de compra: patentamiento</h2>
             <p className="mt-1 text-sm text-muted-foreground">No entra en el costo mensual ni por km.</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
               <Campo label="Provincia">
@@ -324,7 +328,7 @@ function Index() {
 
         {/* 3. Precios de referencia */}
         <section>
-          <h2 className="text-2xl font-bold">Precios de combustible de referencia</h2>
+          <h2 className="text-3xl">Precios de combustible de referencia</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             YPF CABA-PBA, actualizado el {FECHA_PRECIOS.split("-").reverse().join("/")}. Varían por provincia: cargá tu precio local.
           </p>
@@ -345,7 +349,7 @@ function Index() {
 
         {/* 5. Cómo lo calculamos */}
         <section className="space-y-3">
-          <h2 className="text-2xl font-bold">Cómo lo calculamos</h2>
+          <h2 className="text-3xl">Cómo lo calculamos</h2>
           <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed">
             <li><strong>Combustible anual</strong> = (km por año ÷ 100) × consumo × precio por litro.</li>
             <li><strong>Service anual</strong> = (km por año ÷ intervalo de service) × costo del service. Cuando no hay precio oficial publicado lo marcamos <Estimado /> y lo anclamos en un hermano de marca.</li>
@@ -360,7 +364,7 @@ function Index() {
 
         {/* 6. FAQ */}
         <section>
-          <h2 className="mb-3 text-2xl font-bold">Preguntas frecuentes</h2>
+          <h2 className="mb-3 text-3xl">Preguntas frecuentes</h2>
           {[
             ["¿Cuánto cuesta mantener un auto por mes en Argentina?", "Depende del modelo y de cuánto manejes. Para un 0km chico manejando 15.000 km al año, sumando combustible, seguro, patente, VTV y service, el costo suele ir de varios cientos de miles de pesos por mes. Elegí tu modelo arriba para ver tu rango."],
             ["¿Cómo se calcula el costo por kilómetro?", "Sumamos todos los gastos del año (fijos y variables) y los dividimos por los kilómetros que hacés en ese año. Por eso, cuanto más manejás, más se diluyen los gastos fijos."],
