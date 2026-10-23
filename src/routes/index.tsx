@@ -31,7 +31,7 @@ const Estimado = () => (
   </span>
 );
 
-function Campo({ label, children, nota, est }: { label: string; children: ReactNode; nota?: ReactNode; est?: boolean }) {
+function Campo({ label, children, nota, est }: { label: string; children: ReactNode; nota?: ReactNode; est?: boolean | undefined }) {
   return (
     <label className="block">
       <span className="mb-1 flex items-center text-sm font-medium">{label}{est && <Estimado />}</span>
@@ -57,7 +57,7 @@ const FECHA_PRECIOS = COMBUSTIBLES[0]?.fecha ?? "2026-10";
 /* ---------- Página ---------- */
 
 function Index() {
-  const inicial = MODELOS[0];
+  const inicial = MODELOS[0]!;
   const [modeloId, setModeloId] = useState(inicial.id);
   const [version, setVersion] = useState(inicial.version);
   const [combustible, setCombustible] = useState<Combustible>(inicial.combustible);
@@ -107,7 +107,7 @@ function Index() {
 
   const sellosPct = SELLOS.find((s) => s.provincia === provincia)?.pct ?? 0;
   const pat = patentamiento(precio0km, sellosPct, digital);
-  const g = combustible !== "diésel" ? gnc(kmAnio, consumo, precios[tipoNafta], precios.gnc, equipoGnc) : null;
+  const g = combustible !== "diésel" ? gnc(kmAnio, consumo, precios[tipoNafta] ?? 0, precios["gnc"] ?? 0, equipoGnc) : null;
 
   const torta = Object.entries(r.rubros)
     .map(([name, [a, b]]) => ({ name, value: (a + b) / 2 }))
@@ -188,8 +188,8 @@ function Index() {
                   <Num value={seguroMin} onChange={setSeguroMin} />
                 </Campo>
                 <Campo label="Seguro mensual máx." est><Num value={seguroMax} onChange={setSeguroMax} /></Campo>
-                <Campo label={modelo?.serviceEstimado ? "Service mín." : "Costo de service"} est={modelo?.serviceEstimado}
-                  nota={modelo?.primerServiceBonificado ? "El 1er service viene bonificado (no se descuenta del cálculo anual)." : undefined}>
+                <Campo label={modelo?.serviceEstimado ? "Service mín." : "Costo de service"} est={!!modelo?.serviceEstimado}
+                  nota={modelo?.primerServiceBonificado ? "El 1er service viene bonificado (no se descuenta del cálculo anual)." : null}>
                   <Num value={serviceMin} onChange={(n) => { setServiceMin(n); if (!modelo?.serviceEstimado) setServiceMax(n); }} />
                 </Campo>
                 {modelo?.serviceEstimado ? (
@@ -252,7 +252,7 @@ function Index() {
             <Card>
               <h3 className="mb-2 font-bold">Desglose anual (promedio)</h3>
               <div className="h-56">
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie data={torta} dataKey="value" nameKey="name" innerRadius={50} outerRadius={90} paddingAngle={2}>
                       {torta.map((d) => <Cell key={d.name} fill={COLORES[Object.keys(r.rubros).indexOf(d.name)]} />)}
@@ -334,7 +334,7 @@ function Index() {
                 {COMBUSTIBLES.map((c) => (
                   <tr key={c.clave}>
                     <td className="p-3 font-medium">{c.nombre}</td>
-                    <td className="p-3"><div className="ml-auto w-36"><Num value={precios[c.clave]} onChange={(n) => setPrecios((p) => ({ ...p, [c.clave]: n }))} /></div></td>
+                    <td className="p-3"><div className="ml-auto w-36"><Num value={precios[c.clave] ?? 0} onChange={(n) => setPrecios((p) => ({ ...p, [c.clave]: n }))} /></div></td>
                     <td className="w-16 p-3 text-muted-foreground">{c.unidad}</td>
                   </tr>
                 ))}
