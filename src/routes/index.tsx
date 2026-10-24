@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, type ReactNode } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
-import { Button } from "@/components/ui/button";
 import { ComparadorModelos } from "@/components/comparador-modelos";
 import {
   MODELOS, COMBUSTIBLES, SELLOS, VTV_REF, EQUIPO_GNC_DEFAULT,
@@ -102,8 +101,7 @@ function Index() {
   const [serviceMin, setServiceMin] = useState(inicial.serviceMin);
   const [serviceMax, setServiceMax] = useState(inicial.serviceMax);
   const [intervaloKm, setIntervaloKm] = useState(inicial.intervaloKm);
-  const [patente, setPatente] = useState(0);
-  const [patenteEstimada, setPatenteEstimada] = useState(false);
+  const [patenteManual, setPatenteManual] = useState<number | null>(null);
   const [patenteFrec, setPatenteFrec] = useState<"mensual" | "bimestral">("bimestral");
   const [vtvJur, setVtvJur] = useState<"PBA" | "CABA">("PBA");
   const [vtv, setVtv] = useState(VTV_REF.PBA);
@@ -128,9 +126,14 @@ function Index() {
     const m = MODELOS.find((x) => x.id === id);
     if (!m) { setIntervaloKm(10000); return; }
     setVersion(m.version); setCombustible(m.combustible); setConsumo(m.consumo);
+    setPatenteManual(null);
     setPrecio0km(m.precio0km); setSeguroMin(m.seguroMin); setSeguroMax(m.seguroMax);
     setServiceMin(m.serviceMin); setServiceMax(m.serviceMax); setIntervaloKm(m.intervaloKm);
   }
+
+  const patenteEstimada = patenteManual === null;
+  const patenteAnualEstimada = estimarPatenteArba(precio0km);
+  const patente = patenteManual ?? patenteAnualEstimada / (patenteFrec === "mensual" ? 12 : 6);
 
   const claveComb = combustible === "diésel" ? tipoGasoil : tipoNafta;
   const precioLitro = precios[claveComb] ?? 0;
@@ -245,22 +248,19 @@ function Index() {
                 {modelo?.serviceEstimado && (
                   <Campo label="Service cada (km)"><Num value={intervaloKm} step={1000} onChange={setIntervaloKm} /></Campo>
                 )}
-                <Campo label="Patente ($)" nota={<>ARBA 2026 (PBA): el precio 0km aproxima la valuación fiscal. El monto queda editable.{patenteEstimada && <> Estimación anual: {ars(patente * (patenteFrec === "mensual" ? 12 : 6))}.</>}</>}>
-                  <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <div className="min-w-0 flex-1"><Num value={patente} onChange={(n) => { setPatente(n); setPatenteEstimada(false); }} /></div>
-                      <select aria-label="Frecuencia de patente" className={`${inputCls.replace("w-full", "w-28")} shrink-0`} value={patenteFrec} onChange={(e) => {
-                        const frecuencia = e.target.value as typeof patenteFrec;
-                        if (patenteEstimada) setPatente(patente * (patenteFrec === "mensual" ? 12 : 6) / (frecuencia === "mensual" ? 12 : 6));
-                        setPatenteFrec(frecuencia);
-                      }}>
-                        <option value="mensual">mensual</option><option value="bimestral">bimestral</option>
-                      </select>
-                    </div>
-                    <Button type="button" variant="outline" size="sm" onClick={() => {
-                      setPatente(estimarPatenteArba(precio0km) / (patenteFrec === "mensual" ? 12 : 6));
-                      setPatenteEstimada(true);
-                    }}>Estimar</Button>
+                <Campo label="Patente ($)" est={patenteEstimada} nota={<>
+                  ARBA 2026 (PBA): escala progresiva sobre el precio 0km como aproximación de la valuación fiscal. El monto queda editable.
+                  <span className="mt-1 block">Estimación anual: {ars(patenteAnualEstimada)}.</span>
+                </>}>
+                  <div className="flex gap-2">
+                    <div className="min-w-0 flex-1"><Num value={patente} onChange={setPatenteManual} /></div>
+                    <select aria-label="Frecuencia de patente" className={`${inputCls.replace("w-full", "w-28")} shrink-0`} value={patenteFrec} onChange={(e) => {
+                      const frecuencia = e.target.value as typeof patenteFrec;
+                      if (patenteManual !== null) setPatenteManual(patenteManual * (patenteFrec === "mensual" ? 12 : 6) / (frecuencia === "mensual" ? 12 : 6));
+                      setPatenteFrec(frecuencia);
+                    }}>
+                      <option value="mensual">mensual</option><option value="bimestral">bimestral</option>
+                    </select>
                   </div>
                 </Campo>
                 <Campo label="VTV anual ($)" nota="Referencia oct-2026, editable.">
@@ -304,57 +304,10 @@ function Index() {
               </button>
             </Card>
 
-            <Card>
-              <h3 className="mb-2 text-xl">Desglose anual (promedio)</h3>
-              <div className="h-56">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={torta} dataKey="value" nameKey="name" innerRadius={50} outerRadius={90} paddingAngle={2}>
-                      {torta.map((d) => <Cell key={d.name} fill={COLORES[Object.keys(r.rubros).indexOf(d.name)]} />)}
-                    </Pie>
-                    <Tooltip formatter={(v: number) => ars(v)} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <ul className="space-y-1 text-sm">
-                {Object.entries(r.rubros).map(([k, [a, b]], i) => (
-                  <li key={k} className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full" style={{ background: COLORES[i] }} />{k}
-                      {(k === "Seguro" || (k === "Service" && modelo?.serviceEstimado)) && <Estimado />}
-                    </span>
-                    <span className="tabular-nums text-muted-foreground">{a === b ? ars(a) : `${ars(a)} – ${ars(b)}`}</span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-
-            {g && (
-              <Card>
-                <h3 className="text-xl">¿Y a GNC?</h3>
-                <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
-                  <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Nafta / km</p><p className="font-bold">{ars(g.kmNafta)}</p></div>
-                  <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">GNC / km</p><p className="font-bold">{ars(g.kmGnc)}</p></div>
-                </div>
-                <div className="mt-3"><Campo label="Costo del equipo ($)"><Num value={equipoGnc} onChange={setEquipoGnc} /></Campo></div>
-                <p className="mt-3 text-sm">
-                  Ahorrás ~{ars(g.ahorroMes)}/mes: recuperás el equipo en{" "}
-                  <strong>{Number.isFinite(g.meses) ? `${Math.ceil(g.meses)} meses` : "—"}</strong>.
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">Supone 1 m³ de GNC ≈ 1 L de nafta.</p>
-              </Card>
-            )}
-          </div>
-        </section>
-
-        <ComparadorModelos uso={{ kmAnio, vtvAnual: vtv, cochera, otros, cuota, precioNafta: precios[tipoNafta] ?? 0, precioGasoil: precios[tipoGasoil] ?? 0 }} />
-
-        {/* Patentamiento: costo único */}
-        <section>
           <Card>
-            <h2 className="text-2xl">Costo único de compra: patentamiento</h2>
+            <h2 className="text-xl">Costo único de compra: patentamiento</h2>
             <p className="mt-1 text-sm text-muted-foreground">No entra en el costo mensual ni por km.</p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <Campo label="Provincia">
                 <select className={inputCls} value={provincia} onChange={(e) => setProvincia(e.target.value)}>
                   {SELLOS.map((s) => <option key={s.provincia}>{s.provincia}</option>)}
@@ -378,7 +331,52 @@ function Index() {
             </dl>
             <p className="mt-2 text-xs text-muted-foreground">Alícuotas de sellos según fuente de {SELLOS[0]?.fecha}: verificar vigencia. El Formulario 01 cuesta $24.070 (nacional/Mercosur) o $43.370 (importado, México incluido).</p>
           </Card>
+
+            <Card>
+              <h3 className="mb-2 text-xl">Desglose anual (promedio)</h3>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={torta} dataKey="value" nameKey="name" innerRadius={50} outerRadius={90} paddingAngle={2}>
+                      {torta.map((d) => <Cell key={d.name} fill={COLORES[Object.keys(r.rubros).indexOf(d.name)]} />)}
+                    </Pie>
+                    <Tooltip formatter={(v: number) => ars(v)} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <ul className="space-y-1 text-sm">
+                {Object.entries(r.rubros).map(([k, [a, b]], i) => (
+                  <li key={k} className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <span className="h-2.5 w-2.5 rounded-full" style={{ background: COLORES[i] }} />{k}
+                      {(k === "Seguro" || (k === "Patente" && patenteEstimada) || (k === "Service" && modelo?.serviceEstimado)) && <Estimado />}
+                    </span>
+                    <span className="tabular-nums text-muted-foreground">{a === b ? ars(a) : `${ars(a)} – ${ars(b)}`}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+
+          </div>
         </section>
+
+        <ComparadorModelos uso={{ kmAnio, vtvAnual: vtv, cochera, otros, cuota, precioNafta: precios[tipoNafta] ?? 0, precioGasoil: precios[tipoGasoil] ?? 0 }} />
+
+            {g && (
+              <Card>
+                <h3 className="text-xl">¿Y a GNC?</h3>
+                <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                  <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Nafta / km</p><p className="font-bold">{ars(g.kmNafta)}</p></div>
+                  <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">GNC / km</p><p className="font-bold">{ars(g.kmGnc)}</p></div>
+                </div>
+                <div className="mt-3"><Campo label="Costo del equipo ($)"><Num value={equipoGnc} onChange={setEquipoGnc} /></Campo></div>
+                <p className="mt-3 text-sm">
+                  Ahorrás ~{ars(g.ahorroMes)}/mes: recuperás el equipo en{" "}
+                  <strong>{Number.isFinite(g.meses) ? `${Math.ceil(g.meses)} meses` : "—"}</strong>.
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">Supone 1 m³ de GNC ≈ 1 L de nafta.</p>
+              </Card>
+            )}
 
         {/* 3. Precios de referencia */}
         <section>
