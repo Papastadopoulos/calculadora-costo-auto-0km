@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, type ReactNode } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { Button } from "@/components/ui/button";
+import { ComparadorModelos } from "@/components/comparador-modelos";
 import {
   MODELOS, COMBUSTIBLES, SELLOS, VTV_REF, EQUIPO_GNC_DEFAULT,
-  ars, calcular, patentamiento, gnc, type Combustible, type Origen,
+  ars, calcular, patentamiento, gnc, estimarPatenteArba, type Combustible, type Origen,
 } from "@/lib/costos";
 
 const TITLE = "¿Cuánto cuesta mantener un auto en Argentina? | Calculadora de costo por km";
@@ -88,7 +90,8 @@ const FECHA_PRECIOS = COMBUSTIBLES[0]?.fecha ?? "2026-10";
 /* ---------- Página ---------- */
 
 function Index() {
-  const inicial = MODELOS[0]!;
+  const inicial = MODELOS[0];
+  if (!inicial) throw new Error("No hay modelos disponibles");
   const [modeloId, setModeloId] = useState(inicial.id);
   const [version, setVersion] = useState(inicial.version);
   const [combustible, setCombustible] = useState<Combustible>(inicial.combustible);
@@ -100,6 +103,7 @@ function Index() {
   const [serviceMax, setServiceMax] = useState(inicial.serviceMax);
   const [intervaloKm, setIntervaloKm] = useState(inicial.intervaloKm);
   const [patente, setPatente] = useState(0);
+  const [patenteEstimada, setPatenteEstimada] = useState(false);
   const [patenteFrec, setPatenteFrec] = useState<"mensual" | "bimestral">("bimestral");
   const [vtvJur, setVtvJur] = useState<"PBA" | "CABA">("PBA");
   const [vtv, setVtv] = useState(VTV_REF.PBA);
@@ -241,12 +245,22 @@ function Index() {
                 {modelo?.serviceEstimado && (
                   <Campo label="Service cada (km)"><Num value={intervaloKm} step={1000} onChange={setIntervaloKm} /></Campo>
                 )}
-                <Campo label="Patente ($)" nota="Cargá el monto de tu boleta (en PBA, según tabla ARBA 2026).">
-                  <div className="flex gap-2">
-                    <Num value={patente} onChange={setPatente} />
-                    <select className={`${inputCls} w-36`} value={patenteFrec} onChange={(e) => setPatenteFrec(e.target.value as typeof patenteFrec)}>
-                      <option value="mensual">mensual</option><option value="bimestral">bimestral</option>
-                    </select>
+                <Campo label="Patente ($)" nota={<>ARBA 2026 (PBA): el precio 0km aproxima la valuación fiscal. El monto queda editable.{patenteEstimada && <> Estimación anual: {ars(patente * (patenteFrec === "mensual" ? 12 : 6))}.</>}</>}>
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <div className="min-w-0 flex-1"><Num value={patente} onChange={(n) => { setPatente(n); setPatenteEstimada(false); }} /></div>
+                      <select aria-label="Frecuencia de patente" className={`${inputCls.replace("w-full", "w-28")} shrink-0`} value={patenteFrec} onChange={(e) => {
+                        const frecuencia = e.target.value as typeof patenteFrec;
+                        if (patenteEstimada) setPatente(patente * (patenteFrec === "mensual" ? 12 : 6) / (frecuencia === "mensual" ? 12 : 6));
+                        setPatenteFrec(frecuencia);
+                      }}>
+                        <option value="mensual">mensual</option><option value="bimestral">bimestral</option>
+                      </select>
+                    </div>
+                    <Button type="button" variant="outline" size="sm" onClick={() => {
+                      setPatente(estimarPatenteArba(precio0km) / (patenteFrec === "mensual" ? 12 : 6));
+                      setPatenteEstimada(true);
+                    }}>Estimar</Button>
                   </div>
                 </Campo>
                 <Campo label="VTV anual ($)" nota="Referencia oct-2026, editable.">
@@ -332,6 +346,8 @@ function Index() {
             )}
           </div>
         </section>
+
+        <ComparadorModelos uso={{ kmAnio, vtvAnual: vtv, cochera, otros, cuota, precioNafta: precios[tipoNafta] ?? 0, precioGasoil: precios[tipoGasoil] ?? 0 }} />
 
         {/* Patentamiento: costo único */}
         <section>

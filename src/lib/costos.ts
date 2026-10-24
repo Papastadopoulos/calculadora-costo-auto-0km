@@ -151,6 +151,40 @@ export function calcular(e: Entradas) {
   };
 }
 
+/** Impuesto automotor anual ARBA 2026; el precio 0km aproxima la valuación fiscal. */
+export function estimarPatenteArba(valuacion: number) {
+  if (!Number.isFinite(valuacion) || valuacion <= 0) return 0;
+  if (valuacion <= 14_100_000) return valuacion * 0.01;
+  if (valuacion <= 18_700_000) return 141_000 + (valuacion - 14_100_000) * 0.02;
+  if (valuacion <= 26_100_000) return 233_000 + (valuacion - 18_700_000) * 0.03;
+  if (valuacion <= 53_900_000) return 455_000 + (valuacion - 26_100_000) * 0.04;
+  return 1_567_000 + (valuacion - 53_900_000) * 0.045;
+}
+
+export type UsoComparador = Pick<Entradas, "kmAnio" | "vtvAnual" | "cochera" | "otros" | "cuota"> & {
+  precioNafta: number;
+  precioGasoil: number;
+};
+
+/** Ambos modelos usan los mismos gastos comunes y sus propios valores de referencia. */
+export function calcularModeloComparado(modelo: Modelo, uso: UsoComparador) {
+  return calcular({
+    ...uso,
+    consumo: modelo.consumo,
+    precioLitro: modelo.combustible === "diésel" ? uso.precioGasoil : uso.precioNafta,
+    seguroMin: modelo.seguroMin, seguroMax: modelo.seguroMax,
+    serviceMin: modelo.serviceMin, serviceMax: modelo.serviceMax, intervaloKm: modelo.intervaloKm,
+    patente: estimarPatenteArba(modelo.precio0km) / 12, patenteFrecuencia: "mensual",
+  });
+}
+
+/** Rangos solapados se comparan por su promedio, no como un ahorro garantizado. */
+export function masBarato(a: readonly [number, number], b: readonly [number, number]): "a" | "b" | null {
+  const diferencia = (a[0] + a[1]) - (b[0] + b[1]);
+  if (Math.abs(diferencia) < 0.000001) return null;
+  return diferencia < 0 ? "a" : "b";
+}
+
 export type Origen = "nacional" | "mexico" | "importado";
 
 /** Formulario 01: $24.070 nacional/Mercosur vs $43.370 importado (México incluido). Fuente: elcerokm nov-2025. */
