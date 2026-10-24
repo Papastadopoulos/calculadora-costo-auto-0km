@@ -60,7 +60,7 @@ describe("patente ARBA 2026", () => {
   it("conserva el costo anual al prorratear por mes o bimestre", () => {
     const base = { kmAnio: 15000, consumo: 0, precioLitro: 0, seguroMin: 0, seguroMax: 0, serviceMin: 0, serviceMax: 0, intervaloKm: 10000, vtvAnual: 0, cochera: 0, otros: 0, cuota: 0 };
     const anual = estimarPatenteArba(42_870_000);
-    expect(calcular({ ...base, patente: anual / 6, patenteFrecuencia: "bimestral" }).rubros.Patente).toEqual([1_125_800, 1_125_800]);
+    expect(calcular({ ...base, patente: anual / 6, patenteFrecuencia: "bimestral" }).rubros["Patente"]).toEqual([1_125_800, 1_125_800]);
     expect(calcular({ ...base, patente: anual / 12, patenteFrecuencia: "mensual" }).anualMin).toBe(1_125_800);
   });
 });
@@ -75,10 +75,10 @@ describe("comparador de modelos", () => {
     const b = calcularModeloComparado(hilux, uso);
     expect(a.rubros.Combustible[0]).toBeCloseTo(2_610_000);
     expect(b.rubros.Combustible[0]).toBeCloseTo(1_777_500);
-    expect(a.rubros.Seguro).toEqual([1_020_000, 1_710_000]);
-    expect(a.rubros.Service).toEqual([651_000, 651_000]);
-    expect(a.rubros.Patente[0]).toBe(1_125_800);
-    expect(a.rubros.Otros).toEqual(b.rubros.Otros);
+    expect(a.rubros["Seguro"]).toEqual([1_020_000, 1_710_000]);
+    expect(a.rubros["Service"]).toEqual([651_000, 651_000]);
+    expect(a.rubros["Patente"]?.[0]).toBe(1_125_800);
+    expect(a.rubros["Otros"]).toEqual(b.rubros["Otros"]);
     expect(a.kmMin).toBe(a.anualMin / 15000);
     expect(a.mensualMax).toBe(a.anualMax / 12);
   });
