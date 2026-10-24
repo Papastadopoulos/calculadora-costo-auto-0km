@@ -151,11 +151,17 @@ export function calcular(e: Entradas) {
   };
 }
 
-/** Patentamiento: arancel 1% (0,8% digital) + sellos provinciales. */
-export function patentamiento(valor: number, sellosPct: number, digital: boolean) {
+export type Origen = "nacional" | "mexico" | "importado";
+
+/** Formulario 01: $24.070 nacional/Mercosur vs $43.370 importado (México incluido). Fuente: elcerokm nov-2025. */
+const FORMULARIO_01: Record<Origen, number> = { nacional: 24070, mexico: 43370, importado: 43370 };
+
+/** Patentamiento: arancel 1% (0,8% digital) + sellos provinciales + Formulario 01 según origen. */
+export function patentamiento(valor: number, sellosPct: number, digital: boolean, origen: Origen = "nacional") {
   const arancel = valor * (digital ? 0.008 : 0.01);
   const sellos = valor * (sellosPct / 100);
-  return { arancel, sellos, total: arancel + sellos };
+  const formulario = FORMULARIO_01[origen] ?? FORMULARIO_01.nacional;
+  return { arancel, sellos, formulario, total: arancel + sellos + formulario };
 }
 
 /** GNC: m³ ≈ litros de nafta (equivalencia 1:1 simplificada). */
