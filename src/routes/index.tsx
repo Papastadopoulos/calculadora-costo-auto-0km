@@ -248,8 +248,8 @@ function Index() {
                 <Campo label="Patente ($)" nota={<>ARBA 2026 (PBA): el precio 0km aproxima la valuación fiscal. El monto queda editable.{patenteEstimada && <> Estimación anual: {ars(patente * (patenteFrec === "mensual" ? 12 : 6))}.</>}</>}>
                   <div className="space-y-2">
                     <div className="flex gap-2">
-                      <Num value={patente} onChange={(n) => { setPatente(n); setPatenteEstimada(false); }} />
-                      <select aria-label="Frecuencia de patente" className={`${inputCls} w-36 shrink-0`} value={patenteFrec} onChange={(e) => {
+                      <div className="min-w-0 flex-1"><Num value={patente} onChange={(n) => { setPatente(n); setPatenteEstimada(false); }} /></div>
+                      <select aria-label="Frecuencia de patente" className={`${inputCls.replace("w-full", "w-28")} shrink-0`} value={patenteFrec} onChange={(e) => {
                         const frecuencia = e.target.value as typeof patenteFrec;
                         if (patenteEstimada) setPatente(patente * (patenteFrec === "mensual" ? 12 : 6) / (frecuencia === "mensual" ? 12 : 6));
                         setPatenteFrec(frecuencia);
