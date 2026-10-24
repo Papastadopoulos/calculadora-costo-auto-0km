@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep ARBA estimation and model comparison calculations in the shared cost library so the calculator and comparator use identical formulas.
+- The comparator uses each model's reference costs and ARBA estimate with shared usage, fuel prices, VTV and extras; compare range midpoints and label ties explicitly to avoid implying guaranteed savings.
