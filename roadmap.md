@@ -1,3 +1,6 @@
 - [x] Agregar estimación editable de patente ARBA 2026.
 - [x] Agregar comparación de dos modelos con costos y rubros.
 - [x] Verificar fórmulas e interacción en la calculadora.
+- [ ] Estimar patente automáticamente con aclaración y marca ESTIMADO, conservando edición manual.
+- [ ] Reubicar patentamiento entre resultado y gráfico, y GNC antes de precios.
+- [ ] Verificar estimación, edición y orden de las secciones.
