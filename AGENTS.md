@@ -10,4 +10,5 @@
 <!-- LOVABLE:END -->
 
 - Keep ARBA estimation and model comparison calculations in the shared cost library so the calculator and comparator use identical formulas.
+- Derive the calculator's default patente from the current 0km price and frequency, using a nullable manual override reset on model selection; this keeps estimates current without overwriting user edits.
 - The comparator uses each model's reference costs and ARBA estimate with shared usage, fuel prices, VTV and extras; compare range midpoints and label ties explicitly to avoid implying guaranteed savings.
