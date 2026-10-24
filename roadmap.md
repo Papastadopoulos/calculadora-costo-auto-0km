@@ -1,0 +1,3 @@
+- [ ] Agregar estimación editable de patente ARBA 2026.
+- [ ] Agregar comparación de dos modelos con costos y rubros.
+- [ ] Verificar fórmulas e interacción en la calculadora.
