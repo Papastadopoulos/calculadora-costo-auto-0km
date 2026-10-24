@@ -3,7 +3,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import {
   MODELOS, COMBUSTIBLES, SELLOS, VTV_REF, EQUIPO_GNC_DEFAULT,
-  ars, calcular, patentamiento, gnc, type Combustible,
+  ars, calcular, patentamiento, gnc, type Combustible, type Origen,
 } from "@/lib/costos";
 
 const TITLE = "¿Cuánto cuesta mantener un auto en Argentina? | Calculadora de costo por km";
@@ -43,8 +43,39 @@ function Campo({ label, children, nota, est }: { label: string; children: ReactN
 
 const inputCls = "w-full rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring";
 
+/**
+ * Campo numérico sin flechitas: se tipea directo por teclado.
+ * Al enfocar se selecciona todo el valor; al salir se formatea con separador de miles.
+ * El valor mensual se usa tal cual (×1) en el total por mes; el ×12 aparece solo en el desglose anual.
+ */
 function Num({ value, onChange, step = 1 }: { value: number; onChange: (n: number) => void; step?: number }) {
-  return <input type="number" inputMode="decimal" min={0} step={step} className={inputCls} value={Number.isFinite(value) ? value : 0} onChange={(e) => onChange(Number(e.target.value) || 0)} />;
+  const decimales = step < 1 ? 1 : 0;
+  const [txt, setTxt] = useState<string | null>(null);
+  const fmt = (n: number) =>
+    (Number.isFinite(n) ? n : 0).toLocaleString("es-AR", { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
+  const parse = (s: string) => {
+    const t = s.replace(/[^\d.,]/g, "");
+    if (decimales === 0) return Number(t.replace(/\D/g, "")) || 0;
+    const lastC = t.lastIndexOf(","), lastD = t.lastIndexOf(".");
+    const norm = lastC > lastD ? t.replace(/\./g, "").replace(",", ".") : t.replace(/,/g, "");
+    const n = Number(norm);
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  };
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      autoComplete="off"
+      className={inputCls}
+      value={txt ?? fmt(value)}
+      onFocus={(e) => {
+        setTxt(String(Number.isFinite(value) ? value : 0).replace(".", ","));
+        requestAnimationFrame(() => e.target.select());
+      }}
+      onChange={(e) => { setTxt(e.target.value); onChange(parse(e.target.value)); }}
+      onBlur={() => setTxt(null)}
+    />
+  );
 }
 
 const Card = ({ children, className = "" }: { children: ReactNode; className?: string }) => (
@@ -80,7 +111,7 @@ function Index() {
   const [tipoNafta, setTipoNafta] = useState<"nafta_super" | "nafta_premium">("nafta_super");
   const [tipoGasoil, setTipoGasoil] = useState<"gasoil" | "gasoil_premium">("gasoil");
   const [provincia, setProvincia] = useState("Buenos Aires");
-  const [origen, setOrigen] = useState("nacional");
+  const [origen, setOrigen] = useState<Origen>("nacional");
   const [digital, setDigital] = useState(false);
   const [equipoGnc, setEquipoGnc] = useState(EQUIPO_GNC_DEFAULT);
   const [copiado, setCopiado] = useState(false);
@@ -106,7 +137,7 @@ function Index() {
   }), [kmAnio, consumo, precioLitro, seguroMin, seguroMax, serviceMin, serviceMax, intervaloKm, patente, patenteFrec, vtv, cochera, otros, cuota]);
 
   const sellosPct = SELLOS.find((s) => s.provincia === provincia)?.pct ?? 0;
-  const pat = patentamiento(precio0km, sellosPct, digital);
+  const pat = patentamiento(precio0km, sellosPct, digital, origen);
   const g = combustible !== "diésel" ? gnc(kmAnio, consumo, precios[tipoNafta] ?? 0, precios["gnc"] ?? 0, equipoGnc) : null;
 
   const torta = Object.entries(r.rubros)
@@ -159,7 +190,13 @@ function Index() {
                 </div>
                 <div className="sm:col-span-2">
                   <Campo label="Versión representativa">
-                    <input className={inputCls} value={modelo ? version : version} onChange={(e) => setVersion(e.target.value)} />
+                    {modelo ? (
+                      <select className={inputCls} value={version} onChange={(e) => setVersion(e.target.value)}>
+                        <option value={modelo.version}>{modelo.version}</option>
+                      </select>
+                    ) : (
+                      <input className={inputCls} value={version} onChange={(e) => setVersion(e.target.value)} placeholder="Describí la versión" />
+                    )}
                   </Campo>
                 </div>
                 <Campo label="Combustible">
@@ -308,7 +345,7 @@ function Index() {
                 </select>
               </Campo>
               <Campo label="Origen">
-                <select className={inputCls} value={origen} onChange={(e) => setOrigen(e.target.value)}>
+                <select className={inputCls} value={origen} onChange={(e) => setOrigen(e.target.value as Origen)}>
                   <option value="nacional">Nacional / Mercosur</option><option value="mexico">México</option><option value="importado">Importado</option>
                 </select>
               </Campo>
@@ -320,9 +357,10 @@ function Index() {
             <dl className="mt-5 divide-y divide-border rounded-lg border border-border text-sm">
               <div className="flex justify-between p-3"><dt>Arancel registral ({digital ? "0,8" : "1"}% de {ars(precio0km)})</dt><dd className="tabular-nums">{ars(pat.arancel)}</dd></div>
               <div className="flex justify-between p-3"><dt>Sellos {provincia} ({sellosPct.toLocaleString("es-AR")}%)</dt><dd className="tabular-nums">{ars(pat.sellos)}</dd></div>
+              <div className="flex justify-between p-3"><dt>Formulario 01 ({origen === "nacional" ? "Nacional/Mercosur" : "Importado"})</dt><dd className="tabular-nums">{ars(pat.formulario)}</dd></div>
               <div className="flex justify-between bg-muted p-3 font-bold"><dt>Total estimado</dt><dd className="tabular-nums">{ars(pat.total)}</dd></div>
             </dl>
-            <p className="mt-2 text-xs text-muted-foreground">Alícuotas de sellos según fuente de {SELLOS[0]?.fecha}: verificar vigencia. El origen puede modificar exenciones provinciales.</p>
+            <p className="mt-2 text-xs text-muted-foreground">Alícuotas de sellos según fuente de {SELLOS[0]?.fecha}: verificar vigencia. El Formulario 01 cuesta $24.070 (nacional/Mercosur) o $43.370 (importado, México incluido).</p>
           </Card>
         </section>
 
