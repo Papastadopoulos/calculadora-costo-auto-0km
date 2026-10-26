@@ -31,10 +31,12 @@ describe("patente automática editable", () => {
     const patente = abrirCalculadora();
     fireEvent.change(screen.getByLabelText("Precio 0km ($)"), { target: { value: "14100000" } });
     expect(patente).toHaveValue("23.500");
-    fireEvent.change(screen.getByLabelText("Marca", { exact: true }), { target: { value: "Peugeot" } });
-    fireEvent.change(screen.getByLabelText("Modelo", { exact: true }), { target: { value: "208" } });
-    const opcion = screen.getByRole("option", { name: "5P 1,6 ALLURE TIPT6 2026 — $43.810.000" });
-    fireEvent.change(screen.getByLabelText("Versión", { exact: true }), { target: { value: opcion.getAttribute("value") } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Marca", exact: true }), { target: { value: "Peugeot" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Modelo", exact: true }), { target: { value: "208" } });
+    const seleccion = screen.getByRole("combobox", { name: "Versión", exact: true });
+    const opcion = [...(seleccion as HTMLSelectElement).options].find((o) => o.text === "5P 1,6 ALLURE TIPT6 2026 — $43.810.000");
+    if (!opcion) throw new Error("Falta Peugeot 208");
+    fireEvent.change(seleccion, { target: { value: opcion.value } });
     expect(patente).toHaveValue("193.900");
   });
 

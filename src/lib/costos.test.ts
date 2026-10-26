@@ -74,8 +74,8 @@ describe("comparador de modelos", () => {
     if (!version) throw new Error("Falta la versión");
     const resultado = calcularModeloComparado(version, { kmAnio: 15000, precioNafta: 2000, precioGasoil: 1500, vtvAnual: 0, cochera: 0, otros: 0, cuota: 0 });
     expect(version.precio0km).toBe(35100000);
-    expect(resultado.rubros.Seguro).toEqual([840000, 1260000]);
-    expect(resultado.rubros.Patente?.[0]).toBe(815000);
+    expect(resultado.rubros["Seguro"]).toEqual([840000, 1260000]);
+    expect(resultado.rubros["Patente"]?.[0]).toBe(815000);
   });
   it("los eléctricos tienen combustible cero sin eliminar los demás costos", () => {
     const electricos = MODELOS.filter((m) => m.combustible === "eléctrico");
@@ -83,9 +83,9 @@ describe("comparador de modelos", () => {
     for (const modelo of electricos) {
       const resultado = calcularModeloComparado({ ...modelo, consumo: 100 }, { kmAnio: 15000, precioNafta: 2000, precioGasoil: 1500, vtvAnual: 114106, cochera: 0, otros: 0, cuota: 0 });
       expect(resultado.rubros.Combustible).toEqual([0, 0]);
-      expect(resultado.rubros.VTV).toEqual([114106, 114106]);
-      expect(resultado.rubros.Seguro).toEqual([modelo.seguroMin * 12, modelo.seguroMax * 12]);
-      expect(resultado.rubros.Patente?.[0]).toBe(estimarPatenteArba(modelo.precio0km));
+      expect(resultado.rubros["VTV"]).toEqual([114106, 114106]);
+      expect(resultado.rubros["Seguro"]).toEqual([modelo.seguroMin * 12, modelo.seguroMax * 12]);
+      expect(resultado.rubros["Patente"]?.[0]).toBe(estimarPatenteArba(modelo.precio0km));
     }
   });
   it("usa consumo, seguro, service y valuación propios de cada modelo", () => {

@@ -12,7 +12,7 @@ describe("cascada de versiones", () => {
   it("resetea solo el lado cambiado, busca modelos y usa la versión elegida", () => {
     render(<ComparadorModelos uso={uso} />);
     const versionB = (screen.getByLabelText("Versión Modelo B") as HTMLSelectElement).value;
-    elegir("Marca Modelo A", "Mercedes-Benz");
+    elegir("Marca Modelo A", "MERCEDES-BENZ");
     expect(screen.getByLabelText("Modelo Modelo A")).toHaveValue("");
     expect(screen.getByLabelText("Versión Modelo A")).toHaveValue("");
     expect(screen.getByLabelText("Versión Modelo B")).toHaveValue(versionB);
