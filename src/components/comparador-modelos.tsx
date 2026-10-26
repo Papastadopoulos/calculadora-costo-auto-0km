@@ -1,18 +1,18 @@
 import { useState } from "react";
-import { MODELOS, ars, calcularModeloComparado, masBarato, type UsoComparador } from "@/lib/costos";
+import { MODELOS, NOTA_ELECTRICO, ars, calcularModeloComparado, masBarato, type Modelo, type UsoComparador } from "@/lib/costos";
+import { SelectorVersion } from "@/components/selector-version";
 
-const selectCls = "w-full min-w-0 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring";
 const rango = ([min, max]: readonly [number, number]) => min === max ? ars(min) : `${ars(min)} – ${ars(max)}`;
 
 export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
-  const [idA, setIdA] = useState(MODELOS[0]?.id ?? "");
-  const [idB, setIdB] = useState(MODELOS[1]?.id ?? "");
-  const a = MODELOS.find((m) => m.id === idA);
-  const b = MODELOS.find((m) => m.id === idB);
-  if (!a || !b) return null;
-  const costoA = calcularModeloComparado(a, uso);
-  const costoB = calcularModeloComparado(b, uso);
-  const filas: { nombre: string; a: [number, number]; b: [number, number] }[] = [
+  const inicialA = MODELOS[0];
+  const inicialB = MODELOS.find((m) => m.marca !== inicialA?.marca) ?? MODELOS[1];
+  const [a, setA] = useState<Modelo | null>(inicialA ?? null);
+  const [b, setB] = useState<Modelo | null>(inicialB ?? null);
+  if (!inicialA || !inicialB) return null;
+  const costoA = a ? calcularModeloComparado(a, uso) : null;
+  const costoB = b ? calcularModeloComparado(b, uso) : null;
+  const filas: { nombre: string; a: [number, number]; b: [number, number] }[] = costoA && costoB ? [
     { nombre: "Total mensual", a: [costoA.mensualMin, costoA.mensualMax], b: [costoB.mensualMin, costoB.mensualMax] },
     { nombre: "Costo por km", a: [costoA.kmMin, costoA.kmMax], b: [costoB.kmMin, costoB.kmMax] },
     ...Object.entries(costoA.rubros).map(([nombre, valores]) => ({
@@ -20,21 +20,17 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
       a: [valores[0] / 12, valores[1] / 12] as [number, number],
       b: [(costoB.rubros[nombre]?.[0] ?? 0) / 12, (costoB.rubros[nombre]?.[1] ?? 0) / 12] as [number, number],
     })),
-  ];
+  ] : [];
 
   return (
     <section aria-labelledby="comparador-titulo" className="space-y-4">
       <h2 id="comparador-titulo" className="text-3xl">Compará dos modelos</h2>
       <div className="grid grid-cols-2 gap-4">
-        {[{ id: idA, cambiar: setIdA, modelo: a, etiqueta: "Modelo A" }, { id: idB, cambiar: setIdB, modelo: b, etiqueta: "Modelo B" }].map(({ id, cambiar, modelo, etiqueta }) => (
+        {[{ inicial: inicialA, cambiar: setA, modelo: a, etiqueta: "Modelo A" }, { inicial: inicialB, cambiar: setB, modelo: b, etiqueta: "Modelo B" }].map(({ inicial, cambiar, modelo, etiqueta }) => (
           <div key={etiqueta} className="min-w-0">
-            <label className="block text-sm font-medium">
-              <span className="mb-1 block">{etiqueta}</span>
-              <select className={selectCls} value={id} onChange={(e) => cambiar(e.target.value)}>
-                {MODELOS.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
-              </select>
-            </label>
-            <p className="mt-2 break-words text-xs text-muted-foreground">{modelo.version}</p>
+            <p className="mb-1 text-sm font-medium">{etiqueta}</p>
+            <SelectorVersion inicial={inicial} etiqueta={etiqueta} onChange={(m) => cambiar(m)} />
+            {modelo && <p className="mt-2 break-words text-xs text-muted-foreground">{modelo.version}</p>}
           </div>
         ))}
       </div>
@@ -47,11 +43,12 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
           <thead className="border-b border-border bg-muted">
             <tr>
               <th scope="col" className="w-[28%] p-3 text-left font-medium">Costo</th>
-              <th scope="col" className="p-3 text-right font-medium break-words">{a.id}</th>
-              <th scope="col" className="p-3 text-right font-medium break-words">{b.id}</th>
+              <th scope="col" className="p-3 text-right font-medium break-words">{a ? `${a.marca} ${a.modelo}` : "Modelo A"}</th>
+              <th scope="col" className="p-3 text-right font-medium break-words">{b ? `${b.marca} ${b.modelo}` : "Modelo B"}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
+            {filas.length === 0 && <tr><td colSpan={3} className="p-3 text-sm text-muted-foreground">Elegí una versión en cada lado.</td></tr>}
             {filas.map((fila) => {
               const ganador = masBarato(fila.a, fila.b);
               return (
@@ -60,6 +57,7 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
                   {(["a", "b"] as const).map((lado) => (
                     <td key={lado} className={`p-3 text-right tabular-nums break-words ${ganador === lado ? "bg-highlight text-highlight-foreground font-semibold" : "text-muted-foreground"}`}>
                       {rango(fila[lado])}
+                       {fila.nombre === "Combustible / mes" && (lado === "a" ? a : b)?.combustible === "eléctrico" && <span className="mt-1 block text-xs font-normal text-muted-foreground">{NOTA_ELECTRICO}</span>}
                       {ganador === lado && <span className="mt-1 block text-[10px] font-medium">Menor promedio</span>}
                       {ganador === null && <span className="mt-1 block text-[10px]">Igual</span>}
                     </td>

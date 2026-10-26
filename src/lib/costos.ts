@@ -34,7 +34,7 @@ export function parseCsv<K extends string = string>(text: string): Record<K, str
   return body.map((r) => Object.fromEntries(head.map((h, i) => [h.trim(), (r[i] ?? "").trim()])) as Record<K, string>);
 }
 
-export type Combustible = "nafta" | "diésel" | "híbrido";
+export type Combustible = "nafta" | "diésel" | "híbrido" | "eléctrico";
 
 export interface Modelo {
   id: string;
@@ -53,6 +53,7 @@ export interface Modelo {
   intervaloKm: number;
   primerServiceBonificado: boolean;
   fuente: string;
+  fechaActualizacion: string;
 }
 
 const toNum = (s: string) => Number(s.replace(/\./g, "")) || 0;
@@ -64,17 +65,17 @@ function intervalo(modelo: string) {
   return 10000;
 }
 
-export const MODELOS: Modelo[] = parseCsv<"marca" | "modelo" | "version" | "combustible" | "consumo_mixto_l_100km" | "precio_0km_ref_ARS" | "seguro_mensual_min_ARS" | "seguro_mensual_max_ARS" | "service_10k_ref_ARS" | "fuente">(modelosCsv).map((r) => {
+export const MODELOS: Modelo[] = parseCsv<"marca" | "modelo" | "version" | "combustible" | "consumo_mixto_l_100km" | "precio_0km_ref_ARS" | "seguro_mensual_min_ARS" | "seguro_mensual_max_ARS" | "service_10k_ref_ARS" | "fuente" | "fecha_actualizacion">(modelosCsv).map((r, indice) => {
   const fuenteService = r.fuente.split("| seguro")[0] ?? "";
   const rango = fuenteService.match(/\[ESTIMADO\]\s*\$([\d.]+)-\$([\d.]+)/);
   const service = Number(r.service_10k_ref_ARS);
   return {
-    id: `${r.marca} ${r.modelo}`,
+    id: `${r.marca} ${r.modelo} ${r.version} #${indice}`,
     marca: r.marca,
     modelo: r.modelo,
     version: r.version,
     combustible: r.combustible as Combustible,
-    consumo: Number(r.consumo_mixto_l_100km),
+    consumo: r.combustible === "eléctrico" ? 0 : Number(r.consumo_mixto_l_100km),
     precio0km: Number(r.precio_0km_ref_ARS),
     seguroMin: Number(r.seguro_mensual_min_ARS),
     seguroMax: Number(r.seguro_mensual_max_ARS),
@@ -85,8 +86,15 @@ export const MODELOS: Modelo[] = parseCsv<"marca" | "modelo" | "version" | "comb
     intervaloKm: intervalo(r.modelo),
     primerServiceBonificado: r.modelo === "Nivus" || r.modelo === "Amarok",
     fuente: r.fuente,
+    fechaActualizacion: r.fecha_actualizacion,
   };
 });
+
+const alfabetico = (a: string, b: string) => a.localeCompare(b, "es-AR");
+export const MARCAS = [...new Set(MODELOS.map((m) => m.marca))].sort(alfabetico);
+export const modelosDeMarca = (marca: string) => [...new Set(MODELOS.filter((m) => m.marca === marca).map((m) => m.modelo))].sort(alfabetico);
+export const versionesDeModelo = (marca: string, modelo: string) => MODELOS.filter((m) => m.marca === marca && m.modelo === modelo).sort((a, b) => alfabetico(a.version, b.version));
+export const NOTA_ELECTRICO = "Costo de carga eléctrica no incluido: varía según la tarifa, el tipo de carga y el uso de cada persona, por lo que no es calculable de forma única.";
 
 export interface PrecioCombustible { clave: string; nombre: string; precio: number; unidad: string; fecha: string; fuente: string }
 const NOMBRES: Record<string, string> = {
@@ -170,8 +178,8 @@ export type UsoComparador = Pick<Entradas, "kmAnio" | "vtvAnual" | "cochera" | "
 export function calcularModeloComparado(modelo: Modelo, uso: UsoComparador) {
   return calcular({
     ...uso,
-    consumo: modelo.consumo,
-    precioLitro: modelo.combustible === "diésel" ? uso.precioGasoil : uso.precioNafta,
+    consumo: modelo.combustible === "eléctrico" ? 0 : modelo.consumo,
+    precioLitro: modelo.combustible === "eléctrico" ? 0 : modelo.combustible === "diésel" ? uso.precioGasoil : uso.precioNafta,
     seguroMin: modelo.seguroMin, seguroMax: modelo.seguroMax,
     serviceMin: modelo.serviceMin, serviceMax: modelo.serviceMax, intervaloKm: modelo.intervaloKm,
     patente: estimarPatenteArba(modelo.precio0km) / 12, patenteFrecuencia: "mensual",

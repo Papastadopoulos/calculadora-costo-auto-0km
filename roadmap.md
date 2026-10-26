@@ -4,3 +4,6 @@
 - [x] Estimar patente automáticamente con aclaración y marca ESTIMADO, conservando edición manual.
 - [x] Reubicar patentamiento entre resultado y gráfico, y GNC antes de precios.
 - [x] Verificar estimación, edición y orden de las secciones.
+- [ ] Incorporar la matriz y cascada compartida en calculadora y comparador.
+- [ ] Aplicar combustible cero y aclaraciones para eléctricos.
+- [ ] Verificar versiones, reinicios independientes y cálculos.
