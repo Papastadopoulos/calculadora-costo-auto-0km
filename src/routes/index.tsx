@@ -2,9 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, type ReactNode } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { ComparadorModelos } from "@/components/comparador-modelos";
+import { SelectorVersion } from "@/components/selector-version";
 import {
   MODELOS, COMBUSTIBLES, SELLOS, VTV_REF, EQUIPO_GNC_DEFAULT,
-  ars, calcular, patentamiento, gnc, estimarPatenteArba, type Combustible, type Origen,
+  ars, calcular, patentamiento, gnc, estimarPatenteArba, NOTA_ELECTRICO, type Modelo, type Combustible, type Origen,
 } from "@/lib/costos";
 
 const TITLE = "¿Cuánto te va a costar tu próximo auto? | Calculadora de costo por km";
@@ -121,10 +122,15 @@ function Index() {
   const modelo = MODELOS.find((m) => m.id === modeloId);
 
   /** Al elegir modelo, autocompleta desde el CSV (todo queda editable). */
-  function elegirModelo(id: string) {
-    setModeloId(id);
-    const m = MODELOS.find((x) => x.id === id);
-    if (!m) { setIntervaloKm(10000); return; }
+  function elegirModelo(m: Modelo | null, manual: boolean) {
+    setModeloId(m?.id ?? (manual ? "otro" : ""));
+    setPatenteManual(null);
+    if (!m) {
+      if (!manual) {
+        setVersion(""); setConsumo(0); setPrecio0km(0); setSeguroMin(0); setSeguroMax(0); setServiceMin(0); setServiceMax(0);
+      }
+      setIntervaloKm(10000); return;
+    }
     setVersion(m.version); setCombustible(m.combustible); setConsumo(m.consumo);
     setPatenteManual(null);
     setPrecio0km(m.precio0km); setSeguroMin(m.seguroMin); setSeguroMax(m.seguroMax);
@@ -136,16 +142,17 @@ function Index() {
   const patente = patenteManual ?? patenteAnualEstimada / (patenteFrec === "mensual" ? 12 : 6);
 
   const claveComb = combustible === "diésel" ? tipoGasoil : tipoNafta;
-  const precioLitro = precios[claveComb] ?? 0;
+  const precioLitro = combustible === "eléctrico" ? 0 : precios[claveComb] ?? 0;
+  const consumoCalculado = combustible === "eléctrico" ? 0 : consumo;
 
   const r = useMemo(() => calcular({
-    kmAnio, consumo, precioLitro, seguroMin, seguroMax, serviceMin, serviceMax, intervaloKm,
+    kmAnio, consumo: consumoCalculado, precioLitro, seguroMin, seguroMax, serviceMin, serviceMax, intervaloKm,
     patente, patenteFrecuencia: patenteFrec, vtvAnual: vtv, cochera, otros, cuota,
-  }), [kmAnio, consumo, precioLitro, seguroMin, seguroMax, serviceMin, serviceMax, intervaloKm, patente, patenteFrec, vtv, cochera, otros, cuota]);
+  }), [kmAnio, consumoCalculado, precioLitro, seguroMin, seguroMax, serviceMin, serviceMax, intervaloKm, patente, patenteFrec, vtv, cochera, otros, cuota]);
 
   const sellosPct = SELLOS.find((s) => s.provincia === provincia)?.pct ?? 0;
   const pat = patentamiento(precio0km, sellosPct, digital, origen);
-  const g = combustible !== "diésel" ? gnc(kmAnio, consumo, precios[tipoNafta] ?? 0, precios["gnc"] ?? 0, equipoGnc) : null;
+  const g = combustible !== "diésel" && combustible !== "eléctrico" ? gnc(kmAnio, consumo, precios[tipoNafta] ?? 0, precios["gnc"] ?? 0, equipoGnc) : null;
 
   const torta = Object.entries(r.rubros)
     .map(([name, [a, b]]) => ({ name, value: (a + b) / 2 }))
@@ -188,30 +195,19 @@ function Index() {
               <h2 className="mb-4 text-2xl">Tu auto</h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <Campo label="Modelo">
-                    <select className={inputCls} value={modeloId} onChange={(e) => elegirModelo(e.target.value)}>
-                      {MODELOS.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
-                      <option value="otro">Otro (manual)</option>
-                    </select>
-                  </Campo>
+                  <SelectorVersion inicial={inicial} manual onChange={elegirModelo} />
                 </div>
-                <div className="sm:col-span-2">
-                  <Campo label="Versión representativa">
-                    {modelo ? (
-                      <select className={inputCls} value={version} onChange={(e) => setVersion(e.target.value)}>
-                        <option value={modelo.version}>{modelo.version}</option>
-                      </select>
-                    ) : (
+                {modeloId === "otro" && <div className="sm:col-span-2">
+                  <Campo label="Versión">
                       <input className={inputCls} value={version} onChange={(e) => setVersion(e.target.value)} placeholder="Describí la versión" />
-                    )}
                   </Campo>
-                </div>
+                </div>}
                 <Campo label="Combustible">
                   <select className={inputCls} value={combustible} onChange={(e) => setCombustible(e.target.value as Combustible)}>
-                    <option value="nafta">Nafta</option><option value="diésel">Diésel</option><option value="híbrido">Híbrido</option>
+                    <option value="nafta">Nafta</option><option value="diésel">Diésel</option><option value="híbrido">Híbrido</option><option value="eléctrico">Eléctrico</option>
                   </select>
                 </Campo>
-                <Campo label={combustible === "diésel" ? "Tipo de gasoil" : "Tipo de nafta"}>
+                {combustible !== "eléctrico" && <Campo label={combustible === "diésel" ? "Tipo de gasoil" : "Tipo de nafta"}>
                   {combustible === "diésel" ? (
                     <select className={inputCls} value={tipoGasoil} onChange={(e) => setTipoGasoil(e.target.value as typeof tipoGasoil)}>
                       <option value="gasoil">Gasoil</option><option value="gasoil_premium">Gasoil premium</option>
@@ -221,9 +217,9 @@ function Index() {
                       <option value="nafta_super">Súper</option><option value="nafta_premium">Premium</option>
                     </select>
                   )}
-                </Campo>
+                </Campo>}
                 <Campo label="Consumo (L/100 km)" nota="Homologado IRAM/AITA">
-                  <Num value={consumo} step={0.1} onChange={setConsumo} />
+                  <Num value={consumoCalculado} step={0.1} onChange={setConsumo} />
                 </Campo>
                 <Campo label="Precio 0km ($)"><Num value={precio0km} onChange={setPrecio0km} /></Campo>
               </div>
@@ -355,6 +351,7 @@ function Index() {
                   </li>
                 ))}
               </ul>
+              {combustible === "eléctrico" && <p className="mt-2 text-xs text-muted-foreground">{NOTA_ELECTRICO}</p>}
             </Card>
 
           </div>
@@ -408,6 +405,9 @@ function Index() {
             <li><strong>Seguro</strong> <Estimado />: rango orientativo de terceros completo, con una regla calibrada con cotizaciones de prensa (se recotiza cada trimestre).</li>
             <li><strong>Patente, VTV, cochera, cuota y otros</strong>: pasados a valor anual.</li>
             <li><strong>Rango total</strong>: el mínimo suma todos los mínimos; el máximo suma todos los máximos. El costo por km es ese total dividido por los km anuales.</li>
+            <li>Los valores de precio, consumo, seguro y service corresponden a la versión elegida: cada versión tiene sus propios datos.</li>
+            <li>Autos eléctricos: el consumo de combustible es 0 y no se pondera. El costo de la carga eléctrica no está incluido en el resultado porque varía según la tarifa, el tipo de carga y el uso de cada persona.</li>
+            <li>Datos de referencia: octubre 2026.</li>
           </ul>
           <p className="text-xs text-muted-foreground">
             Fuentes: consumo homologado IRAM/AITA (etiqueta oficial); service de concesionario oficial o estimado anclado en hermano de marca; combustibles según datos oficiales Res. 314/2016; seguro con regla calibrada (recotización trimestral).
