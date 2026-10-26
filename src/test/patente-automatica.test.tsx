@@ -31,7 +31,10 @@ describe("patente automática editable", () => {
     const patente = abrirCalculadora();
     fireEvent.change(screen.getByLabelText("Precio 0km ($)"), { target: { value: "14100000" } });
     expect(patente).toHaveValue("23.500");
-    fireEvent.change(screen.getByLabelText("Modelo", { exact: true }), { target: { value: "Peugeot 208" } });
+    fireEvent.change(screen.getByLabelText("Marca", { exact: true }), { target: { value: "Peugeot" } });
+    fireEvent.change(screen.getByLabelText("Modelo", { exact: true }), { target: { value: "208" } });
+    const opcion = screen.getByRole("option", { name: "5P 1,6 ALLURE TIPT6 2026 — $43.810.000" });
+    fireEvent.change(screen.getByLabelText("Versión", { exact: true }), { target: { value: opcion.getAttribute("value") } });
     expect(patente).toHaveValue("193.900");
   });
 

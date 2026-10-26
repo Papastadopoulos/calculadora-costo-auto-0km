@@ -1,9 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { MODELOS, COMBUSTIBLES, SELLOS, calcular, patentamiento, estimarPatenteArba, calcularModeloComparado, masBarato } from "./costos";
+import { MODELOS, MARCAS, modelosDeMarca, versionesDeModelo, COMBUSTIBLES, SELLOS, calcular, patentamiento, estimarPatenteArba, calcularModeloComparado, masBarato } from "./costos";
 
 describe("costos", () => {
-  it("carga 22 modelos y 24 provincias", () => {
-    expect(MODELOS).toHaveLength(22);
+  it("carga 754 versiones, 67 marcas, 311 modelos y 24 provincias", () => {
+    expect(MODELOS).toHaveLength(754);
+    expect(MARCAS).toHaveLength(67);
+    expect(MARCAS.reduce((total, marca) => total + modelosDeMarca(marca).length, 0)).toBe(311);
+    expect(new Set(MODELOS.map((m) => m.id)).size).toBe(754);
     expect(SELLOS).toHaveLength(24);
     expect(COMBUSTIBLES.find((c) => c.clave === "gnc")?.precio).toBe(680);
   });
@@ -66,6 +69,25 @@ describe("patente ARBA 2026", () => {
 });
 
 describe("comparador de modelos", () => {
+  it("calcula la fila de la versión elegida y no otra del mismo modelo", () => {
+    const version = versionesDeModelo("Fiat", "Cronos").find((m) => m.version === "4P 1,3 LIKE GSE 2025");
+    if (!version) throw new Error("Falta la versión");
+    const resultado = calcularModeloComparado(version, { kmAnio: 15000, precioNafta: 2000, precioGasoil: 1500, vtvAnual: 0, cochera: 0, otros: 0, cuota: 0 });
+    expect(version.precio0km).toBe(35100000);
+    expect(resultado.rubros.Seguro).toEqual([840000, 1260000]);
+    expect(resultado.rubros.Patente?.[0]).toBe(815000);
+  });
+  it("los eléctricos tienen combustible cero sin eliminar los demás costos", () => {
+    const electricos = MODELOS.filter((m) => m.combustible === "eléctrico");
+    expect(electricos).toHaveLength(28);
+    for (const modelo of electricos) {
+      const resultado = calcularModeloComparado({ ...modelo, consumo: 100 }, { kmAnio: 15000, precioNafta: 2000, precioGasoil: 1500, vtvAnual: 114106, cochera: 0, otros: 0, cuota: 0 });
+      expect(resultado.rubros.Combustible).toEqual([0, 0]);
+      expect(resultado.rubros.VTV).toEqual([114106, 114106]);
+      expect(resultado.rubros.Seguro).toEqual([modelo.seguroMin * 12, modelo.seguroMax * 12]);
+      expect(resultado.rubros.Patente?.[0]).toBe(estimarPatenteArba(modelo.precio0km));
+    }
+  });
   it("usa consumo, seguro, service y valuación propios de cada modelo", () => {
     const cronos = MODELOS.find((m) => m.modelo === "Cronos");
     const hilux = MODELOS.find((m) => m.modelo === "Hilux");
