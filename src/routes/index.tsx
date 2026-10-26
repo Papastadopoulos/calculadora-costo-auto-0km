@@ -7,7 +7,7 @@ import {
   ars, calcular, patentamiento, gnc, estimarPatenteArba, type Combustible, type Origen,
 } from "@/lib/costos";
 
-const TITLE = "¿Cuánto cuesta mantener un auto en Argentina? | Calculadora de costo por km";
+const TITLE = "¿Cuánto te va a costar tu próximo auto? | Calculadora de costo por km";
 const DESC = "Calculá el costo real de tu auto: combustible, seguro, patente, VTV, service y más. Precios de referencia octubre 2026.";
 
 export const Route = createFileRoute("/")({
@@ -154,7 +154,7 @@ function Index() {
   const nombreAuto = modelo ? `${modelo.marca} ${modelo.modelo}` : "mi auto";
 
   function compartir() {
-    const txt = `Mantener ${nombreAuto} me sale entre ${ars(r.mensualMin)} y ${ars(r.mensualMax)} por mes (${ars(r.anualMin)}–${ars(r.anualMax)} al año), o sea ${ars(r.kmMin)}–${ars(r.kmMax)} por km, manejando ${kmAnio.toLocaleString("es-AR")} km/año. Calculado con "¿Cuánto cuesta tu auto?" (precios de referencia oct-2026).`;
+    const txt = `Mantener ${nombreAuto} me sale entre ${ars(r.mensualMin)} y ${ars(r.mensualMax)} por mes (${ars(r.anualMin)}–${ars(r.anualMax)} al año), o sea ${ars(r.kmMin)}–${ars(r.kmMax)} por km, manejando ${kmAnio.toLocaleString("es-AR")} km/año. Calculado con "¿Cuánto te va a costar tu próximo auto?" (precios de referencia oct-2026).`;
     navigator.clipboard?.writeText(txt).then(() => { setCopiado(true); setTimeout(() => setCopiado(false), 2500); });
   }
 
@@ -167,10 +167,10 @@ function Index() {
             <span>Costo real · Argentina</span>
             <span className="text-muted-foreground">Ref. octubre 2026</span>
           </div>
-          <h1 className="mt-10 text-5xl leading-[0.95] md:text-8xl">¿Cuánto cuesta<br /><em className="text-accent">tu auto?</em></h1>
+          <h1 className="mt-10 text-5xl leading-[0.95] md:text-8xl">¿Cuánto te va a costar<br /><em className="text-accent">tu próximo auto?</em></h1>
           <div className="mt-8 grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
             <p className="max-w-lg text-lg text-muted-foreground">
-              Descubrí cuánto te sale cada kilómetro que manejás: combustible, seguro, patente, VTV, service y más.
+              Antes de comprar tu 0km, descubrí cuánto te va a costar cada kilómetro: combustible, seguro, patente, VTV, service y más.
             </p>
             <a href="#calculadora" className="inline-flex w-fit border-b-2 border-accent pb-1 font-medium transition hover:text-accent">
               Ir a la calculadora ↓
