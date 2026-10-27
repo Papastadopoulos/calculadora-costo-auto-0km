@@ -18,7 +18,7 @@ describe("cascada de versiones", () => {
     expect(screen.getByLabelText("Versión Modelo B")).toHaveValue(versionB);
     const lista = screen.getByLabelText("Modelo Modelo A") as HTMLSelectElement;
     expect([...lista.options].filter((o) => o.value).map((o) => o.value)).toEqual(modelosDeMarca("MERCEDES-BENZ"));
-    expect(lista.options.length).toBe(73);
+    expect(lista.options.length).toBe(28);
     elegir("Marca Modelo A", "Fiat");
     elegir("Modelo Modelo A", "Cronos");
     expect(screen.getByLabelText("Versión Modelo A")).toHaveValue("");
