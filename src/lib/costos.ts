@@ -65,13 +65,17 @@ function intervalo(modelo: string) {
   return 10000;
 }
 
-export const MODELOS: Modelo[] = parseCsv<"marca" | "modelo" | "version" | "combustible" | "consumo_mixto_l_100km" | "precio_0km_ref_ARS" | "seguro_mensual_min_ARS" | "seguro_mensual_max_ARS" | "service_10k_ref_ARS" | "fuente" | "fecha_actualizacion">(modelosCsv).map((r, indice) => {
+const filasModelos = parseCsv<"marca" | "modelo" | "version" | "combustible" | "consumo_mixto_l_100km" | "precio_0km_ref_ARS" | "seguro_mensual_min_ARS" | "seguro_mensual_max_ARS" | "service_10k_ref_ARS" | "fuente" | "fecha_actualizacion">(modelosCsv);
+// Conservar el nombre existente con inicial mayúscula cuando también hay filas en mayúsculas.
+const nombresMarcas = new Map(filasModelos.filter((r) => r.marca !== r.marca.toUpperCase()).map((r) => [r.marca.toLocaleLowerCase("es-AR"), r.marca]));
+
+export const MODELOS: Modelo[] = filasModelos.map((r, indice) => {
   const fuenteService = r.fuente.split("| seguro")[0] ?? "";
   const rango = fuenteService.match(/\[ESTIMADO\]\s*\$([\d.]+)-\$([\d.]+)/);
   const service = Number(r.service_10k_ref_ARS);
   return {
     id: `${r.marca} ${r.modelo} ${r.version} #${indice}`,
-    marca: r.marca,
+    marca: nombresMarcas.get(r.marca.toLocaleLowerCase("es-AR")) ?? r.marca,
     modelo: r.modelo,
     version: r.version,
     combustible: r.combustible as Combustible,

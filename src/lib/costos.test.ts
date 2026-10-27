@@ -9,7 +9,8 @@ describe("costos", () => {
     filas.forEach((fila, i) => {
       const modelo = MODELOS[i];
       if (!modelo) throw new Error(`Falta fila ${i}`);
-      expect(modelo.marca).toBe(fila["marca"]);
+      const marca = filas.find((f) => f["marca"]?.toLowerCase() === fila["marca"]?.toLowerCase() && f["marca"] !== f["marca"]?.toUpperCase())?.["marca"] ?? fila["marca"];
+      expect(modelo.marca).toBe(marca);
       expect(modelo.modelo).toBe(fila["modelo"]);
       expect(modelo.version).toBe(fila["version"]);
       expect(modelo.combustible).toBe(fila["combustible"]);
@@ -23,13 +24,23 @@ describe("costos", () => {
       expect(versionesDeModelo(modelo.marca, modelo.modelo).some((m) => m.id === modelo.id)).toBe(true);
     });
   });
-  it("carga 754 versiones, 67 marcas, 311 modelos y 24 provincias", () => {
+  it("carga 754 versiones, 54 marcas unificadas, 311 modelos y 24 provincias", () => {
     expect(MODELOS).toHaveLength(754);
-    expect(MARCAS).toHaveLength(67);
+    expect(MARCAS).toHaveLength(54);
     expect(MARCAS.reduce((total, marca) => total + modelosDeMarca(marca).length, 0)).toBe(311);
     expect(new Set(MODELOS.map((m) => m.id)).size).toBe(754);
     expect(SELLOS).toHaveLength(24);
     expect(COMBUSTIBLES.find((c) => c.clave === "gnc")?.precio).toBe(680);
+  });
+  it.each(["Fiat", "Peugeot", "Chevrolet", "Volkswagen", "Toyota", "Renault", "Nissan", "Ford", "Jeep", "Honda", "Hyundai", "Kia", "Chery"])("reúne todas las filas de %s sin duplicar su marca", (marca) => {
+    const filas = parseCsv(matrizCsv).filter((f) => f["marca"]?.toLowerCase() === marca.toLowerCase());
+    expect(MARCAS).toContain(marca);
+    expect(MARCAS).not.toContain(marca.toUpperCase());
+    expect(MODELOS.filter((m) => m.marca === marca)).toHaveLength(filas.length);
+    expect(modelosDeMarca(marca)).toEqual([...new Set(filas.map((f) => f["modelo"]))].sort((a, b) => (a ?? "").localeCompare(b ?? "", "es-AR")));
+    for (const fila of filas) {
+      expect(versionesDeModelo(marca, fila["modelo"] ?? "").some((m) => m.version === fila["version"] && m.precio0km === Number(fila["precio_0km_ref_ARS"]))).toBe(true);
+    }
   });
   it("intervalos de service", () => {
     const i = (m: string) => MODELOS.find((x) => x.modelo === m)?.intervaloKm;
