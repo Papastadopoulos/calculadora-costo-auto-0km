@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, cleanup } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Route } from "@/routes/index";
+import { MODELOS } from "@/lib/costos";
 
 vi.mock("recharts", () => ({
   ResponsiveContainer: () => null,
@@ -20,6 +21,15 @@ function abrirCalculadora() {
 }
 
 describe("patente automática editable", () => {
+  it("muestra el consumo completo del archivo sin redondear 4,76 a 4,8", () => {
+    abrirCalculadora();
+    const version = MODELOS.find((m) => m.consumo === 4.76);
+    if (!version) throw new Error("Falta versión de consumo 4,76");
+    fireEvent.change(screen.getByRole("combobox", { name: "Marca" }), { target: { value: version.marca } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Modelo" }), { target: { value: version.modelo } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Versión" }), { target: { value: version.id } });
+    expect(screen.getByLabelText(/Consumo \(L\/100 km\)/)).toHaveValue("4,76");
+  });
   it("inicia con ARBA del Cronos prorrateada en seis bimestres", () => {
     const patente = abrirCalculadora();
     expect(patente).toHaveValue("187.633");
