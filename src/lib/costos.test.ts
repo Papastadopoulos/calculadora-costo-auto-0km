@@ -1,7 +1,28 @@
 import { describe, it, expect } from "vitest";
-import { MODELOS, MARCAS, modelosDeMarca, versionesDeModelo, COMBUSTIBLES, SELLOS, calcular, patentamiento, estimarPatenteArba, calcularModeloComparado, masBarato } from "./costos";
+import { MODELOS, MARCAS, modelosDeMarca, versionesDeModelo, parseCsv, COMBUSTIBLES, SELLOS, calcular, patentamiento, estimarPatenteArba, calcularModeloComparado, masBarato } from "./costos";
+import matrizCsv from "@/data/base-modelos.csv?raw";
 
 describe("costos", () => {
+  it("conserva todos los valores de las 754 filas del archivo", () => {
+    const filas = parseCsv(matrizCsv);
+    expect(filas).toHaveLength(754);
+    filas.forEach((fila, i) => {
+      const modelo = MODELOS[i];
+      if (!modelo) throw new Error(`Falta fila ${i}`);
+      expect(modelo.marca).toBe(fila["marca"]);
+      expect(modelo.modelo).toBe(fila["modelo"]);
+      expect(modelo.version).toBe(fila["version"]);
+      expect(modelo.combustible).toBe(fila["combustible"]);
+      expect(modelo.consumo).toBe(Number(fila["consumo_mixto_l_100km"]));
+      expect(modelo.precio0km).toBe(Number(fila["precio_0km_ref_ARS"]));
+      expect(modelo.seguroMin).toBe(Number(fila["seguro_mensual_min_ARS"]));
+      expect(modelo.seguroMax).toBe(Number(fila["seguro_mensual_max_ARS"]));
+      expect(modelo.service).toBe(Number(fila["service_10k_ref_ARS"]));
+      expect(modelo.fuente).toBe(fila["fuente"]);
+      expect(modelo.fechaActualizacion).toBe(fila["fecha_actualizacion"]);
+      expect(versionesDeModelo(modelo.marca, modelo.modelo).some((m) => m.id === modelo.id)).toBe(true);
+    });
+  });
   it("carga 754 versiones, 67 marcas, 311 modelos y 24 provincias", () => {
     expect(MODELOS).toHaveLength(754);
     expect(MARCAS).toHaveLength(67);
