@@ -2,26 +2,23 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ComparadorModelos } from "@/components/comparador-modelos";
 import { SelectorVersion } from "@/components/selector-version";
-import { MODELOS, versionesDeModelo } from "@/lib/costos";
+import { MODELOS, modelosDeMarca, versionesDeModelo } from "@/lib/costos";
 
 afterEach(cleanup);
 const uso = { kmAnio: 15000, precioNafta: 2000, precioGasoil: 1500, vtvAnual: 114106, cochera: 0, otros: 0, cuota: 0 };
 const elegir = (campo: string, valor: string) => fireEvent.change(screen.getByLabelText(campo), { target: { value: valor } });
 
 describe("cascada de versiones", () => {
-  it("resetea solo el lado cambiado, busca modelos y usa la versión elegida", () => {
+  it("resetea solo el lado cambiado, ofrece todos los modelos y usa la versión elegida", () => {
     render(<ComparadorModelos uso={uso} />);
     const versionB = (screen.getByLabelText("Versión Modelo B") as HTMLSelectElement).value;
     elegir("Marca Modelo A", "MERCEDES-BENZ");
     expect(screen.getByLabelText("Modelo Modelo A")).toHaveValue("");
     expect(screen.getByLabelText("Versión Modelo A")).toHaveValue("");
     expect(screen.getByLabelText("Versión Modelo B")).toHaveValue(versionB);
-    elegir("Modelo Modelo A", "GL");
-    const buscador = screen.getByLabelText("Modelo Modelo A");
-    const lista = document.getElementById(buscador.getAttribute("list") ?? "");
-    if (!lista) throw new Error("Falta lista de modelos");
-    expect(lista.querySelectorAll("option").length).toBeGreaterThan(0);
-    expect([...lista.querySelectorAll("option")].every((o) => o.value.toLowerCase().includes("gl"))).toBe(true);
+    const lista = screen.getByLabelText("Modelo Modelo A") as HTMLSelectElement;
+    expect([...lista.options].filter((o) => o.value).map((o) => o.value)).toEqual(modelosDeMarca("MERCEDES-BENZ"));
+    expect(lista.options.length).toBe(28);
     elegir("Marca Modelo A", "Fiat");
     elegir("Modelo Modelo A", "Cronos");
     expect(screen.getByLabelText("Versión Modelo A")).toHaveValue("");

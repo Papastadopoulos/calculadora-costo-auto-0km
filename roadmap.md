@@ -7,3 +7,5 @@
 - [x] Incorporar la matriz y cascada compartida en calculadora y comparador.
 - [x] Aplicar combustible cero y aclaraciones para eléctricos.
 - [x] Verificar versiones, reinicios independientes y cálculos.
+- [x] Cambiar Modelo a desplegable igual a Marca y Versión en todos los selectores.
+- [x] Verificar la carga completa de las 754 filas y los campos al elegir una versión.

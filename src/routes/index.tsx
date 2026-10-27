@@ -51,7 +51,7 @@ const inputCls = "w-full rounded-md border border-input bg-card px-3 py-2 text-s
  * El valor mensual se usa tal cual (×1) en el total por mes; el ×12 aparece solo en el desglose anual.
  */
 function Num({ value, onChange, step = 1 }: { value: number; onChange: (n: number) => void; step?: number }) {
-  const decimales = step < 1 ? 1 : 0;
+  const decimales = step < 1 ? Math.max(1, (String(value).split(".")[1] ?? "").length) : 0;
   const [txt, setTxt] = useState<string | null>(null);
   const fmt = (n: number) =>
     (Number.isFinite(n) ? n : 0).toLocaleString("es-AR", { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
