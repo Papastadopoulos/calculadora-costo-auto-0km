@@ -9,7 +9,7 @@ describe("costos", () => {
     filas.forEach((fila, i) => {
       const modelo = MODELOS[i];
       if (!modelo) throw new Error(`Falta fila ${i}`);
-      const marca = filas.find((f) => f.marca?.toLowerCase() === fila.marca?.toLowerCase() && f.marca !== f.marca?.toUpperCase())?.marca ?? fila.marca;
+      const marca = filas.find((f) => f["marca"]?.toLowerCase() === fila["marca"]?.toLowerCase() && f["marca"] !== f["marca"]?.toUpperCase())?.["marca"] ?? fila["marca"];
       expect(modelo.marca).toBe(marca);
       expect(modelo.modelo).toBe(fila["modelo"]);
       expect(modelo.version).toBe(fila["version"]);
@@ -33,13 +33,13 @@ describe("costos", () => {
     expect(COMBUSTIBLES.find((c) => c.clave === "gnc")?.precio).toBe(680);
   });
   it.each(["Fiat", "Peugeot", "Chevrolet", "Volkswagen", "Toyota", "Renault", "Nissan", "Ford", "Jeep", "Honda", "Hyundai", "Kia", "Chery"])("reúne todas las filas de %s sin duplicar su marca", (marca) => {
-    const filas = parseCsv(matrizCsv).filter((f) => f.marca?.toLowerCase() === marca.toLowerCase());
+    const filas = parseCsv(matrizCsv).filter((f) => f["marca"]?.toLowerCase() === marca.toLowerCase());
     expect(MARCAS).toContain(marca);
     expect(MARCAS).not.toContain(marca.toUpperCase());
     expect(MODELOS.filter((m) => m.marca === marca)).toHaveLength(filas.length);
-    expect(modelosDeMarca(marca)).toEqual([...new Set(filas.map((f) => f.modelo))].sort((a, b) => (a ?? "").localeCompare(b ?? "", "es-AR")));
+    expect(modelosDeMarca(marca)).toEqual([...new Set(filas.map((f) => f["modelo"]))].sort((a, b) => (a ?? "").localeCompare(b ?? "", "es-AR")));
     for (const fila of filas) {
-      expect(versionesDeModelo(marca, fila.modelo ?? "").some((m) => m.version === fila.version && m.precio0km === Number(fila.precio_0km_ref_ARS))).toBe(true);
+      expect(versionesDeModelo(marca, fila["modelo"] ?? "").some((m) => m.version === fila["version"] && m.precio0km === Number(fila["precio_0km_ref_ARS"]))).toBe(true);
     }
   });
   it("intervalos de service", () => {
