@@ -4,7 +4,7 @@ Implement exactly the screenshot and nothing else
 
 This project was built with [Lovable](https://lovable.dev).
 
-**Live app**: https://pixel-perfect-replay-2008.lovable.app
+**Live app**: https://cuanto-te-va-a-costar-tu-proximo-auto.lovable.app 
 
 ## Build with Lovable
 
