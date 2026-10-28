@@ -73,8 +73,9 @@ export const inicialMayuscula = (s: string) =>
     ? s.split(" ").map((p) => (/\d/.test(p) ? p : p.toLocaleLowerCase("es-AR").replace(/(^|[-&/])(\p{L})/gu, (_, sep: string, l: string) => sep + l.toLocaleUpperCase("es-AR")))).join(" ")
     : s;
 // Conservar el nombre existente con inicial mayúscula cuando también hay filas en mayúsculas.
-const nombresMarcas = new Map(filasModelos.filter((r) => !enMayusculas(r.marca)).map((r) => [r.marca.toLocaleLowerCase("es-AR"), r.marca]));
-const nombreMarca = (m: string) => nombresMarcas.get(m.toLocaleLowerCase("es-AR")) ?? inicialMayuscula(m);
+const claveMarca = (m: string) => m.normalize("NFD").replace(/\p{M}/gu, "").toLocaleLowerCase("es-AR");
+const nombresMarcas = new Map(filasModelos.filter((r) => !enMayusculas(r.marca)).map((r) => [claveMarca(r.marca), r.marca]));
+const nombreMarca = (m: string) => nombresMarcas.get(claveMarca(m)) ?? inicialMayuscula(m);
 const nombresModelos = new Map(filasModelos.filter((r) => !enMayusculas(r.modelo)).map((r) => [`${nombreMarca(r.marca)}|${r.modelo.toLocaleLowerCase("es-AR")}`, r.modelo]));
 const nombreModelo = (marca: string, m: string) => nombresModelos.get(`${marca}|${m.toLocaleLowerCase("es-AR")}`) ?? inicialMayuscula(m);
 

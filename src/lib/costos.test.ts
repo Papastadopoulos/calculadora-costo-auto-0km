@@ -9,7 +9,7 @@ describe("costos", () => {
     filas.forEach((fila, i) => {
       const modelo = MODELOS[i];
       if (!modelo) throw new Error(`Falta fila ${i}`);
-      expect(modelo.marca.toLowerCase()).toBe(fila["marca"]?.toLowerCase());
+      expect(modelo.marca.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()).toBe(fila["marca"]?.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase());
       expect(modelo.modelo.toLowerCase()).toBe(fila["modelo"]?.toLowerCase());
       expect(modelo.version).toBe(fila["version"]);
       expect(modelo.combustible).toBe(fila["combustible"]);
@@ -23,9 +23,9 @@ describe("costos", () => {
       expect(versionesDeModelo(modelo.marca, modelo.modelo).some((m) => m.id === modelo.id)).toBe(true);
     });
   });
-  it("carga 754 versiones, 54 marcas unificadas, 311 modelos y 24 provincias", () => {
+  it("carga 754 versiones, 53 marcas unificadas, 311 modelos y 24 provincias", () => {
     expect(MODELOS).toHaveLength(754);
-    expect(MARCAS).toHaveLength(54);
+    expect(MARCAS).toHaveLength(53);
     expect(MARCAS.reduce((total, marca) => total + modelosDeMarca(marca).length, 0)).toBe(311);
     expect(new Set(MODELOS.map((m) => m.id)).size).toBe(754);
     expect(SELLOS).toHaveLength(24);
