@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { MODELOS, MARCAS, modelosDeMarca, versionesDeModelo, parseCsv, COMBUSTIBLES, SELLOS, calcular, patentamiento, estimarPatenteArba, calcularModeloComparado, masBarato } from "./costos";
+import { inicialMayuscula, MODELOS, MARCAS, modelosDeMarca, versionesDeModelo, parseCsv, COMBUSTIBLES, SELLOS, calcular, patentamiento, estimarPatenteArba, calcularModeloComparado, masBarato } from "./costos";
 import matrizCsv from "@/data/base-modelos.csv?raw";
 
 describe("costos", () => {
@@ -9,9 +9,8 @@ describe("costos", () => {
     filas.forEach((fila, i) => {
       const modelo = MODELOS[i];
       if (!modelo) throw new Error(`Falta fila ${i}`);
-      const marca = filas.find((f) => f["marca"]?.toLowerCase() === fila["marca"]?.toLowerCase() && f["marca"] !== f["marca"]?.toUpperCase())?.["marca"] ?? fila["marca"];
-      expect(modelo.marca).toBe(marca);
-      expect(modelo.modelo).toBe(fila["modelo"]);
+      expect(modelo.marca.toLowerCase()).toBe(fila["marca"]?.toLowerCase());
+      expect(modelo.modelo.toLowerCase()).toBe(fila["modelo"]?.toLowerCase());
       expect(modelo.version).toBe(fila["version"]);
       expect(modelo.combustible).toBe(fila["combustible"]);
       expect(modelo.consumo).toBe(Number(fila["consumo_mixto_l_100km"]));
@@ -41,6 +40,13 @@ describe("costos", () => {
     for (const fila of filas) {
       expect(versionesDeModelo(marca, fila["modelo"] ?? "").some((m) => m.version === fila["version"] && m.precio0km === Number(fila["precio_0km_ref_ARS"]))).toBe(true);
     }
+  });
+  it("ninguna marca ni modelo queda todo en mayúsculas", () => {
+    expect(inicialMayuscula("MERCEDES-BENZ")).toBe("Mercedes-Benz");
+    expect(inicialMayuscula("HILUX SW4")).toBe("Hilux SW4");
+    const mayus = (s: string) => /\p{L}{2,}/u.test(s.replace(/\S*\d\S*/g, "")) && s.replace(/\S*\d\S*/g, "") === s.replace(/\S*\d\S*/g, "").toUpperCase();
+    expect(MARCAS.filter(mayus)).toEqual([]);
+    expect([...new Set(MODELOS.map((m) => m.modelo))].filter(mayus)).toEqual([]);
   });
   it("intervalos de service", () => {
     const i = (m: string) => MODELOS.find((x) => x.modelo === m)?.intervaloKm;
