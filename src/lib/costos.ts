@@ -66,17 +66,29 @@ function intervalo(modelo: string) {
 }
 
 const filasModelos = parseCsv<"marca" | "modelo" | "version" | "combustible" | "consumo_mixto_l_100km" | "precio_0km_ref_ARS" | "seguro_mensual_min_ARS" | "seguro_mensual_max_ARS" | "service_10k_ref_ARS" | "fuente" | "fecha_actualizacion">(modelosCsv);
+const enMayusculas = (s: string) => s === s.toLocaleUpperCase("es-AR") && /\p{L}/u.test(s);
+/** "MERCEDES-BENZ" → "Mercedes-Benz"; palabras con números ("A3", "SW4") quedan igual. */
+export const inicialMayuscula = (s: string) =>
+  enMayusculas(s)
+    ? s.split(" ").map((p) => (/\d/.test(p) ? p : p.toLocaleLowerCase("es-AR").replace(/(^|[-&/])(\p{L})/gu, (_, sep: string, l: string) => sep + l.toLocaleUpperCase("es-AR")))).join(" ")
+    : s;
 // Conservar el nombre existente con inicial mayúscula cuando también hay filas en mayúsculas.
-const nombresMarcas = new Map(filasModelos.filter((r) => r.marca !== r.marca.toUpperCase()).map((r) => [r.marca.toLocaleLowerCase("es-AR"), r.marca]));
+const claveMarca = (m: string) => m.normalize("NFD").replace(/\p{M}/gu, "").toLocaleLowerCase("es-AR");
+const nombresMarcas = new Map(filasModelos.filter((r) => !enMayusculas(r.marca)).map((r) => [claveMarca(r.marca), r.marca]));
+const nombreMarca = (m: string) => nombresMarcas.get(claveMarca(m)) ?? inicialMayuscula(m);
+const nombresModelos = new Map(filasModelos.filter((r) => !enMayusculas(r.modelo)).map((r) => [`${nombreMarca(r.marca)}|${r.modelo.toLocaleLowerCase("es-AR")}`, r.modelo]));
+const nombreModelo = (marca: string, m: string) => nombresModelos.get(`${marca}|${m.toLocaleLowerCase("es-AR")}`) ?? inicialMayuscula(m);
 
 export const MODELOS: Modelo[] = filasModelos.map((r, indice) => {
   const fuenteService = r.fuente.split("| seguro")[0] ?? "";
   const rango = fuenteService.match(/\[ESTIMADO\]\s*\$([\d.]+)-\$([\d.]+)/);
   const service = Number(r.service_10k_ref_ARS);
+  const marca = nombreMarca(r.marca);
+  const modelo = nombreModelo(marca, r.modelo);
   return {
     id: `${r.marca} ${r.modelo} ${r.version} #${indice}`,
-    marca: nombresMarcas.get(r.marca.toLocaleLowerCase("es-AR")) ?? r.marca,
-    modelo: r.modelo,
+    marca,
+    modelo,
     version: r.version,
     combustible: r.combustible as Combustible,
     consumo: r.combustible === "eléctrico" ? 0 : Number(r.consumo_mixto_l_100km),
