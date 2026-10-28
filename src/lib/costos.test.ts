@@ -36,9 +36,9 @@ describe("costos", () => {
     expect(MARCAS).toContain(marca);
     expect(MARCAS).not.toContain(marca.toUpperCase());
     expect(MODELOS.filter((m) => m.marca === marca)).toHaveLength(filas.length);
-    expect(modelosDeMarca(marca)).toEqual([...new Set(filas.map((f) => f["modelo"]))].sort((a, b) => (a ?? "").localeCompare(b ?? "", "es-AR")));
+    expect(modelosDeMarca(marca).map((m) => m.toLowerCase())).toEqual([...new Set(filas.map((f) => (f["modelo"] ?? "").toLowerCase()))].sort((a, b) => a.localeCompare(b, "es-AR")));
     for (const fila of filas) {
-      expect(versionesDeModelo(marca, fila["modelo"] ?? "").some((m) => m.version === fila["version"] && m.precio0km === Number(fila["precio_0km_ref_ARS"]))).toBe(true);
+      expect(versionesDeModelo(marca, modelosDeMarca(marca).find((m) => m.toLowerCase() === fila["modelo"]?.toLowerCase()) ?? "").some((m) => m.version === fila["version"] && m.precio0km === Number(fila["precio_0km_ref_ARS"]))).toBe(true);
     }
   });
   it("ninguna marca ni modelo queda todo en mayúsculas", () => {
