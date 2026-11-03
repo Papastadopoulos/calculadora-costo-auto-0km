@@ -161,7 +161,7 @@ function Index() {
   const nombreAuto = modelo ? `${modelo.marca} ${modelo.modelo}` : "mi auto";
 
   function compartir() {
-    const txt = `Mantener ${nombreAuto} me sale entre ${ars(r.mensualMin)} y ${ars(r.mensualMax)} por mes (${ars(r.anualMin)}–${ars(r.anualMax)} al año), o sea ${ars(r.kmMin)}–${ars(r.kmMax)} por km, manejando ${kmAnio.toLocaleString("es-AR")} km/año. Calculado con "¿Cuánto te va a costar tu próximo auto?" (precios de referencia oct-2026).`;
+    const txt = `Mantener ${nombreAuto} me sale entre ${ars(r.mensualMin)} y ${ars(r.mensualMax)} por mes (${ars(r.anualMin)}–${ars(r.anualMax)} al año), o sea ${ars(r.kmMin)}–${ars(r.kmMax)} por km, manejando ${kmAnio.toLocaleString("es-AR")} km/año. Calculado con "¿Cuánto te va a costar tu próximo auto?" (precios de referencia nov-2026).`;
     navigator.clipboard?.writeText(txt).then(() => { setCopiado(true); setTimeout(() => setCopiado(false), 2500); });
   }
 
@@ -273,7 +273,7 @@ function Index() {
             <Card>
               <h2 className="mb-4 text-2xl">Uso y extras</h2>
               <Campo label={`Kilómetros por año: ${kmAnio.toLocaleString("es-AR")} km`}>
-                <input type="range" min={5000} max={60000} step={1000} value={kmAnio} onChange={(e) => setKmAnio(Number(e.target.value))} className="w-full accent-primary" />
+                <input type="range" min={1000} max={60000} step={1000} value={kmAnio} onChange={(e) => setKmAnio(Number(e.target.value))} className="w-full accent-primary" />
               </Campo>
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
                 <Campo label="Cochera mensual"><Num value={cochera} onChange={setCochera} /></Campo>
