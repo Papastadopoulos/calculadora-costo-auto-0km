@@ -1,6 +1,6 @@
 combustible,precio_ARS,unidad,fuente,fecha
-nafta_super,2089,$/L,"El Destape 15-10-2026, datos oficiales Res. 314/2016 (YPF CABA-PBA)",2026-10-15
-nafta_premium,2299,$/L,"El Destape 15-10-2026, datos oficiales Res. 314/2016 (YPF CABA-PBA)",2026-10-15
-gasoil,2195,$/L,"El Destape 15-10-2026, datos oficiales Res. 314/2016 (YPF CABA-PBA)",2026-10-15
-gasoil_premium,2379,$/L,"El Destape 15-10-2026, datos oficiales Res. 314/2016 (YPF CABA-PBA)",2026-10-15
-gnc,680,$/m3,"El Destape 15-10-2026, datos oficiales Res. 314/2016 (YPF CABA-PBA)",2026-10-15
+nafta_super,2199,$/L,"Valor más alto observado en CABA (Shell) entre YPF, Shell, Axion y Puma; datos oficiales Res. 314/2016",2026-11-03
+nafta_premium,2509,$/L,"Valor más alto observado en CABA (Shell V-Power) entre YPF, Shell, Axion y Puma; datos oficiales Res. 314/2016",2026-11-03
+gasoil,2399,$/L,"Valor más alto observado en CABA (Axion Diesel) entre YPF, Shell, Axion y Puma; datos oficiales Res. 314/2016",2026-11-03
+gasoil_premium,2699,$/L,"Valor más alto observado en CABA (Shell V-Power Diesel) entre YPF, Shell, Axion y Puma; datos oficiales Res. 314/2016",2026-11-03
+gnc,680,$/m3,"Último dato verificado octubre 2026 (El Destape 15-10-2026, datos oficiales Res. 314/2016); sin dato de noviembre",2026-10-15

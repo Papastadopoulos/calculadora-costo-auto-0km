@@ -379,7 +379,7 @@ function Index() {
         <section>
           <h2 className="text-3xl">Precios de combustible de referencia</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            YPF CABA-PBA, actualizado el {FECHA_PRECIOS.split("-").reverse().join("/")}. Varían por provincia: cargá tu precio local.
+            Valor más alto observado entre las principales estaciones de servicio de CABA (YPF, Shell, Axion y Puma), actualizado el {FECHA_PRECIOS.split("-").reverse().join("/")}. Varían por provincia y por estación: cargá tu precio local.
           </p>
           <div className="mt-4 overflow-hidden rounded-xl border border-border bg-card">
             <table className="w-full text-sm">
@@ -410,7 +410,7 @@ function Index() {
             <li>Datos de referencia: noviembre 2026.</li>
           </ul>
           <p className="text-xs text-muted-foreground">
-            Fuentes: consumo homologado IRAM/AITA (etiqueta oficial); service de concesionario oficial o estimado anclado en hermano de marca; combustibles según datos oficiales Res. 314/2016; seguro con regla calibrada (recotización trimestral).
+            Fuentes: consumo homologado IRAM/AITA (etiqueta oficial); service de concesionario oficial o estimado anclado en hermano de marca; combustibles: se toma el valor más alto observado entre las principales estaciones de servicio de CABA (YPF, Shell, Axion y Puma) según datos oficiales Res. 314/2016, para no subestimar el gasto; GNC: último dato verificado octubre 2026, sin dato de noviembre; seguro con regla calibrada (recotización trimestral).
           </p>
         </section>
 
