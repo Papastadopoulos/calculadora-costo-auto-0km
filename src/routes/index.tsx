@@ -9,7 +9,7 @@ import {
 } from "@/lib/costos";
 
 const TITLE = "¿Cuánto te va a costar tu próximo auto? | Calculadora de costo por km";
-const DESC = "Calculá el costo real de tu auto: combustible, seguro, patente, VTV, service y más. Precios de referencia octubre 2026.";
+const DESC = "Calculá el costo real de tu auto: combustible, seguro, patente, VTV, service y más. Precios de referencia noviembre 2026.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -172,7 +172,7 @@ function Index() {
         <div className="mx-auto max-w-5xl px-5 pb-12 pt-10 md:pb-20 md:pt-14">
           <div className="flex items-center justify-between border-b border-foreground pb-3 text-xs uppercase tracking-[0.18em]">
             <span>Costo real · Argentina</span>
-            <span className="text-muted-foreground">Ref. octubre 2026</span>
+            <span className="text-muted-foreground">Ref. noviembre 2026</span>
           </div>
           <h1 className="mt-10 text-5xl leading-[0.95] md:text-8xl">¿Cuánto te va a costar<br /><em className="text-accent">tu próximo auto?</em></h1>
           <div className="mt-8 grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
@@ -183,7 +183,7 @@ function Index() {
               Ir a la calculadora ↓
             </a>
           </div>
-          <p className="mt-6 text-xs text-muted-foreground">Precios de referencia actualizados a octubre 2026.</p>
+          <p className="mt-6 text-xs text-muted-foreground">Precios de referencia actualizados a noviembre 2026.</p>
         </div>
       </header>
 
@@ -407,7 +407,7 @@ function Index() {
             <li><strong>Rango total</strong>: el mínimo suma todos los mínimos; el máximo suma todos los máximos. El costo por km es ese total dividido por los km anuales.</li>
             <li>Los valores de precio, consumo, seguro y service corresponden a la versión elegida: cada versión tiene sus propios datos.</li>
             <li>Autos eléctricos: el consumo de combustible es 0 y no se pondera. El costo de la carga eléctrica no está incluido en el resultado porque varía según la tarifa, el tipo de carga y el uso de cada persona.</li>
-            <li>Datos de referencia: octubre 2026.</li>
+            <li>Datos de referencia: noviembre 2026.</li>
           </ul>
           <p className="text-xs text-muted-foreground">
             Fuentes: consumo homologado IRAM/AITA (etiqueta oficial); service de concesionario oficial o estimado anclado en hermano de marca; combustibles según datos oficiales Res. 314/2016; seguro con regla calibrada (recotización trimestral).
@@ -433,7 +433,7 @@ function Index() {
       {/* 8. Footer */}
       <footer className="border-t border-border bg-secondary">
         <div className="mx-auto max-w-5xl px-5 py-8 text-sm text-muted-foreground">
-          <p>Valores orientativos, no una cotización. Precios de referencia actualizados a octubre 2026.</p>
+          <p>Valores orientativos, no una cotización. Precios de referencia actualizados a noviembre 2026.</p>
         </div>
       </footer>
     </div>
