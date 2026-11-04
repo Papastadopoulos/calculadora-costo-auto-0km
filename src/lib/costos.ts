@@ -111,7 +111,7 @@ export const MODELOS: Modelo[] = filasModelos.map((r, indice) => {
 const alfabetico = (a: string, b: string) => a.localeCompare(b, "es-AR");
 export const MARCAS = [...new Set(MODELOS.map((m) => m.marca))].sort(alfabetico);
 export const modelosDeMarca = (marca: string) => [...new Set(MODELOS.filter((m) => m.marca === marca).map((m) => m.modelo))].sort(alfabetico);
-export const versionesDeModelo = (marca: string, modelo: string) => MODELOS.filter((m) => m.marca === marca && m.modelo === modelo).sort((a, b) => alfabetico(a.version, b.version));
+export const versionesDeModelo = (marca: string, modelo: string) => MODELOS.filter((m) => m.marca === marca && m.modelo === modelo).sort((a, b) => a.precio0km - b.precio0km || alfabetico(a.version, b.version));
 export const NOTA_ELECTRICO = "Costo de carga eléctrica no incluido: varía según la tarifa, el tipo de carga y el uso de cada persona, por lo que no es calculable de forma única.";
 
 export interface PrecioCombustible { clave: string; nombre: string; precio: number; unidad: string; fecha: string; fuente: string }

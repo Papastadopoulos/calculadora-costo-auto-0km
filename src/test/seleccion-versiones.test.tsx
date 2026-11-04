@@ -43,6 +43,14 @@ describe("cascada de versiones", () => {
     expect(cambio).toHaveBeenLastCalledWith(unica, false);
     expect(screen.queryByRole("option", { name: "Otro (manual)" })).not.toBeInTheDocument();
   });
+  it("muestra las versiones de la más barata a la más cara", () => {
+    render(<SelectorVersion inicial={MODELOS[0]!} onChange={vi.fn()} />);
+    elegir("Marca", "Fiat");
+    elegir("Modelo", "Cronos");
+    const precios = [...(screen.getByLabelText("Versión") as HTMLSelectElement).options].slice(1).map((o) => Number(o.text.split("$")[1]?.replace(/\./g, "")));
+    expect(precios.length).toBeGreaterThan(1);
+    expect(precios).toEqual([...precios].sort((a, b) => a - b));
+  });
   it("busca modelos de cualquier marca, muestra sugerencias y al elegir completa marca y modelo", () => {
     render(<ComparadorModelos uso={uso} />);
     const versionB = (screen.getByLabelText("Versión Modelo B") as HTMLSelectElement).value;
