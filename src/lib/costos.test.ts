@@ -4,9 +4,9 @@ import matrizCsv from "@/data/base-modelos.csv?raw";
 import premiumCsv from "@/data/combustible-premium.csv?raw";
 
 describe("costos", () => {
-  it("conserva todos los valores de las 753 filas del archivo", () => {
+  it("conserva todos los valores de las 745 filas del archivo", () => {
     const filas = parseCsv(matrizCsv);
-    expect(filas).toHaveLength(753);
+    expect(filas).toHaveLength(745);
     filas.forEach((fila, i) => {
       const modelo = MODELOS[i];
       if (!modelo) throw new Error(`Falta fila ${i}`);
@@ -24,11 +24,11 @@ describe("costos", () => {
       expect(versionesDeModelo(modelo.marca, modelo.modelo).some((m) => m.id === modelo.id)).toBe(true);
     });
   });
-  it("carga 753 versiones, 53 marcas unificadas, 311 modelos y 24 provincias", () => {
-    expect(MODELOS).toHaveLength(753);
+  it("carga 745 versiones, 53 marcas unificadas, 312 modelos y 24 provincias", () => {
+    expect(MODELOS).toHaveLength(745);
     expect(MARCAS).toHaveLength(53);
-    expect(MARCAS.reduce((total, marca) => total + modelosDeMarca(marca).length, 0)).toBe(311);
-    expect(new Set(MODELOS.map((m) => m.id)).size).toBe(753);
+    expect(MARCAS.reduce((total, marca) => total + modelosDeMarca(marca).length, 0)).toBe(312);
+    expect(new Set(MODELOS.map((m) => m.id)).size).toBe(745);
     expect(SELLOS).toHaveLength(24);
     expect(COMBUSTIBLES.find((c) => c.clave === "gnc")?.precio).toBe(680);
   });
@@ -121,7 +121,7 @@ describe("comparador de modelos", () => {
   });
   it("los eléctricos tienen combustible cero sin eliminar los demás costos", () => {
     const electricos = MODELOS.filter((m) => m.combustible === "eléctrico");
-    expect(electricos).toHaveLength(28);
+    expect(electricos).toHaveLength(30);
     for (const modelo of electricos) {
       const resultado = calcularModeloComparado({ ...modelo, consumo: 100 }, { kmAnio: 15000, precios: { nafta_super: 2000, nafta_premium: 2300, gasoil: 1400, gasoil_premium: 1500 }, vtvAnual: 114106, cochera: 0, otros: 0, cuota: 0 });
       expect(resultado.rubros.Combustible).toEqual([0, 0]);
@@ -157,13 +157,13 @@ describe("combustible predeterminado", () => {
   const premium = parseCsv<"marca" | "modelo" | "version" | "fuente" | "fecha_actualizacion">(premiumCsv);
   it("cada versión premium existe una sola vez en la base y tiene fuente y fecha", () => {
     const filas = parseCsv<"marca" | "modelo" | "version">(matrizCsv);
-    expect(premium.length).toBe(94);
+    expect(premium.length).toBe(92);
     for (const p of premium) {
       expect(filas.filter((f) => f.marca === p.marca && f.modelo === p.modelo && f.version === p.version)).toHaveLength(1);
       expect(p.fuente.length).toBeGreaterThan(20);
       expect(p.fecha_actualizacion).toBe("2026-11-04");
     }
-    expect(MODELOS.filter((m) => m.combustiblePredeterminado === "nafta_premium")).toHaveLength(94);
+    expect(MODELOS.filter((m) => m.combustiblePredeterminado === "nafta_premium")).toHaveLength(92);
   });
   it("diésel → gasoil premium, eléctrico → ninguno, resto súper", () => {
     for (const m of MODELOS) {
@@ -180,5 +180,26 @@ describe("combustible predeterminado", () => {
     if (!gr) throw new Error("Falta GR Yaris");
     const r = calcularModeloComparado(gr, { kmAnio: 10000, precios, vtvAnual: 0, cochera: 0, otros: 0, cuota: 0 });
     expect(r.rubros.Combustible[0]).toBeCloseTo(100 * gr.consumo * 2300);
+  });
+});
+
+describe("modelos bien distribuidos (corrección 4-nov-2026)", () => {
+  it("cada versión está en su modelo y con su combustible", () => {
+    expect(modelosDeMarca("Audi")).toEqual(expect.arrayContaining(["A6 Allroad", "S3", "S5"]));
+    expect(modelosDeMarca("Audi")).not.toContain("Allroad");
+    expect(modelosDeMarca("Audi")).not.toContain("S");
+    expect(versionesDeModelo("Bmw", "M135").map((m) => m.version)).toEqual(["5P 2,0 T XDRIVE 8AT 2025"]);
+    expect(modelosDeMarca("Bmw")).toEqual(expect.arrayContaining(["M340i", "M440i", "220i", "430i"]));
+    expect(modelosDeMarca("Bmw")).not.toContain("135");
+    expect(versionesDeModelo("Chevrolet", "Onix").every((m) => m.version.startsWith("5P"))).toBe(true);
+    expect(modelosDeMarca("Gwm").some((m) => m.startsWith("Haval"))).toBe(false);
+    expect(versionesDeModelo("Toyota", "Yaris").some((m) => m.version.includes("GR"))).toBe(false);
+    expect(versionesDeModelo("Toyota", "GR Yaris")).toHaveLength(2);
+    expect(MODELOS.filter((m) => m.modelo === "Sprinter").every((m) => m.combustible === "diésel")).toBe(true);
+    expect(versionesDeModelo("Ford", "Mustang Mach-E")[0]?.combustible).toBe("eléctrico");
+    expect(versionesDeModelo("Toyota", "bZ4X")[0]?.combustible).toBe("eléctrico");
+    expect(modelosDeMarca("Toyota")).not.toContain("86");
+    expect(versionesDeModelo("Toyota", "GR86")[0]?.combustiblePredeterminado).toBe("nafta_premium");
+    expect(versionesDeModelo("Porsche", "Taycan Cross Turismo")[0]?.combustible).toBe("eléctrico");
   });
 });

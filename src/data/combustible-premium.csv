@@ -1,11 +1,11 @@
 marca,modelo,version,fuente,fecha_actualizacion
-Toyota,Yaris,"3P 1,6 T GR 6MT 2025","Toyota GR Yaris (1,6 T): manual 'RON 98 o superior para rendimiento óptimo' (manual del propietario 2024/2026).",2026-11-04
-Toyota,Yaris,"3P 1,6 T GR 8AT 2025","Toyota GR Yaris (1,6 T): manual 'RON 98 o superior para rendimiento óptimo' (manual del propietario 2024/2026).",2026-11-04
-Bmw,M135,"4P 3,0 T XDRIVE 8AT PERFORMANCE II","BMW M y M Performance: manual BMW 'M Performance: recomienda AKI 93 (≈98 RON)'; M3/M4: 'Super Plus RON 98 recomendada, mínimo 95' (manual del propietario).",2026-11-04
+Toyota,GR Yaris,"3P 1,6 T GR 6MT 2025","Toyota GR Yaris (1,6 T): manual 'RON 98 o superior para rendimiento óptimo' (manual del propietario 2024/2026).",2026-11-04
+Toyota,GR Yaris,"3P 1,6 T GR 8AT 2025","Toyota GR Yaris (1,6 T): manual 'RON 98 o superior para rendimiento óptimo' (manual del propietario 2024/2026).",2026-11-04
+Bmw,M340i,"4P 3,0 T XDRIVE 8AT PERFORMANCE II","BMW M y M Performance: manual BMW 'M Performance: recomienda AKI 93 (≈98 RON)'; M3/M4: 'Super Plus RON 98 recomendada, mínimo 95' (manual del propietario).",2026-11-04
 Bmw,M135,"5P 2,0 T XDRIVE 8AT 2025","BMW M y M Performance: manual BMW 'M Performance: recomienda AKI 93 (≈98 RON)'; M3/M4: 'Super Plus RON 98 recomendada, mínimo 95' (manual del propietario).",2026-11-04
-Bmw,M135,"COUPE 3,0 T 8AT 388CV XDRIVE 2022","BMW M y M Performance: manual BMW 'M Performance: recomienda AKI 93 (≈98 RON)'; M3/M4: 'Super Plus RON 98 recomendada, mínimo 95' (manual del propietario).",2026-11-04
-Bmw,M135,"4P 3,0 T XDRIVE 8AT PERFORMANCE 50 JAHRE","BMW M y M Performance: manual BMW 'M Performance: recomienda AKI 93 (≈98 RON)'; M3/M4: 'Super Plus RON 98 recomendada, mínimo 95' (manual del propietario).",2026-11-04
-Bmw,M135,"COBRIO 3,0 T XDRIVE 8SEPT","BMW M y M Performance: manual BMW 'M Performance: recomienda AKI 93 (≈98 RON)'; M3/M4: 'Super Plus RON 98 recomendada, mínimo 95' (manual del propietario).",2026-11-04
+Bmw,M440i,"COUPE 3,0 T 8AT 388CV XDRIVE 2022","BMW M y M Performance: manual BMW 'M Performance: recomienda AKI 93 (≈98 RON)'; M3/M4: 'Super Plus RON 98 recomendada, mínimo 95' (manual del propietario).",2026-11-04
+Bmw,M340i,"4P 3,0 T XDRIVE 8AT PERFORMANCE 50 JAHRE","BMW M y M Performance: manual BMW 'M Performance: recomienda AKI 93 (≈98 RON)'; M3/M4: 'Super Plus RON 98 recomendada, mínimo 95' (manual del propietario).",2026-11-04
+Bmw,M440i,"COBRIO 3,0 T XDRIVE 8SEPT","BMW M y M Performance: manual BMW 'M Performance: recomienda AKI 93 (≈98 RON)'; M3/M4: 'Super Plus RON 98 recomendada, mínimo 95' (manual del propietario).",2026-11-04
 Bmw,M2,"COUPE 3,0 BT 8AT CS 2026","BMW M y M Performance: manual BMW 'M Performance: recomienda AKI 93 (≈98 RON)'; M3/M4: 'Super Plus RON 98 recomendada, mínimo 95' (manual del propietario).",2026-11-04
 Bmw,M2,"COUPE 3,0 BT 8AT 2025","BMW M y M Performance: manual BMW 'M Performance: recomienda AKI 93 (≈98 RON)'; M3/M4: 'Super Plus RON 98 recomendada, mínimo 95' (manual del propietario).",2026-11-04
 Bmw,M3,"TOURING 3,0 T COMPETITION XDRIVE","BMW M y M Performance: manual BMW 'M Performance: recomienda AKI 93 (≈98 RON)'; M3/M4: 'Super Plus RON 98 recomendada, mínimo 95' (manual del propietario).",2026-11-04
@@ -86,10 +86,8 @@ Mercedes-Benz,SL 63,SL-ROADSTER 816CV AMG PERFORMANCE CROMO,"Mercedes-AMG: manua
 Subaru,WRX,"4P 2,4 T AWD 6MT PERFORMANCE ES","Subaru WRX 2,4 T: manual 'premium mínimo 93 AKI (98 RON)' (manual del propietario 2024); bitauto: 98 recomendado.",2026-11-04
 Ford,Mustang,"COUPE 5,0 V8 GT PERFORMANCE AT","Ford Mustang 5,0 V8: potencia homologada con nafta de 93 AKI (≈98 RON) según Ford (MotorTrend dic-2022; usa.parts).",2026-11-04
 Ford,Mustang,"COUPE 5,0 V8 DARK HORSE AT","Ford Mustang 5,0 V8: potencia homologada con nafta de 93 AKI (≈98 RON) según Ford (MotorTrend dic-2022; usa.parts).",2026-11-04
-Toyota,86,5P ELECTRICA,"Toyota GR86 2,4: Toyota USA 'potencia con 98 RON (93 AKI); 95 RON admitido' (folleto oficial GR86 2023-2026).",2026-11-04
-Toyota,86,"COUPE 2,4 GR 6MT 2025","Toyota GR86 2,4: Toyota USA 'potencia con 98 RON (93 AKI); 95 RON admitido' (folleto oficial GR86 2023-2026).",2026-11-04
+Toyota,GR86,"COUPE 2,4 GR 6MT 2025","Toyota GR86 2,4: Toyota USA 'potencia con 98 RON (93 AKI); 95 RON admitido' (folleto oficial GR86 2023-2026).",2026-11-04
 Bmw,M240i,M240i xDrive Coupé 3.0 B58,"BMW M y M Performance: manual BMW 'M Performance: recomienda AKI 93 (≈98 RON)'; M3/M4: 'Super Plus RON 98 recomendada, mínimo 95' (manual del propietario).",2026-11-04
-Toyota,GR Yaris,GR Yaris 8AT GR-FOUR 1.6 280 CV,"Toyota GR Yaris (1,6 T): manual 'RON 98 o superior para rendimiento óptimo' (manual del propietario 2024/2026).",2026-11-04
 Volvo,XC40,XC40 B4 Core 2.0 MHEV 197 CV,"Volvo: Volvo Support (XC90 Recharge) 'requiere nafta premium 91 AKI o más y recomienda AKI 93 para rendimiento y consumo óptimos' (93 AKI ≈ 98 RON); manual XC60 'para uso normal 95 RON, se recomienda 98 RON para rendimiento óptimo y consumo mínimo' (manualslib). Mismo criterio que BMW M Performance.",2026-11-04
 Volvo,XC60,"XC60 Recharge T8 2.0 + 18,8 kWh","Volvo: Volvo Support (XC90 Recharge) 'requiere nafta premium 91 AKI o más y recomienda AKI 93 para rendimiento y consumo óptimos' (93 AKI ≈ 98 RON); manual XC60 'para uso normal 95 RON, se recomienda 98 RON para rendimiento óptimo y consumo mínimo' (manualslib). Mismo criterio que BMW M Performance.",2026-11-04
 Volvo,XC90,"XC90 Recharge T8 2.0 + 18,8 kWh","Volvo: Volvo Support (XC90 Recharge) 'requiere nafta premium 91 AKI o más y recomienda AKI 93 para rendimiento y consumo óptimos' (93 AKI ≈ 98 RON); manual XC60 'para uso normal 95 RON, se recomienda 98 RON para rendimiento óptimo y consumo mínimo' (manualslib). Mismo criterio que BMW M Performance.",2026-11-04
