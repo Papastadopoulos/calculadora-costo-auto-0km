@@ -289,7 +289,7 @@ function Index() {
           <div className="space-y-6 lg:sticky lg:top-6 lg:self-start">
             <Card className="bg-primary text-primary-foreground">
               <p className="text-sm opacity-80">Mantener {nombreAuto} te sale</p>
-              <p className="mt-1 font-display text-4xl leading-tight">
+              <p className="mt-1 min-h-[2.5em] font-display text-4xl leading-tight">
                 entre {ars(r.mensualMin)} y {ars(r.mensualMax)} <span className="text-lg font-medium opacity-80">por mes</span>
               </p>
               <p className="mt-2 text-sm opacity-80">{ars(r.anualMin)} – {ars(r.anualMax)} al año</p>
