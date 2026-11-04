@@ -41,18 +41,21 @@ describe("costos", () => {
       expect(versionesDeModelo(marca, modelosDeMarca(marca).find((m) => m.toLowerCase() === fila["modelo"]?.toLowerCase()) ?? "").some((m) => m.version === fila["version"] && m.precio0km === Number(fila["precio_0km_ref_ARS"]))).toBe(true);
     }
   });
-  it("ninguna marca ni modelo queda todo en mayúsculas", () => {
+  it("ninguna marca queda todo en mayúsculas y los modelos conservan sus siglas", () => {
     expect(inicialMayuscula("MERCEDES-BENZ")).toBe("Mercedes-Benz");
     expect(inicialMayuscula("HILUX SW4")).toBe("Hilux SW4");
     const mayus = (s: string) => /\p{L}{2,}/u.test(s.replace(/\S*\d\S*/g, "")) && s.replace(/\S*\d\S*/g, "") === s.replace(/\S*\d\S*/g, "").toUpperCase();
     expect(MARCAS.filter(mayus)).toEqual([]);
-    expect([...new Set(MODELOS.map((m) => m.modelo))].filter(mayus)).toEqual([]);
+    const modelos = new Set(MODELOS.map((m) => m.modelo));
+    for (const sigla of ["DS 3", "CR-V", "CLA 200", "HS", "ZS", "GR Yaris"]) expect(modelos).toContain(sigla);
+    for (const mal of ["Ds 3", "Cr-V", "Cla 200", "Hs", "Zs", "Gr Yaris"]) expect(modelos).not.toContain(mal);
   });
   it("intervalos de service", () => {
     const i = (m: string) => MODELOS.find((x) => x.modelo === m)?.intervaloKm;
     expect(i("Ranger")).toBe(16000);
     expect(i("Polo")).toBe(15000);
     expect(i("Cronos")).toBe(10000);
+    expect(MODELOS.filter((m) => m.marca === "Jeep").every((m) => m.intervaloKm === 12000)).toBe(true);
   });
   it("combustible anual = km/100 × consumo × precio", () => {
     const r = calcular({ kmAnio: 15000, consumo: 8, precioLitro: 2000, seguroMin: 0, seguroMax: 0, serviceMin: 0, serviceMax: 0, intervaloKm: 10000, patente: 0, patenteFrecuencia: "mensual", vtvAnual: 0, cochera: 0, otros: 0, cuota: 0 });
@@ -111,9 +114,9 @@ describe("comparador de modelos", () => {
     const version = versionesDeModelo("Fiat", "Cronos").find((m) => m.version === "4P 1,3 LIKE GSE 2025");
     if (!version) throw new Error("Falta la versión");
     const resultado = calcularModeloComparado(version, { kmAnio: 15000, precioNafta: 2000, precioGasoil: 1500, vtvAnual: 0, cochera: 0, otros: 0, cuota: 0 });
-    expect(version.precio0km).toBe(35100000);
-    expect(resultado.rubros["Seguro"]).toEqual([840000, 1260000]);
-    expect(resultado.rubros["Patente"]?.[0]).toBe(815000);
+    expect(version.precio0km).toBe(36650000);
+    expect(resultado.rubros["Seguro"]).toEqual([876000, 1320000]);
+    expect(resultado.rubros["Patente"]?.[0]).toBe(877000);
   });
   it("los eléctricos tienen combustible cero sin eliminar los demás costos", () => {
     const electricos = MODELOS.filter((m) => m.combustible === "eléctrico");
@@ -137,7 +140,7 @@ describe("comparador de modelos", () => {
     expect(b.rubros.Combustible[0]).toBeCloseTo(1_777_500);
     expect(a.rubros["Seguro"]).toEqual([1_020_000, 1_710_000]);
     expect(a.rubros["Service"]).toEqual([651_000, 651_000]);
-    expect(a.rubros["Patente"]?.[0]).toBe(1_125_800);
+    expect(a.rubros["Patente"]?.[0]).toBe(1_201_400);
     expect(a.rubros["Otros"]).toEqual(b.rubros["Otros"]);
     expect(a.kmMin).toBe(a.anualMin / 15000);
     expect(a.mensualMax).toBe(a.anualMax / 12);

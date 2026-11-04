@@ -58,8 +58,9 @@ export interface Modelo {
 
 const toNum = (s: string) => Number(s.replace(/\./g, "")) || 0;
 
-/** Intervalo de service: 10.000 km salvo Ranger (16.000) y Polo/Nivus (15.000). */
-function intervalo(modelo: string) {
+/** Intervalo de service: 10.000 km salvo Ranger (16.000), Polo/Nivus (15.000) y Jeep (12.000, plan de mantenimiento Mopar Argentina). */
+function intervalo(marca: string, modelo: string) {
+  if (marca === "Jeep") return 12000;
   if (modelo === "Ranger") return 16000;
   if (modelo === "Polo" || modelo === "Nivus") return 15000;
   return 10000;
@@ -77,7 +78,8 @@ const claveMarca = (m: string) => m.normalize("NFD").replace(/\p{M}/gu, "").toLo
 const nombresMarcas = new Map(filasModelos.filter((r) => !enMayusculas(r.marca)).map((r) => [claveMarca(r.marca), r.marca]));
 const nombreMarca = (m: string) => nombresMarcas.get(claveMarca(m)) ?? inicialMayuscula(m);
 const nombresModelos = new Map(filasModelos.filter((r) => !enMayusculas(r.modelo)).map((r) => [`${nombreMarca(r.marca)}|${r.modelo.toLocaleLowerCase("es-AR")}`, r.modelo]));
-const nombreModelo = (marca: string, m: string) => nombresModelos.get(`${marca}|${m.toLocaleLowerCase("es-AR")}`) ?? inicialMayuscula(m);
+// Los modelos en mayúsculas del CSV son siglas o códigos ("DS 3", "CR-V", "CLA 200"): quedan como vienen.
+const nombreModelo = (marca: string, m: string) => nombresModelos.get(`${marca}|${m.toLocaleLowerCase("es-AR")}`) ?? m;
 
 export const MODELOS: Modelo[] = filasModelos.map((r, indice) => {
   const fuenteService = r.fuente.split("| seguro")[0] ?? "";
@@ -99,7 +101,7 @@ export const MODELOS: Modelo[] = filasModelos.map((r, indice) => {
     serviceMin: rango ? toNum(rango[1] ?? "") : service,
     serviceMax: rango ? toNum(rango[2] ?? "") : service,
     serviceEstimado: /\[ESTIMADO\]|\[EST\]/.test(fuenteService),
-    intervaloKm: intervalo(r.modelo),
+    intervaloKm: intervalo(marca, r.modelo),
     primerServiceBonificado: r.modelo === "Nivus" || r.modelo === "Amarok",
     fuente: r.fuente,
     fechaActualizacion: r.fecha_actualizacion,

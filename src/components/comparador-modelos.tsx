@@ -42,7 +42,7 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
         <table className="w-full table-fixed text-sm">
           <thead className="border-b border-border bg-muted">
             <tr>
-              <th scope="col" className="w-[28%] p-3 text-left font-medium">Costo</th>
+              <th scope="col" className="w-[36%] p-3 sm:w-[28%] text-left font-medium">Costo</th>
               <th scope="col" className="p-3 text-right font-medium break-words">{a ? `${a.marca} ${a.modelo}` : "Modelo A"}</th>
               <th scope="col" className="p-3 text-right font-medium break-words">{b ? `${b.marca} ${b.modelo}` : "Modelo B"}</th>
             </tr>

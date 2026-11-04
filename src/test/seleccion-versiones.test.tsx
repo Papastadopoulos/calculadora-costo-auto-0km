@@ -22,11 +22,11 @@ describe("cascada de versiones", () => {
     elegir("Marca Modelo A", "Fiat");
     elegir("Modelo Modelo A", "Cronos");
     expect(screen.getByLabelText("Versión Modelo A")).toHaveValue("");
-    const version = versionesDeModelo("Fiat", "Cronos").find((m) => m.precio0km === 35100000);
+    const version = versionesDeModelo("Fiat", "Cronos").find((m) => m.precio0km === 36650000);
     if (!version) throw new Error("Falta Cronos");
     elegir("Versión Modelo A", version.id);
     const fila = screen.getByRole("row", { name: /Seguro \/ mes/ });
-    expect(within(fila).getAllByRole("cell")[0]?.textContent).toContain("$70.000 – $105.000");
+    expect(within(fila).getAllByRole("cell")[0]?.textContent).toContain("$73.000 – $110.000");
     expect(screen.getByLabelText("Versión Modelo B")).toHaveValue(versionB);
     elegir("Modelo Modelo A", "Pulse");
     expect(screen.getByLabelText("Versión Modelo A")).toHaveValue("");

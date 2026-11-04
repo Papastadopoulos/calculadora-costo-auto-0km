@@ -32,9 +32,9 @@ describe("patente automática editable", () => {
   });
   it("inicia con ARBA del Cronos prorrateada en seis bimestres", () => {
     const patente = abrirCalculadora();
-    expect(patente).toHaveValue("187.633");
+    expect(patente).toHaveValue("200.233");
     fireEvent.change(screen.getByLabelText("Frecuencia de patente"), { target: { value: "mensual" } });
-    expect(patente).toHaveValue("93.817");
+    expect(patente).toHaveValue("100.117");
   });
 
   it("recalcula al cambiar precio 0km y modelo", () => {
@@ -44,10 +44,10 @@ describe("patente automática editable", () => {
     fireEvent.change(screen.getByRole("combobox", { name: "Marca" }), { target: { value: "Peugeot" } });
     fireEvent.change(screen.getByRole("combobox", { name: "Modelo" }), { target: { value: "208" } });
     const seleccion = screen.getByRole("combobox", { name: "Versión" });
-    const opcion = [...(seleccion as HTMLSelectElement).options].find((o) => o.text === "5P 1,6 ALLURE TIPT6 2026 — $43.810.000");
+    const opcion = [...(seleccion as HTMLSelectElement).options].find((o) => o.text === "5P 1,6 ALLURE TIPT6 2026 — $45.570.000");
     if (!opcion) throw new Error("Falta Peugeot 208");
     fireEvent.change(seleccion, { target: { value: opcion.value } });
-    expect(patente).toHaveValue("193.900");
+    expect(patente).toHaveValue("205.633");
   });
 
   it("conserva la edición manual y su costo anual al cambiar frecuencia", () => {
