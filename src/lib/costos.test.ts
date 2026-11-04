@@ -4,9 +4,9 @@ import matrizCsv from "@/data/base-modelos.csv?raw";
 import premiumCsv from "@/data/combustible-premium.csv?raw";
 
 describe("costos", () => {
-  it("conserva todos los valores de las 745 filas del archivo", () => {
+  it("conserva todos los valores de las 744 filas del archivo", () => {
     const filas = parseCsv(matrizCsv);
-    expect(filas).toHaveLength(745);
+    expect(filas).toHaveLength(744);
     filas.forEach((fila, i) => {
       const modelo = MODELOS[i];
       if (!modelo) throw new Error(`Falta fila ${i}`);
@@ -24,11 +24,11 @@ describe("costos", () => {
       expect(versionesDeModelo(modelo.marca, modelo.modelo).some((m) => m.id === modelo.id)).toBe(true);
     });
   });
-  it("carga 745 versiones, 53 marcas unificadas, 312 modelos y 24 provincias", () => {
-    expect(MODELOS).toHaveLength(745);
+  it("carga 744 versiones, 53 marcas unificadas, 312 modelos y 24 provincias", () => {
+    expect(MODELOS).toHaveLength(744);
     expect(MARCAS).toHaveLength(53);
     expect(MARCAS.reduce((total, marca) => total + modelosDeMarca(marca).length, 0)).toBe(312);
-    expect(new Set(MODELOS.map((m) => m.id)).size).toBe(745);
+    expect(new Set(MODELOS.map((m) => m.id)).size).toBe(744);
     expect(SELLOS).toHaveLength(24);
     expect(COMBUSTIBLES.find((c) => c.clave === "gnc")?.precio).toBe(680);
   });
@@ -201,5 +201,17 @@ describe("modelos bien distribuidos (corrección 4-nov-2026)", () => {
     expect(modelosDeMarca("Toyota")).not.toContain("86");
     expect(versionesDeModelo("Toyota", "GR86")[0]?.combustiblePredeterminado).toBe("nafta_premium");
     expect(versionesDeModelo("Porsche", "Taycan Cross Turismo")[0]?.combustible).toBe("eléctrico");
+  });
+});
+
+describe("precios en dólares convertidos (corrección 4-nov-2026)", () => {
+  it("las listas en USD no quedan leídas como pesos", () => {
+    const precio = (marca: string, modelo: string, version: string) => MODELOS.find((m) => m.marca === marca && m.modelo === modelo && m.version === version)?.precio0km;
+    expect(precio("Porsche", "Macan", "5P 2,0 T 252CV 2021")).toBe(110_300 * 1565);
+    expect(precio("Suzuki", "Jimny", "3P 1,5 GLX AT 2026")).toBe(35_000 * 1565);
+    expect(precio("Mercedes-Benz", "A 200", "5P 1,3 PROGRESSIVE AT")).toBe(56_500 * 1565);
+    expect(precio("Lexus", "UX", "5P 2,0 300H HIBRIDO E-CVT")).toBe(55_600 * 1565);
+    expect(precio("Toyota", "Hilux", "C/S 2,4 TDi 4X2 DX 6MT HAR 2025")).toBe(44_034_000);
+    expect(MODELOS.filter((m) => m.fuente.includes("se mantiene oct-2026") && !m.fuente.includes("PRECIO 2026-11-04"))).toEqual([]);
   });
 });
