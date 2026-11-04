@@ -3,9 +3,9 @@ import { inicialMayuscula, MODELOS, MARCAS, modelosDeMarca, versionesDeModelo, p
 import matrizCsv from "@/data/base-modelos.csv?raw";
 
 describe("costos", () => {
-  it("conserva todos los valores de las 754 filas del archivo", () => {
+  it("conserva todos los valores de las 753 filas del archivo", () => {
     const filas = parseCsv(matrizCsv);
-    expect(filas).toHaveLength(754);
+    expect(filas).toHaveLength(753);
     filas.forEach((fila, i) => {
       const modelo = MODELOS[i];
       if (!modelo) throw new Error(`Falta fila ${i}`);
@@ -23,11 +23,11 @@ describe("costos", () => {
       expect(versionesDeModelo(modelo.marca, modelo.modelo).some((m) => m.id === modelo.id)).toBe(true);
     });
   });
-  it("carga 754 versiones, 53 marcas unificadas, 311 modelos y 24 provincias", () => {
-    expect(MODELOS).toHaveLength(754);
+  it("carga 753 versiones, 53 marcas unificadas, 311 modelos y 24 provincias", () => {
+    expect(MODELOS).toHaveLength(753);
     expect(MARCAS).toHaveLength(53);
     expect(MARCAS.reduce((total, marca) => total + modelosDeMarca(marca).length, 0)).toBe(311);
-    expect(new Set(MODELOS.map((m) => m.id)).size).toBe(754);
+    expect(new Set(MODELOS.map((m) => m.id)).size).toBe(753);
     expect(SELLOS).toHaveLength(24);
     expect(COMBUSTIBLES.find((c) => c.clave === "gnc")?.precio).toBe(680);
   });
