@@ -43,4 +43,24 @@ describe("cascada de versiones", () => {
     expect(cambio).toHaveBeenLastCalledWith(unica, false);
     expect(screen.queryByRole("option", { name: "Otro (manual)" })).not.toBeInTheDocument();
   });
+  it("filtra la lista de modelos al escribir, sin tildes ni signos, y elige solo si queda uno", () => {
+    render(<ComparadorModelos uso={uso} />);
+    const versionB = (screen.getByLabelText("Versión Modelo B") as HTMLSelectElement).value;
+    elegir("Marca Modelo A", "Honda");
+    elegir("Buscar modelo Modelo A", "c");
+    const lista = screen.getByLabelText("Modelo Modelo A") as HTMLSelectElement;
+    const visibles = () => [...lista.options].filter((o) => o.value).map((o) => o.value);
+    expect(visibles()).toEqual(modelosDeMarca("Honda").filter((m) => m.toLowerCase().includes("c")));
+    expect(lista).toHaveValue("");
+    elegir("Buscar modelo Modelo A", "crv");
+    const crv = modelosDeMarca("Honda").find((m) => m.toLowerCase() === "cr-v");
+    expect(lista).toHaveValue(crv);
+    expect(screen.getByLabelText("Versión Modelo B")).toHaveValue(versionB);
+    elegir("Buscar modelo Modelo A", "zzz");
+    expect(visibles()).toEqual([crv]);
+    expect(screen.getByRole("option", { name: "Ningún modelo coincide" })).toBeInTheDocument();
+    elegir("Marca Modelo A", "Fiat");
+    expect(screen.getByLabelText("Buscar modelo Modelo A")).toHaveValue("");
+    expect(visibles()).toEqual(modelosDeMarca("Fiat"));
+  });
 });
