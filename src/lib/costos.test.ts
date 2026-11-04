@@ -157,13 +157,13 @@ describe("combustible predeterminado", () => {
   const premium = parseCsv<"marca" | "modelo" | "version" | "fuente" | "fecha_actualizacion">(premiumCsv);
   it("cada versión premium existe una sola vez en la base y tiene fuente y fecha", () => {
     const filas = parseCsv<"marca" | "modelo" | "version">(matrizCsv);
-    expect(premium.length).toBe(91);
+    expect(premium.length).toBe(94);
     for (const p of premium) {
       expect(filas.filter((f) => f.marca === p.marca && f.modelo === p.modelo && f.version === p.version)).toHaveLength(1);
       expect(p.fuente.length).toBeGreaterThan(20);
       expect(p.fecha_actualizacion).toBe("2026-11-04");
     }
-    expect(MODELOS.filter((m) => m.combustiblePredeterminado === "nafta_premium")).toHaveLength(91);
+    expect(MODELOS.filter((m) => m.combustiblePredeterminado === "nafta_premium")).toHaveLength(94);
   });
   it("diésel → gasoil premium, eléctrico → ninguno, resto súper", () => {
     for (const m of MODELOS) {
