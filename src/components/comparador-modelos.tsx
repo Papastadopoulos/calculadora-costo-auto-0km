@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MODELOS, NOTA_ELECTRICO, ars, calcularModeloComparado, masBarato, type Modelo, type UsoComparador } from "@/lib/costos";
+import { COMBUSTIBLES, MODELOS, NOTA_ELECTRICO, ars, calcularModeloComparado, masBarato, type Modelo, type UsoComparador } from "@/lib/costos";
 import { SelectorVersion } from "@/components/selector-version";
 
 const rango = ([min, max]: readonly [number, number]) => min === max ? ars(min) : `${ars(min)} – ${ars(max)}`;
@@ -30,13 +30,13 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
           <div key={etiqueta} className="min-w-0">
             <p className="mb-1 text-sm font-medium">{etiqueta}</p>
             <SelectorVersion inicial={inicial} etiqueta={etiqueta} onChange={(m) => cambiar(m)} />
-            {modelo && <p className="mt-2 break-words text-xs text-muted-foreground">{modelo.version}</p>}
+            {modelo && <p className="mt-2 break-words text-xs text-muted-foreground">{modelo.version}{modelo.combustiblePredeterminado && ` · ${COMBUSTIBLES.find((c) => c.clave === modelo.combustiblePredeterminado)?.nombre ?? ""}`}</p>}
           </div>
         ))}
       </div>
       <p className="text-xs text-muted-foreground">
         {uso.kmAnio.toLocaleString("es-AR")} km/año; VTV, cochera, financiación y otros gastos iguales a los cargados arriba.
-        Consumo, seguro y service de referencia de cada modelo. Patente estimada con ARBA 2026 sobre el precio 0km, no la valuación fiscal real.
+        Consumo, combustible recomendado, seguro y service de referencia de cada modelo. Patente estimada con ARBA 2026 sobre el precio 0km, no la valuación fiscal real.
       </p>
       <div className="overflow-x-auto rounded-sm border border-border bg-card">
         <table className="w-full table-fixed text-sm">

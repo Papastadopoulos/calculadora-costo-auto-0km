@@ -111,8 +111,8 @@ function Index() {
   const [otros, setOtros] = useState(0);
   const [cuota, setCuota] = useState(0);
   const [precios, setPrecios] = useState(() => Object.fromEntries(COMBUSTIBLES.map((c) => [c.clave, c.precio])) as Record<string, number>);
-  const [tipoNafta, setTipoNafta] = useState<"nafta_super" | "nafta_premium">("nafta_super");
-  const [tipoGasoil, setTipoGasoil] = useState<"gasoil" | "gasoil_premium">("gasoil");
+  const [tipoNafta, setTipoNafta] = useState<"nafta_super" | "nafta_premium">(inicial.combustiblePredeterminado === "nafta_premium" ? "nafta_premium" : "nafta_super");
+  const [tipoGasoil, setTipoGasoil] = useState<"gasoil" | "gasoil_premium">(inicial.combustiblePredeterminado === "gasoil_premium" ? "gasoil_premium" : "gasoil");
   const [provincia, setProvincia] = useState("Buenos Aires");
   const [origen, setOrigen] = useState<Origen>("nacional");
   const [digital, setDigital] = useState(false);
@@ -132,6 +132,8 @@ function Index() {
       setIntervaloKm(10000); return;
     }
     setVersion(m.version); setCombustible(m.combustible); setConsumo(m.consumo);
+    if (m.combustiblePredeterminado === "gasoil_premium") setTipoGasoil("gasoil_premium");
+    else if (m.combustiblePredeterminado) setTipoNafta(m.combustiblePredeterminado);
     setPatenteManual(null);
     setPrecio0km(m.precio0km); setSeguroMin(m.seguroMin); setSeguroMax(m.seguroMax);
     setServiceMin(m.serviceMin); setServiceMax(m.serviceMax); setIntervaloKm(m.intervaloKm);
@@ -357,7 +359,7 @@ function Index() {
           </div>
         </section>
 
-        <ComparadorModelos uso={{ kmAnio, vtvAnual: vtv, cochera, otros, cuota, precioNafta: precios[tipoNafta] ?? 0, precioGasoil: precios[tipoGasoil] ?? 0 }} />
+        <ComparadorModelos uso={{ kmAnio, vtvAnual: vtv, cochera, otros, cuota, precios }} />
 
             {g && (
               <Card>

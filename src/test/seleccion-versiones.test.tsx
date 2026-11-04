@@ -5,7 +5,7 @@ import { SelectorVersion } from "@/components/selector-version";
 import { MODELOS, modelosDeMarca, versionesDeModelo } from "@/lib/costos";
 
 afterEach(cleanup);
-const uso = { kmAnio: 15000, precioNafta: 2000, precioGasoil: 1500, vtvAnual: 114106, cochera: 0, otros: 0, cuota: 0 };
+const uso = { kmAnio: 15000, precios: { nafta_super: 2000, nafta_premium: 2300, gasoil: 1400, gasoil_premium: 1500 }, vtvAnual: 114106, cochera: 0, otros: 0, cuota: 0 };
 const elegir = (campo: string, valor: string) => fireEvent.change(screen.getByLabelText(campo), { target: { value: valor } });
 
 describe("cascada de versiones", () => {

@@ -6,6 +6,7 @@
 import modelosCsv from "@/data/base-modelos.csv?raw";
 import combustiblesCsv from "@/data/precios-combustibles.csv?raw";
 import sellosCsv from "@/data/sellos-provincias.csv?raw";
+import premiumCsv from "@/data/combustible-premium.csv?raw";
 
 /** Parser CSV mínimo con soporte de comillas dobles. */
 export function parseCsv<K extends string = string>(text: string): Record<K, string>[] {
@@ -42,6 +43,8 @@ export interface Modelo {
   modelo: string;
   version: string;
   combustible: Combustible;
+  /** Combustible que se elige solo al seleccionar la versión (editable). Null en eléctricos. */
+  combustiblePredeterminado: "nafta_super" | "nafta_premium" | "gasoil_premium" | null;
   consumo: number;
   precio0km: number;
   seguroMin: number;
@@ -81,6 +84,19 @@ const nombresModelos = new Map(filasModelos.filter((r) => !enMayusculas(r.modelo
 // Los modelos en mayúsculas del CSV son siglas o códigos ("DS 3", "CR-V", "CLA 200"): quedan como vienen.
 const nombreModelo = (marca: string, m: string) => nombresModelos.get(`${marca}|${m.toLocaleLowerCase("es-AR")}`) ?? m;
 
+/**
+ * Combustible predeterminado:
+ * - Diésel: gasoil premium. Los turbodiésel 0km (Euro 5/6) piden gasoil grado 3 (≤10 ppm de azufre),
+ *   que en Argentina es el premium (Infinia Diesel, V-Power Diesel). Fuentes: pickuparena;
+ *   Infobae 19-mar-2026 (Luis Toso).
+ * - Nafta: premium (98 RON) solo en las versiones de combustible-premium.csv, cada una con la fuente
+ *   del fabricante. El resto, súper (95 RON): Infobae 19-mar-2026, "el 95% de los nafteros
+ *   sugieren 94 o 95 octanos".
+ */
+const VERSIONES_PREMIUM = new Set(parseCsv<"marca" | "modelo" | "version" | "fuente" | "fecha_actualizacion">(premiumCsv).map((r) => `${r.marca}|${r.modelo}|${r.version}`));
+const predeterminado = (r: { marca: string; modelo: string; version: string; combustible: string }): Modelo["combustiblePredeterminado"] =>
+  r.combustible === "eléctrico" ? null : r.combustible === "diésel" ? "gasoil_premium" : VERSIONES_PREMIUM.has(`${r.marca}|${r.modelo}|${r.version}`) ? "nafta_premium" : "nafta_super";
+
 export const MODELOS: Modelo[] = filasModelos.map((r, indice) => {
   const fuenteService = r.fuente.split("| seguro")[0] ?? "";
   const rango = fuenteService.match(/\[ESTIMADO\]\s*\$([\d.]+)-\$([\d.]+)/);
@@ -93,6 +109,7 @@ export const MODELOS: Modelo[] = filasModelos.map((r, indice) => {
     modelo,
     version: r.version,
     combustible: r.combustible as Combustible,
+    combustiblePredeterminado: predeterminado(r),
     consumo: r.combustible === "eléctrico" ? 0 : Number(r.consumo_mixto_l_100km),
     precio0km: Number(r.precio_0km_ref_ARS),
     seguroMin: Number(r.seguro_mensual_min_ARS),
@@ -188,8 +205,8 @@ export function estimarPatenteArba(valuacion: number) {
 }
 
 export type UsoComparador = Pick<Entradas, "kmAnio" | "vtvAnual" | "cochera" | "otros" | "cuota"> & {
-  precioNafta: number;
-  precioGasoil: number;
+  /** Precio por litro de cada combustible (clave de precios-combustibles.csv). */
+  precios: Record<string, number>;
 };
 
 /** Ambos modelos usan los mismos gastos comunes y sus propios valores de referencia. */
@@ -197,7 +214,7 @@ export function calcularModeloComparado(modelo: Modelo, uso: UsoComparador) {
   return calcular({
     ...uso,
     consumo: modelo.combustible === "eléctrico" ? 0 : modelo.consumo,
-    precioLitro: modelo.combustible === "eléctrico" ? 0 : modelo.combustible === "diésel" ? uso.precioGasoil : uso.precioNafta,
+    precioLitro: modelo.combustiblePredeterminado ? uso.precios[modelo.combustiblePredeterminado] ?? 0 : 0,
     seguroMin: modelo.seguroMin, seguroMax: modelo.seguroMax,
     serviceMin: modelo.serviceMin, serviceMax: modelo.serviceMax, intervaloKm: modelo.intervaloKm,
     patente: estimarPatenteArba(modelo.precio0km) / 12, patenteFrecuencia: "mensual",

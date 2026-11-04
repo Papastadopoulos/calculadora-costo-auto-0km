@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { inicialMayuscula, MODELOS, MARCAS, modelosDeMarca, versionesDeModelo, parseCsv, COMBUSTIBLES, SELLOS, calcular, patentamiento, estimarPatenteArba, calcularModeloComparado, masBarato } from "./costos";
 import matrizCsv from "@/data/base-modelos.csv?raw";
+import premiumCsv from "@/data/combustible-premium.csv?raw";
 
 describe("costos", () => {
   it("conserva todos los valores de las 753 filas del archivo", () => {
@@ -113,7 +114,7 @@ describe("comparador de modelos", () => {
   it("calcula la fila de la versión elegida y no otra del mismo modelo", () => {
     const version = versionesDeModelo("Fiat", "Cronos").find((m) => m.version === "4P 1,3 LIKE GSE 2025");
     if (!version) throw new Error("Falta la versión");
-    const resultado = calcularModeloComparado(version, { kmAnio: 15000, precioNafta: 2000, precioGasoil: 1500, vtvAnual: 0, cochera: 0, otros: 0, cuota: 0 });
+    const resultado = calcularModeloComparado(version, { kmAnio: 15000, precios: { nafta_super: 2000, nafta_premium: 2300, gasoil: 1400, gasoil_premium: 1500 }, vtvAnual: 0, cochera: 0, otros: 0, cuota: 0 });
     expect(version.precio0km).toBe(36650000);
     expect(resultado.rubros["Seguro"]).toEqual([876000, 1320000]);
     expect(resultado.rubros["Patente"]?.[0]).toBe(877000);
@@ -122,7 +123,7 @@ describe("comparador de modelos", () => {
     const electricos = MODELOS.filter((m) => m.combustible === "eléctrico");
     expect(electricos).toHaveLength(28);
     for (const modelo of electricos) {
-      const resultado = calcularModeloComparado({ ...modelo, consumo: 100 }, { kmAnio: 15000, precioNafta: 2000, precioGasoil: 1500, vtvAnual: 114106, cochera: 0, otros: 0, cuota: 0 });
+      const resultado = calcularModeloComparado({ ...modelo, consumo: 100 }, { kmAnio: 15000, precios: { nafta_super: 2000, nafta_premium: 2300, gasoil: 1400, gasoil_premium: 1500 }, vtvAnual: 114106, cochera: 0, otros: 0, cuota: 0 });
       expect(resultado.rubros.Combustible).toEqual([0, 0]);
       expect(resultado.rubros["VTV"]).toEqual([114106, 114106]);
       expect(resultado.rubros["Seguro"]).toEqual([modelo.seguroMin * 12, modelo.seguroMax * 12]);
@@ -133,7 +134,7 @@ describe("comparador de modelos", () => {
     const cronos = MODELOS.find((m) => m.modelo === "Cronos");
     const hilux = MODELOS.find((m) => m.modelo === "Hilux");
     if (!cronos || !hilux) throw new Error("Faltan modelos de prueba");
-    const uso = { kmAnio: 15000, precioNafta: 2000, precioGasoil: 1500, vtvAnual: 120000, cochera: 10000, otros: 50000, cuota: 0 };
+    const uso = { kmAnio: 15000, precios: { nafta_super: 2000, nafta_premium: 2300, gasoil: 1400, gasoil_premium: 1500 }, vtvAnual: 120000, cochera: 10000, otros: 50000, cuota: 0 };
     const a = calcularModeloComparado(cronos, uso);
     const b = calcularModeloComparado(hilux, uso);
     expect(a.rubros.Combustible[0]).toBeCloseTo(2_610_000);
@@ -149,5 +150,35 @@ describe("comparador de modelos", () => {
     expect(masBarato([100, 200], [140, 180])).toBe("a");
     expect(masBarato([200, 300], [100, 180])).toBe("b");
     expect(masBarato([100, 200], [150, 150])).toBeNull();
+  });
+});
+
+describe("combustible predeterminado", () => {
+  const premium = parseCsv<"marca" | "modelo" | "version" | "fuente" | "fecha_actualizacion">(premiumCsv);
+  it("cada versión premium existe una sola vez en la base y tiene fuente y fecha", () => {
+    const filas = parseCsv<"marca" | "modelo" | "version">(matrizCsv);
+    expect(premium.length).toBe(91);
+    for (const p of premium) {
+      expect(filas.filter((f) => f.marca === p.marca && f.modelo === p.modelo && f.version === p.version)).toHaveLength(1);
+      expect(p.fuente.length).toBeGreaterThan(20);
+      expect(p.fecha_actualizacion).toBe("2026-11-04");
+    }
+    expect(MODELOS.filter((m) => m.combustiblePredeterminado === "nafta_premium")).toHaveLength(91);
+  });
+  it("diésel → gasoil premium, eléctrico → ninguno, resto súper", () => {
+    for (const m of MODELOS) {
+      if (m.combustible === "diésel") expect(m.combustiblePredeterminado).toBe("gasoil_premium");
+      else if (m.combustible === "eléctrico") expect(m.combustiblePredeterminado).toBeNull();
+      else expect(["nafta_super", "nafta_premium"]).toContain(m.combustiblePredeterminado);
+    }
+    expect(MODELOS.find((m) => m.modelo === "Cronos")?.combustiblePredeterminado).toBe("nafta_super");
+    expect(MODELOS.filter((m) => m.marca === "Porsche" && m.combustible !== "eléctrico" && !m.modelo.startsWith("Macan")).every((m) => m.combustiblePredeterminado === "nafta_premium")).toBe(true);
+  });
+  it("el comparador usa el combustible de cada versión", () => {
+    const precios = { nafta_super: 2000, nafta_premium: 2300, gasoil: 1400, gasoil_premium: 1500 };
+    const gr = MODELOS.find((m) => m.modelo === "GR Yaris" || m.version.includes("1,6 T GR"));
+    if (!gr) throw new Error("Falta GR Yaris");
+    const r = calcularModeloComparado(gr, { kmAnio: 10000, precios, vtvAnual: 0, cochera: 0, otros: 0, cuota: 0 });
+    expect(r.rubros.Combustible[0]).toBeCloseTo(100 * gr.consumo * 2300);
   });
 });
