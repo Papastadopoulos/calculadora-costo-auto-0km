@@ -2,6 +2,7 @@ import { useState } from "react";
 import { COMBUSTIBLES, MODELOS, NOTA_ELECTRICO, ars, calcularModeloComparado, masBarato, type Modelo, type UsoComparador } from "@/lib/costos";
 import { SelectorVersion } from "@/components/selector-version";
 
+const FILAS_CON_CARGA = ["Total mensual", "Costo por km", "Combustible / mes"];
 const rango = ([min, max]: readonly [number, number]) => min === max ? ars(min) : `${ars(min)} – ${ars(max)}`;
 
 export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
@@ -21,6 +22,7 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
       b: [(costoB.rubros[nombre]?.[0] ?? 0) / 12, (costoB.rubros[nombre]?.[1] ?? 0) / 12] as [number, number],
     })),
   ] : [];
+  const hayElectrico = a?.combustible === "eléctrico" || b?.combustible === "eléctrico";
 
   return (
     <section aria-labelledby="comparador-titulo" className="space-y-4">
@@ -50,7 +52,9 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
           <tbody className="divide-y divide-border">
             {filas.length === 0 && <tr><td colSpan={3} className="p-3 text-sm text-muted-foreground">Elegí una versión en cada lado.</td></tr>}
             {filas.map((fila) => {
-              const ganador = masBarato(fila.a, fila.b);
+              // Con un eléctrico, el total, el costo por km y el combustible no incluyen la carga: no se declara ganador.
+              const sinCarga = hayElectrico && FILAS_CON_CARGA.includes(fila.nombre);
+              const ganador = sinCarga ? undefined : masBarato(fila.a, fila.b);
               return (
                 <tr key={fila.nombre}>
                   <th scope="row" className="p-3 text-left font-medium break-words">{fila.nombre}</th>
@@ -58,6 +62,7 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
                     <td key={lado} className={`p-3 text-right tabular-nums break-words ${ganador === lado ? "bg-highlight text-highlight-foreground font-semibold" : "text-muted-foreground"}`}>
                       {rango(fila[lado])}
                        {fila.nombre === "Combustible / mes" && (lado === "a" ? a : b)?.combustible === "eléctrico" && <span className="mt-1 block text-xs font-normal text-muted-foreground">{NOTA_ELECTRICO}</span>}
+                      {sinCarga && fila.nombre !== "Combustible / mes" && (lado === "a" ? a : b)?.combustible === "eléctrico" && <span className="mt-1 block text-[10px] font-medium">Sin costo de carga</span>}
                       {ganador === lado && <span className="mt-1 block text-[10px] font-medium">Menor promedio</span>}
                       {ganador === null && <span className="mt-1 block text-[10px]">Igual</span>}
                     </td>
@@ -68,7 +73,10 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
           </tbody>
         </table>
       </div>
-      <p className="text-xs text-muted-foreground">Se resalta el menor promedio de cada rango; los rangos pueden superponerse.</p>
+      <p className="text-xs text-muted-foreground">
+        Se resalta el menor promedio de cada rango; los rangos pueden superponerse.
+        {hayElectrico && " Con un eléctrico no se resaltan el total, el costo por km ni el combustible, porque no incluyen el costo de carga."}
+      </p>
     </section>
   );
 }

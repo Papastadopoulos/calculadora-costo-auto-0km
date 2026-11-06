@@ -129,6 +129,25 @@ const alfabetico = (a: string, b: string) => a.localeCompare(b, "es-AR");
 export const MARCAS = [...new Set(MODELOS.map((m) => m.marca))].sort(alfabetico);
 export const modelosDeMarca = (marca: string) => [...new Set(MODELOS.filter((m) => m.marca === marca).map((m) => m.modelo))].sort(alfabetico);
 export const versionesDeModelo = (marca: string, modelo: string) => MODELOS.filter((m) => m.marca === marca && m.modelo === modelo).sort((a, b) => a.precio0km - b.precio0km || alfabetico(a.version, b.version));
+/**
+ * Fuente del consumo de una versión, tal como figura en la columna `fuente` (ciclo incluido:
+ * IRAM/AITA, WLTP, EPA, Inmetro, medido…). No se clasifica ni se reescribe: se muestra el tramo
+ * del CSV que describe el consumo. Si el consumo se copió de otra versión del modelo, se avisa.
+ */
+export function fuenteConsumo(fuente: string): { texto: string; estimado: boolean } | null {
+  if (/igual al del modelo, a verificar/.test(fuente)) {
+    return { texto: "igual al de otra versión del modelo (otro motor o caja), a verificar", estimado: true };
+  }
+  const inicio = fuente.search(/consumo/i);
+  if (inicio < 0) return null;
+  // Primera frase desde "consumo" (corta en ". ", "; " o " | "; "992.1" o "6,5" no cortan).
+  const tramo = fuente.slice(inicio).split(/\.\s|;\s|\s\|\s/)[0] ?? "";
+  const limpio = tramo.replace(/^consumo(\s*\(homologado\))?\s*:\s*/i, "").replace(/^consumo\s+(?=\[)/i, "").trim();
+  if (!limpio) return null;
+  const texto = limpio.length > 140 ? `${limpio.slice(0, 139).trimEnd()}…` : limpio;
+  return { texto, estimado: /\[ESTIMADO|\[EST\]/.test(limpio) };
+}
+
 export const NOTA_ELECTRICO = "Costo de carga eléctrica no incluido: varía según la tarifa, el tipo de carga y el uso de cada persona, por lo que no es calculable de forma única.";
 
 export interface PrecioCombustible { clave: string; nombre: string; precio: number; unidad: string; fecha: string; fuente: string }

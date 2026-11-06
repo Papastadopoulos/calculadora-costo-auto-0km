@@ -1,0 +1,65 @@
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { Route } from "@/routes/index";
+import { ComparadorModelos } from "@/components/comparador-modelos";
+import { MODELOS, fuenteConsumo } from "@/lib/costos";
+
+vi.mock("recharts", () => ({
+  ResponsiveContainer: () => null, PieChart: () => null, Pie: () => null, Cell: () => null, Tooltip: () => null,
+}));
+
+afterEach(cleanup);
+
+function abrir() {
+  const Component = Route.options.component;
+  if (!Component) throw new Error("Falta la calculadora");
+  render(<Component />);
+}
+const elegir = (nombre: string, valor: string) =>
+  fireEvent.change(screen.getAllByRole("combobox", { name: nombre })[0]!, { target: { value: valor } });
+
+describe("resultado sin versión elegida", () => {
+  it("no muestra un rango ni deja compartir hasta elegir versión", () => {
+    abrir();
+    elegir("Marca", "Toyota");
+    expect(screen.getByText("Elegí una versión para ver el resultado")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Compartir mi resultado" })).toBeDisabled();
+  });
+  it("en Otro (manual) pide consumo y precio y no arrastra los datos del auto anterior", () => {
+    abrir();
+    elegir("Modelo", "otro");
+    expect(screen.getByText("Cargá el consumo y el precio 0km para ver el resultado")).toBeInTheDocument();
+    expect(screen.getByLabelText("Precio 0km ($)")).toHaveValue("0");
+    fireEvent.change(screen.getByLabelText("Precio 0km ($)"), { target: { value: "30000000" } });
+    fireEvent.change(screen.getByLabelText(/Consumo \(L\/100 km\)/), { target: { value: "7" } });
+    expect(screen.getByRole("button", { name: "Compartir mi resultado" })).toBeEnabled();
+  });
+});
+
+describe("fuente del consumo por versión", () => {
+  it("toma el ciclo de la columna fuente, sin fijar IRAM/AITA", () => {
+    expect(fuenteConsumo("consumo: homologado IRAM/AITA (etiqueta oficial). radiohache")?.texto).toBe("homologado IRAM/AITA (etiqueta oficial)");
+    expect(fuenteConsumo("CCA oct-2026; consumo: fábrica (WLTP, punto medio de 12,0–12,7). Porsche")?.texto).toBe("fábrica (WLTP, punto medio de 12,0–12,7)");
+    expect(fuenteConsumo("x; consumo: homologado IRAM/AITA. motor distinto; consumo [ESTIMADO] igual al del modelo, a verificar")?.estimado).toBe(true);
+  });
+  it("todas las versiones no eléctricas tienen una fuente de consumo para mostrar", () => {
+    expect(MODELOS.filter((m) => m.combustible !== "eléctrico" && !fuenteConsumo(m.fuente))).toEqual([]);
+  });
+});
+
+describe("comparador con eléctrico", () => {
+  it("no declara ganador del total ni del costo por km", () => {
+    const electrico = MODELOS.find((m) => m.combustible === "eléctrico");
+    if (!electrico) throw new Error("Falta eléctrico");
+    render(<ComparadorModelos uso={{ kmAnio: 15000, precios: { nafta_super: 2000, nafta_premium: 2300, gasoil: 1400, gasoil_premium: 1500 }, vtvAnual: 114106, cochera: 0, otros: 0, cuota: 0 }} />);
+    fireEvent.change(screen.getByLabelText("Marca Modelo A"), { target: { value: electrico.marca } });
+    fireEvent.change(screen.getByLabelText("Modelo Modelo A"), { target: { value: electrico.modelo } });
+    const version = screen.getByLabelText("Versión Modelo A") as HTMLSelectElement;
+    if (!version.value) fireEvent.change(version, { target: { value: electrico.id } });
+    for (const nombre of [/Total mensual/, /Costo por km/]) {
+      const fila = screen.getByRole("row", { name: nombre });
+      expect(within(fila).queryByText("Menor promedio")).not.toBeInTheDocument();
+    }
+    expect(within(screen.getByRole("row", { name: /Total mensual/ })).getByText("Sin costo de carga")).toBeInTheDocument();
+  });
+});

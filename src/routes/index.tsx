@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { ComparadorModelos } from "@/components/comparador-modelos";
 import { SelectorVersion } from "@/components/selector-version";
 import {
   MODELOS, COMBUSTIBLES, SELLOS, VTV_REF, EQUIPO_GNC_DEFAULT,
-  ars, calcular, patentamiento, gnc, estimarPatenteArba, NOTA_ELECTRICO, type Modelo, type Combustible, type Origen,
+  ars, calcular, patentamiento, gnc, estimarPatenteArba, fuenteConsumo, NOTA_ELECTRICO, type Modelo, type Combustible, type Origen,
 } from "@/lib/costos";
 
 const TITLE = "¿Cuánto te va a costar tu próximo auto? | Calculadora de costo por km";
@@ -50,7 +50,7 @@ const inputCls = "w-full rounded-md border border-input bg-card px-3 py-2 text-s
  * Al enfocar se selecciona todo el valor; al salir se formatea con separador de miles.
  * El valor mensual se usa tal cual (×1) en el total por mes; el ×12 aparece solo en el desglose anual.
  */
-function Num({ value, onChange, step = 1 }: { value: number; onChange: (n: number) => void; step?: number }) {
+function Num({ value, onChange, step = 1, ariaLabel }: { value: number; onChange: (n: number) => void; step?: number; ariaLabel?: string }) {
   const decimales = step < 1 ? Math.max(1, (String(value).split(".")[1] ?? "").length) : 0;
   const [txt, setTxt] = useState<string | null>(null);
   const fmt = (n: number) =>
@@ -68,6 +68,7 @@ function Num({ value, onChange, step = 1 }: { value: number; onChange: (n: numbe
       type="text"
       inputMode="decimal"
       autoComplete="off"
+      aria-label={ariaLabel}
       className={inputCls}
       value={txt ?? fmt(value)}
       onFocus={(e) => {
@@ -126,9 +127,8 @@ function Index() {
     setModeloId(m?.id ?? (manual ? "otro" : ""));
     setPatenteManual(null);
     if (!m) {
-      if (!manual) {
-        setVersion(""); setConsumo(0); setPrecio0km(0); setSeguroMin(0); setSeguroMax(0); setServiceMin(0); setServiceMax(0);
-      }
+      // Sin versión o "Otro (manual)": se vacía todo para no arrastrar datos del auto anterior.
+      setVersion(""); setConsumo(0); setPrecio0km(0); setSeguroMin(0); setSeguroMax(0); setServiceMin(0); setServiceMax(0);
       setIntervaloKm(10000); return;
     }
     setVersion(m.version); setCombustible(m.combustible); setConsumo(m.consumo);
@@ -154,21 +154,45 @@ function Index() {
 
   const sellosPct = SELLOS.find((s) => s.provincia === provincia)?.pct ?? 0;
   const pat = patentamiento(precio0km, sellosPct, digital, origen);
-  const g = combustible !== "diésel" && combustible !== "eléctrico" ? gnc(kmAnio, consumo, precios[tipoNafta] ?? 0, precios["gnc"] ?? 0, equipoGnc) : null;
+  const g = combustible === "nafta" ? gnc(kmAnio, consumo, precios[tipoNafta] ?? 0, precios["gnc"] ?? 0, equipoGnc) : null;
 
   const torta = Object.entries(r.rubros)
     .map(([name, [a, b]]) => ({ name, value: (a + b) / 2 }))
     .filter((d) => d.value > 0);
 
   const nombreAuto = modelo ? `${modelo.marca} ${modelo.modelo}` : "mi auto";
+  /** Sin versión elegida (o en "Otro" sin consumo ni precio) no hay resultado que mostrar ni compartir. */
+  const faltaDato = modeloId === "otro"
+    ? precio0km <= 0 || (combustible !== "eléctrico" && consumo <= 0)
+    : !modelo;
+  const avisoFalta = modeloId === "otro" ? "Cargá el consumo y el precio 0km para ver el resultado" : "Elegí una versión para ver el resultado";
+  const fuenteCons = modelo && combustible === modelo.combustible && consumo === modelo.consumo ? fuenteConsumo(modelo.fuente) : null;
+  const notaConsumo = combustible === "eléctrico"
+    ? "Eléctrico: sin consumo de combustible."
+    : modeloId === "otro" ? "Cargá el consumo de tu auto."
+    : fuenteCons ? `Fuente: ${fuenteCons.texto}` : modelo ? "Valor editado a mano." : null;
+
+  /** En el celular, barra fija con el resultado mientras la tarjeta no está a la vista. */
+  const tarjetaRef = useRef<HTMLDivElement>(null);
+  const [tarjetaVisible, setTarjetaVisible] = useState(true);
+  useEffect(() => {
+    const el = tarjetaRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const obs = new IntersectionObserver(([e]) => setTarjetaVisible(!!e?.isIntersecting));
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   function compartir() {
-    const txt = `Mantener ${nombreAuto} me sale entre ${ars(r.mensualMin)} y ${ars(r.mensualMax)} por mes (${ars(r.anualMin)}–${ars(r.anualMax)} al año), o sea ${ars(r.kmMin)}–${ars(r.kmMax)} por km, manejando ${kmAnio.toLocaleString("es-AR")} km/año. Calculado con "¿Cuánto te va a costar tu próximo auto?" (precios de referencia nov-2026).`;
+    if (faltaDato) return;
+    const auto = modeloId === "otro" ? (version.trim() || "mi auto") : modelo ? `${modelo.marca} ${modelo.modelo} ${modelo.version}` : "mi auto";
+    const url = typeof window !== "undefined" ? `${window.location.origin}${window.location.pathname}` : "";
+    const txt = `Mantener ${auto} me sale entre ${ars(r.mensualMin)} y ${ars(r.mensualMax)} por mes (${ars(r.anualMin)}–${ars(r.anualMax)} al año), o sea ${ars(r.kmMin)}–${ars(r.kmMax)} por km, manejando ${kmAnio.toLocaleString("es-AR")} km/año. Calculado con "¿Cuánto te va a costar tu próximo auto?" (precios de referencia nov-2026)${url ? `: ${url}` : "."}`;
     navigator.clipboard?.writeText(txt).then(() => { setCopiado(true); setTimeout(() => setCopiado(false), 2500); });
   }
 
   return (
-    <div className="min-h-screen">
+    <div className={`min-h-screen ${tarjetaVisible ? "" : "pb-14 lg:pb-0"}`}>
       {/* 1. Hero */}
       <header className="border-b border-border">
         <div className="mx-auto max-w-5xl px-5 pb-12 pt-10 md:pb-20 md:pt-14">
@@ -205,7 +229,12 @@ function Index() {
                   </Campo>
                 </div>}
                 <Campo label="Combustible">
-                  <select className={inputCls} value={combustible} onChange={(e) => setCombustible(e.target.value as Combustible)}>
+                  <select className={inputCls} value={combustible} onChange={(e) => {
+                    // Al cambiar el combustible a mano, el tipo vuelve al predeterminado de la versión (o súper / gasoil premium).
+                    setCombustible(e.target.value as Combustible);
+                    setTipoNafta(modelo?.combustiblePredeterminado === "nafta_premium" ? "nafta_premium" : "nafta_super");
+                    setTipoGasoil("gasoil_premium");
+                  }}>
                     <option value="nafta">Nafta</option><option value="diésel">Diésel</option><option value="híbrido">Híbrido</option><option value="eléctrico">Eléctrico</option>
                   </select>
                 </Campo>
@@ -220,7 +249,7 @@ function Index() {
                     </select>
                   )}
                 </Campo>}
-                <Campo label="Consumo (L/100 km)" nota="Homologado IRAM/AITA">
+                <Campo label="Consumo (L/100 km)" est={!!fuenteCons?.estimado} nota={notaConsumo}>
                   <Num value={consumoCalculado} step={0.1} onChange={setConsumo} />
                 </Campo>
                 <Campo label="Precio 0km ($)"><Num value={precio0km} onChange={setPrecio0km} /></Campo>
@@ -251,7 +280,7 @@ function Index() {
                   <span className="mt-1 block">Estimación anual: {ars(patenteAnualEstimada)}.</span>
                 </>}>
                   <div className="flex gap-2">
-                    <div className="min-w-0 flex-1"><Num value={patente} onChange={setPatenteManual} /></div>
+                    <div className="min-w-0 flex-1"><Num value={patente} onChange={setPatenteManual} ariaLabel="Patente ($)" /></div>
                     <select aria-label="Frecuencia de patente" className={`${inputCls.replace("w-full", "w-28")} shrink-0`} value={patenteFrec} onChange={(e) => {
                       const frecuencia = e.target.value as typeof patenteFrec;
                       if (patenteManual !== null) setPatenteManual(patenteManual * (patenteFrec === "mensual" ? 12 : 6) / (frecuencia === "mensual" ? 12 : 6));
@@ -263,10 +292,10 @@ function Index() {
                 </Campo>
                 <Campo label="VTV anual ($)" nota="Referencia oct-2026, editable.">
                   <div className="flex gap-2">
-                    <select className={`${inputCls} w-28`} value={vtvJur} onChange={(e) => { const j = e.target.value as "PBA" | "CABA"; setVtvJur(j); setVtv(VTV_REF[j]); }}>
+                    <select aria-label="Jurisdicción de la VTV" className={`${inputCls} w-28`} value={vtvJur} onChange={(e) => { const j = e.target.value as "PBA" | "CABA"; setVtvJur(j); setVtv(VTV_REF[j]); }}>
                       <option>PBA</option><option>CABA</option>
                     </select>
-                    <Num value={vtv} onChange={setVtv} />
+                    <Num value={vtv} onChange={setVtv} ariaLabel="VTV anual ($)" />
                   </div>
                 </Campo>
               </div>
@@ -287,37 +316,41 @@ function Index() {
 
           {/* Resultados */}
           <div className="space-y-6 lg:sticky lg:top-6 lg:self-start">
+            <div ref={tarjetaRef} id="resultado" className="scroll-mt-4">
             <Card className="bg-primary text-primary-foreground">
               <p className="text-sm opacity-80">Mantener {nombreAuto} te sale</p>
               <p className="mt-1 min-h-[2.5em] font-display text-4xl leading-tight">
-                entre {ars(r.mensualMin)} y {ars(r.mensualMax)} <span className="text-lg font-medium opacity-80">por mes</span>
+                {faltaDato ? <span className="text-2xl">{avisoFalta}</span> : <>
+                  entre {ars(r.mensualMin)} y {ars(r.mensualMax)} <span className="text-lg font-medium opacity-80">por mes</span>
+                </>}
               </p>
-              <p className="mt-2 text-sm opacity-80">{ars(r.anualMin)} – {ars(r.anualMax)} al año</p>
+              <p className="mt-2 text-sm opacity-80">{faltaDato ? "—" : `${ars(r.anualMin)} – ${ars(r.anualMax)} al año`}</p>
               <div className="mt-5 rounded-sm bg-highlight p-4 text-highlight-foreground">
                 <p className="text-xs font-bold uppercase tracking-wide">Costo por km</p>
-                <p className="font-display text-3xl">{ars(r.kmMin)} – {ars(r.kmMax)}</p>
+                <p className="font-display text-3xl">{faltaDato ? "—" : `${ars(r.kmMin)} – ${ars(r.kmMax)}`}</p>
               </div>
-              <button onClick={compartir} className="mt-5 w-full rounded-md border border-primary-foreground/30 px-4 py-2 text-sm font-medium transition hover:bg-primary-foreground/10">
+              <button onClick={compartir} disabled={faltaDato} className="mt-5 w-full rounded-md border border-primary-foreground/30 px-4 py-2 text-sm font-medium transition hover:bg-primary-foreground/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent">
                 {copiado ? "¡Copiado al portapapeles!" : "Compartir mi resultado"}
               </button>
             </Card>
+            </div>
 
           <Card>
             <h2 className="text-xl">Costo único de compra: patentamiento</h2>
             <p className="mt-1 text-sm text-muted-foreground">No entra en el costo mensual ni por km.</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <Campo label="Provincia">
-                <select className={inputCls} value={provincia} onChange={(e) => setProvincia(e.target.value)}>
+              <Campo label="Provincia" nota="Cambia solo los sellos. La patente de arriba se estima con ARBA (PBA).">
+                <select aria-label="Provincia" className={inputCls} value={provincia} onChange={(e) => setProvincia(e.target.value)}>
                   {SELLOS.map((s) => <option key={s.provincia}>{s.provincia}</option>)}
                 </select>
               </Campo>
               <Campo label="Origen">
-                <select className={inputCls} value={origen} onChange={(e) => setOrigen(e.target.value as Origen)}>
+                <select aria-label="Origen" className={inputCls} value={origen} onChange={(e) => setOrigen(e.target.value as Origen)}>
                   <option value="nacional">Nacional / Mercosur</option><option value="mexico">México</option><option value="importado">Importado</option>
                 </select>
               </Campo>
               <label className="flex items-center gap-2 self-end pb-2 text-sm">
-                <input type="checkbox" checked={digital} onChange={(e) => setDigital(e.target.checked)} className="accent-primary" />
+                <input type="checkbox" aria-label="Trámite digital (0,8%)" checked={digital} onChange={(e) => setDigital(e.target.checked)} className="accent-primary" />
                 Trámite digital (0,8%)
               </label>
             </div>
@@ -368,7 +401,7 @@ function Index() {
                   <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Nafta / km</p><p className="font-bold">{ars(g.kmNafta)}</p></div>
                   <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">GNC / km</p><p className="font-bold">{ars(g.kmGnc)}</p></div>
                 </div>
-                <div className="mt-3"><Campo label="Costo del equipo ($)"><Num value={equipoGnc} onChange={setEquipoGnc} /></Campo></div>
+                <div className="mt-3"><Campo label="Costo del equipo ($)"><Num value={equipoGnc} onChange={setEquipoGnc} ariaLabel="Costo del equipo GNC ($)" /></Campo></div>
                 <p className="mt-3 text-sm">
                   Ahorrás ~{ars(g.ahorroMes)}/mes: recuperás el equipo en{" "}
                   <strong>{Number.isFinite(g.meses) ? `${Math.ceil(g.meses)} meses` : "—"}</strong>.
@@ -389,7 +422,7 @@ function Index() {
                 {COMBUSTIBLES.map((c) => (
                   <tr key={c.clave}>
                     <td className="p-3 font-medium">{c.nombre}</td>
-                    <td className="p-3"><div className="ml-auto w-36"><Num value={precios[c.clave] ?? 0} onChange={(n) => setPrecios((p) => ({ ...p, [c.clave]: n }))} /></div></td>
+                    <td className="p-3"><div className="ml-auto w-36"><Num value={precios[c.clave] ?? 0} onChange={(n) => setPrecios((p) => ({ ...p, [c.clave]: n }))} ariaLabel={`Precio ${c.nombre} ($/${c.unidad})`} /></div></td>
                     <td className="w-16 p-3 text-muted-foreground">{c.unidad}</td>
                   </tr>
                 ))}
@@ -403,7 +436,7 @@ function Index() {
           <h2 className="text-3xl">Cómo lo calculamos</h2>
           <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed">
             <li><strong>Combustible anual</strong> = (km por año ÷ 100) × consumo × precio por litro.</li>
-            <li><strong>Service anual</strong> = (km por año ÷ intervalo de service) × costo del service. Cuando no hay precio oficial publicado lo marcamos <Estimado /> y lo anclamos en un hermano de marca.</li>
+            <li><strong>Service anual</strong> = (km por año ÷ intervalo de service) × costo del service. Cuando no hay precio oficial publicado lo marcamos <Estimado />: en la mayoría de esos casos es un rango calculado sobre el 0,75% del precio 0km por service, y en algunos se ancla en un modelo hermano de la marca.</li>
             <li><strong>Seguro</strong> <Estimado />: rango orientativo de terceros completo, con una regla calibrada con cotizaciones de prensa (se recotiza cada trimestre).</li>
             <li><strong>Patente, VTV, cochera, cuota y otros</strong>: pasados a valor anual.</li>
             <li><strong>Rango total</strong>: el mínimo suma todos los mínimos; el máximo suma todos los máximos. El costo por km es ese total dividido por los km anuales.</li>
@@ -412,7 +445,7 @@ function Index() {
             <li>Datos de referencia: noviembre 2026.</li>
           </ul>
           <p className="text-xs text-muted-foreground">
-            Fuentes: consumo homologado IRAM/AITA (etiqueta oficial); service de concesionario oficial o estimado anclado en hermano de marca; combustibles: se toma el valor más alto observado entre las principales estaciones de servicio de CABA (YPF, Shell, Axion y Puma) según datos oficiales Res. 314/2016, para no subestimar el gasto; GNC: último dato verificado octubre 2026, sin dato de noviembre; seguro con regla calibrada (recotización trimestral).
+            Fuentes: consumo de cada versión según su propia fuente (homologado IRAM/AITA, WLTP, EPA, Inmetro, Chile MTT, medido en pruebas o estimado con ancla), indicada debajo del campo de consumo; service de concesionario oficial o estimado (0,75% del precio o anclado en hermano de marca); combustibles: se toma el valor más alto observado entre las principales estaciones de servicio de CABA (YPF, Shell, Axion y Puma) según datos oficiales Res. 314/2016, para no subestimar el gasto; GNC: último dato verificado octubre 2026, sin dato de noviembre; seguro con regla calibrada (recotización trimestral).
           </p>
         </section>
 
@@ -422,7 +455,7 @@ function Index() {
           {[
             ["¿Cuánto cuesta mantener un auto por mes en Argentina?", "Depende del modelo y de cuánto manejes. Para un 0km chico manejando 15.000 km al año, sumando combustible, seguro, patente, VTV y service, el costo suele ir de varios cientos de miles de pesos por mes. Elegí tu modelo arriba para ver tu rango."],
             ["¿Cómo se calcula el costo por kilómetro?", "Sumamos todos los gastos del año (fijos y variables) y los dividimos por los kilómetros que hacés en ese año. Por eso, cuanto más manejás, más se diluyen los gastos fijos."],
-            ["¿Conviene pasar el auto a GNC?", "Si manejás mucho, el ahorro por km suele recuperar el equipo en pocos meses. Usá el comparador \"¿Y a GNC?\" con tu costo de instalación real. No aplica a diésel."],
+            ["¿Conviene pasar el auto a GNC?", "Si manejás mucho, el ahorro por km suele recuperar el equipo en pocos meses. Usá el comparador \"¿Y a GNC?\" con tu costo de instalación real. Solo se ofrece para autos a nafta: no aplica a diésel ni a eléctricos, y en híbridos no es habitual."],
           ].map(([q, a]) => (
             <details key={q} className="border-b border-border py-3">
               <summary className="cursor-pointer font-medium">{q}</summary>
@@ -431,6 +464,14 @@ function Index() {
           ))}
         </section>
       </main>
+
+      {/* Resultado fijo abajo: solo en pantallas chicas y mientras la tarjeta no se ve */}
+      {!tarjetaVisible && (
+        <a href="#resultado" className="fixed inset-x-0 bottom-0 z-30 flex items-baseline justify-between gap-3 border-t border-primary-foreground/20 bg-primary px-5 py-3 text-primary-foreground lg:hidden">
+          <span className="text-xs opacity-80">{faltaDato ? "Resultado" : "Por mes"}</span>
+          <span className={faltaDato ? "text-sm" : "font-display text-xl tabular-nums"}>{faltaDato ? avisoFalta : `${ars(r.mensualMin)} – ${ars(r.mensualMax)}`}</span>
+        </a>
+      )}
 
       {/* 8. Footer */}
       <footer className="border-t border-border bg-secondary">

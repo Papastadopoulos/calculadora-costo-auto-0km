@@ -14,8 +14,7 @@ function sugerir(texto: string) {
   const junto = palabras.join("");
   const orden = (s: (typeof CATALOGO)[number]) => (s.claveModelo.startsWith(junto) ? 0 : s.clave.startsWith(junto) ? 1 : 2);
   return CATALOGO.filter((s) => palabras.every((p) => s.clave.includes(p)))
-    .sort((a, b) => orden(a) - orden(b) || a.modelo.localeCompare(b.modelo, "es-AR") || a.marca.localeCompare(b.marca, "es-AR"))
-    .slice(0, MAX_SUGERENCIAS);
+    .sort((a, b) => orden(a) - orden(b) || a.modelo.localeCompare(b.modelo, "es-AR") || a.marca.localeCompare(b.marca, "es-AR"));
 }
 
 export function SelectorVersion({ inicial, onChange, manual = false, etiqueta = "", className = "space-y-4" }: {
@@ -31,7 +30,8 @@ export function SelectorVersion({ inicial, onChange, manual = false, etiqueta = 
   const listaId = useId();
   const modelos = modelosDeMarca(marca);
   const versiones = versionesDeModelo(marca, modelo);
-  const sugerencias = sugerir(busqueda);
+  const coincidencias = sugerir(busqueda);
+  const sugerencias = coincidencias.slice(0, MAX_SUGERENCIAS);
   const mostrar = abierto && busqueda.trim() !== "";
   const nombre = (campo: string) => etiqueta ? `${campo} ${etiqueta}` : campo;
   function cambiarModelo(valor: string, enMarca = marca) {
@@ -75,6 +75,9 @@ export function SelectorVersion({ inicial, onChange, manual = false, etiqueta = 
               <span className="font-medium">{s.modelo}</span> <span className="text-muted-foreground">{s.marca}</span>
             </li>
           ))}
+          {coincidencias.length > sugerencias.length && <li role="presentation" className="px-3 py-2 text-xs text-muted-foreground">
+            Mostrando {sugerencias.length} de {coincidencias.length}. Escribí más para afinar.
+          </li>}
         </ul>}
       </div>
       <label className="block min-w-0">
