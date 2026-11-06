@@ -99,7 +99,9 @@ const predeterminado = (r: { marca: string; modelo: string; version: string; com
 
 export const MODELOS: Modelo[] = filasModelos.map((r, indice) => {
   const fuenteService = r.fuente.split("| seguro")[0] ?? "";
-  const rango = fuenteService.match(/\[ESTIMADO\]\s*\$([\d.]+)-\$([\d.]+)/);
+  // Algunas filas escriben "service rango [ESTIMADO] $a–$b" después del seguro: también se lee.
+  const rangoAparte = r.fuente.match(/service rango \[ESTIMADO\]\s*\$([\d.]+)\s*[-–]\s*\$([\d.]+)/i);
+  const rango = fuenteService.match(/\[ESTIMADO\]\s*\$([\d.]+)-\$([\d.]+)/) ?? rangoAparte;
   const service = Number(r.service_10k_ref_ARS);
   const marca = nombreMarca(r.marca);
   const modelo = nombreModelo(marca, r.modelo);
@@ -117,7 +119,7 @@ export const MODELOS: Modelo[] = filasModelos.map((r, indice) => {
     service,
     serviceMin: rango ? toNum(rango[1] ?? "") : service,
     serviceMax: rango ? toNum(rango[2] ?? "") : service,
-    serviceEstimado: /\[ESTIMADO\]|\[EST\]/.test(fuenteService),
+    serviceEstimado: /\[ESTIMADO\]|\[EST\]/.test(fuenteService) || !!rangoAparte,
     intervaloKm: intervalo(marca, r.modelo),
     primerServiceBonificado: r.modelo === "Nivus" || r.modelo === "Amarok",
     fuente: r.fuente,
