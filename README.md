@@ -14,10 +14,8 @@ y no a ojo.
 
 - **Antes de comprar:** ver cuánto te cuesta por mes mantener el auto que
   te gusta, no solo cuánto sale.
-- **Para comparar:** poner dos modelos lado a lado con el mismo uso y ver
-  cuál sale más caro mantener y por qué.
-- **Para decidir el combustible:** ver si te conviene pasar a GNC según
-  cuánto manejás y cuánto te cobran el equipo.
+- **Para comparar:** poner dos modelos lado a lado, con los mismos km por
+  año, y ver cuál es más caro de mantener y en qué gastos se va la diferencia.
 - **Para no llevarte sorpresas:** el patentamiento (arancel, sellos de tu
   provincia y formulario) se muestra aparte, como gasto único de compra.
 
