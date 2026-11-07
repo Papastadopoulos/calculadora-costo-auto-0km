@@ -119,11 +119,14 @@ function Index() {
   const [digital, setDigital] = useState(false);
   const [equipoGnc, setEquipoGnc] = useState(EQUIPO_GNC_DEFAULT);
   const [copiado, setCopiado] = useState(false);
+  /** Hasta que la persona elige un auto, el resultado es el del auto de ejemplo y se aclara. */
+  const [eligioAuto, setEligioAuto] = useState(false);
 
   const modelo = MODELOS.find((m) => m.id === modeloId);
 
   /** Al elegir modelo, autocompleta desde el CSV (todo queda editable). */
   function elegirModelo(m: Modelo | null, manual: boolean) {
+    setEligioAuto(true);
     setModeloId(m?.id ?? (manual ? "otro" : ""));
     setPatenteManual(null);
     if (!m) {
@@ -195,21 +198,20 @@ function Index() {
     <div className={`min-h-screen ${tarjetaVisible ? "" : "pb-14 lg:pb-0"}`}>
       {/* 1. Hero */}
       <header className="border-b border-border">
-        <div className="mx-auto max-w-5xl px-5 pb-12 pt-10 md:pb-20 md:pt-14">
+        <div className="mx-auto max-w-5xl px-5 pb-8 pt-6 md:pb-20 md:pt-14">
           <div className="flex items-center justify-between border-b border-foreground pb-3 text-xs uppercase tracking-[0.18em]">
             <span>Costo real · Argentina</span>
             <span className="text-muted-foreground">Ref. noviembre 2026</span>
           </div>
-          <h1 className="mt-10 text-5xl leading-[0.95] md:text-8xl">¿Cuánto te va a costar<br /><em className="text-accent">tu próximo auto?</em></h1>
-          <div className="mt-8 grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
-            <p className="max-w-lg text-lg text-muted-foreground">
+          <h1 className="mt-6 text-4xl leading-[0.95] md:mt-10 md:text-8xl">¿Cuánto te va a costar<br /><em className="text-accent">tu próximo auto?</em></h1>
+          <div className="mt-5 grid gap-4 md:mt-8 md:grid-cols-[1fr_auto] md:items-end md:gap-6">
+            <p className="max-w-lg text-base text-muted-foreground md:text-lg">
               Antes de comprar tu 0km, descubrí cuánto te va a costar cada kilómetro: combustible, seguro, patente, VTV, service y más.
             </p>
             <a href="#calculadora" className="inline-flex w-fit border-b-2 border-accent pb-1 font-medium transition hover:text-accent">
               Ir a la calculadora ↓
             </a>
           </div>
-          <p className="mt-6 text-xs text-muted-foreground">Precios de referencia actualizados a noviembre 2026.</p>
         </div>
       </header>
 
@@ -253,6 +255,11 @@ function Index() {
                   <Num value={consumoCalculado} step={0.1} onChange={setConsumo} />
                 </Campo>
                 <Campo label="Precio 0km ($)"><Num value={precio0km} onChange={setPrecio0km} /></Campo>
+                <div className="sm:col-span-2">
+                  <Campo label={`Kilómetros por año: ${kmAnio.toLocaleString("es-AR")} km`}>
+                    <input type="range" min={1000} max={60000} step={1000} value={kmAnio} onChange={(e) => setKmAnio(Number(e.target.value))} className="w-full accent-primary" />
+                  </Campo>
+                </div>
               </div>
             </Card>
 
@@ -302,11 +309,8 @@ function Index() {
             </Card>
 
             <Card>
-              <h2 className="mb-4 text-2xl">Uso y extras</h2>
-              <Campo label={`Kilómetros por año: ${kmAnio.toLocaleString("es-AR")} km`}>
-                <input type="range" min={1000} max={60000} step={1000} value={kmAnio} onChange={(e) => setKmAnio(Number(e.target.value))} className="w-full accent-primary" />
-              </Campo>
-              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              <h2 className="mb-4 text-2xl">Extras</h2>
+              <div className="grid gap-4 sm:grid-cols-3">
                 <Campo label="Cochera mensual"><Num value={cochera} onChange={setCochera} /></Campo>
                 <Campo label="Otros gastos/mes"><Num value={otros} onChange={setOtros} /></Campo>
                 <Campo label="Cuota financiación"><Num value={cuota} onChange={setCuota} /></Campo>
@@ -315,9 +319,11 @@ function Index() {
           </div>
 
           {/* Resultados */}
-          <div className="space-y-6 lg:sticky lg:top-6 lg:self-start">
+          {/* Solo la tarjeta del resultado queda fija al bajar: si entra entera en la pantalla, acompaña mientras se editan los campos. */}
+          <div className="lg:sticky lg:top-6 lg:self-start">
             <div ref={tarjetaRef} id="resultado" className="scroll-mt-4">
             <Card className="bg-primary text-primary-foreground">
+              {!eligioAuto && <p className="mb-2 text-sm font-medium">Ejemplo con un {nombreAuto}. Elegí tu auto en «Tu auto» para ver el tuyo.</p>}
               <p className="text-sm opacity-80">Mantener {nombreAuto} te sale</p>
               <p className="mt-1 min-h-[2.5em] font-display text-4xl leading-tight">
                 {faltaDato ? <span className="text-2xl">{avisoFalta}</span> : <>
@@ -334,7 +340,11 @@ function Index() {
               </button>
             </Card>
             </div>
+          </div>
+        </section>
 
+        {/* Patentamiento y desglose, debajo de la calculadora (en el celular quedan en el mismo orden que antes) */}
+        <section className="grid gap-6 lg:grid-cols-2 lg:items-start">
           <Card>
             <h2 className="text-xl">Costo único de compra: patentamiento</h2>
             <p className="mt-1 text-sm text-muted-foreground">No entra en el costo mensual ni por km.</p>
@@ -388,8 +398,6 @@ function Index() {
               </ul>
               {combustible === "eléctrico" && <p className="mt-2 text-xs text-muted-foreground">{NOTA_ELECTRICO}</p>}
             </Card>
-
-          </div>
         </section>
 
         <ComparadorModelos uso={{ kmAnio, vtvAnual: vtv, cochera, otros, cuota, precios }} />
@@ -467,8 +475,9 @@ function Index() {
 
       {/* Resultado fijo abajo: solo en pantallas chicas y mientras la tarjeta no se ve */}
       {!tarjetaVisible && (
-        <a href="#resultado" className="fixed inset-x-0 bottom-0 z-30 flex items-baseline justify-between gap-3 border-t border-primary-foreground/20 bg-primary px-5 py-3 text-primary-foreground lg:hidden">
-          <span className="text-xs opacity-80">{faltaDato ? "Resultado" : "Por mes"}</span>
+        <a href="#resultado" className="fixed inset-x-0 bottom-0 z-30 flex flex-col items-start border-t border-primary-foreground/20 bg-primary px-5 py-2 text-primary-foreground lg:hidden">
+          {/* Todo alineado a la izquierda: abajo a la derecha puede aparecer el cartel de Lovable y taparía el monto. */}
+          <span className="text-xs opacity-80">{faltaDato ? "Resultado" : eligioAuto ? "Por mes" : "Por mes (ejemplo)"}</span>
           <span className={faltaDato ? "text-sm" : "font-display text-xl tabular-nums"}>{faltaDato ? avisoFalta : `${ars(r.mensualMin)} – ${ars(r.mensualMax)}`}</span>
         </a>
       )}
