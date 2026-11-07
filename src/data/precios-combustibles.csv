@@ -1,6 +1,6 @@
 combustible,precio_ARS,unidad,fuente,fecha
-nafta_super,2199,$/L,"Valor más alto observado en CABA (Shell) entre YPF, Shell, Axion y Puma; datos oficiales Res. 314/2016",2026-11-03
-nafta_premium,2509,$/L,"Valor más alto observado en CABA (Shell V-Power) entre YPF, Shell, Axion y Puma; datos oficiales Res. 314/2016",2026-11-03
-gasoil,2399,$/L,"Valor más alto observado en CABA (Axion Diesel) entre YPF, Shell, Axion y Puma; datos oficiales Res. 314/2016",2026-11-03
-gasoil_premium,2699,$/L,"Valor más alto observado en CABA (Shell V-Power Diesel) entre YPF, Shell, Axion y Puma; datos oficiales Res. 314/2016",2026-11-03
-gnc,680,$/m3,"Último dato verificado octubre 2026 (El Destape 15-10-2026, datos oficiales Res. 314/2016); sin dato de noviembre",2026-10-15
+nafta_super,2239,$/L,"Valor más alto vigente en CABA entre YPF, Shell, Axion y Puma: Shell (Av. Gral. Paz 5500 y otra estación, informado el 3-11-2026); datos oficiales Secretaría de Energía, Res. 314/2016, descarga del 7-11-2026",2026-11-03
+nafta_premium,2522,$/L,"Valor más alto vigente en CABA entre YPF, Shell, Axion y Puma: Shell V-Power (Montes de Oca 1885, informado el 15-10-2026; el resto de Shell informó hasta $2.519 el 3-11-2026); datos oficiales Secretaría de Energía, Res. 314/2016, descarga del 7-11-2026",2026-11-03
+gasoil,2399,$/L,"Valor más alto vigente en CABA entre YPF, Shell, Axion y Puma: Axion Diesel (informado el 10-10-2026); datos oficiales Secretaría de Energía, Res. 314/2016, descarga del 7-11-2026",2026-11-03
+gasoil_premium,2719,$/L,"Valor más alto vigente en CABA entre YPF, Shell, Axion y Puma: Shell V-Power Diesel (8 estaciones, informado el 3-11-2026); datos oficiales Secretaría de Energía, Res. 314/2016, descarga del 7-11-2026",2026-11-03
+gnc,799,$/m3,"Valor más alto vigente en CABA entre YPF, Shell, Axion y Puma: Axion (Av. Juan de Garay 1302, informado el 2-10-2026; pocas estaciones informan GNC, el resto entre $627 y $789); datos oficiales Secretaría de Energía, Res. 314/2016, descarga del 7-11-2026",2026-11-03

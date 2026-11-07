@@ -30,7 +30,7 @@ describe("costos", () => {
     expect(MARCAS.reduce((total, marca) => total + modelosDeMarca(marca).length, 0)).toBe(312);
     expect(new Set(MODELOS.map((m) => m.id)).size).toBe(744);
     expect(SELLOS).toHaveLength(24);
-    expect(COMBUSTIBLES.find((c) => c.clave === "gnc")?.precio).toBe(680);
+    expect(COMBUSTIBLES.find((c) => c.clave === "gnc")?.precio).toBe(799);
   });
   it.each(["Fiat", "Peugeot", "Chevrolet", "Volkswagen", "Toyota", "Renault", "Nissan", "Ford", "Jeep", "Honda", "Hyundai", "Kia", "Chery"])("reúne todas las filas de %s sin duplicar su marca", (marca) => {
     const filas = parseCsv(matrizCsv).filter((f) => f["marca"]?.toLowerCase() === marca.toLowerCase());

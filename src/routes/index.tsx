@@ -445,7 +445,7 @@ function Index() {
             <li>Datos de referencia: noviembre 2026.</li>
           </ul>
           <p className="text-xs text-muted-foreground">
-            Fuentes: consumo de cada versión según su propia fuente (homologado IRAM/AITA, WLTP, EPA, Inmetro, Chile MTT, medido en pruebas o estimado con ancla), indicada debajo del campo de consumo; service de concesionario oficial o estimado (0,75% del precio o anclado en hermano de marca); combustibles: se toma el valor más alto observado entre las principales estaciones de servicio de CABA (YPF, Shell, Axion y Puma) según datos oficiales Res. 314/2016, para no subestimar el gasto; GNC: último dato verificado octubre 2026, sin dato de noviembre; seguro con regla calibrada (recotización trimestral).
+            Fuentes: consumo de cada versión según su propia fuente (homologado IRAM/AITA, WLTP, EPA, Inmetro, Chile MTT, medido en pruebas o estimado con ancla), indicada debajo del campo de consumo; service de concesionario oficial o estimado (0,75% del precio o anclado en hermano de marca); combustibles: se toma el valor más alto observado entre las principales estaciones de servicio de CABA (YPF, Shell, Axion y Puma) (precio vigente de cada estación) según datos oficiales de la Secretaría de Energía, Res. 314/2016, para no subestimar el gasto; el GNC sigue el mismo criterio; seguro con regla calibrada (recotización trimestral).
           </p>
         </section>
 
