@@ -65,6 +65,7 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
                       {sinCarga && fila.nombre !== "Combustible / mes" && (lado === "a" ? a : b)?.combustible === "eléctrico" && <span className="mt-1 block text-xs font-medium">Sin costo de carga</span>}
                       {ganador === lado && <span className="mt-1 block text-xs font-medium">Menor promedio</span>}
                       {ganador === null && <span className="mt-1 block text-xs">Igual</span>}
+                      {ganador === "margen" && <span className="mt-1 block text-xs">Diferencia dentro del margen</span>}
                     </td>
                   ))}
                 </tr>
@@ -74,7 +75,7 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
         </table>
       </div>
       <p className="text-xs text-muted-foreground">
-        Se resalta el menor promedio de cada rango; los rangos pueden superponerse.
+        Se resalta un costo solo cuando su rango queda entero por debajo del otro; si los rangos se pisan, la diferencia está dentro del margen de la estimación.
         {hayElectrico && " Con un eléctrico no se resaltan el total, el costo por km ni el combustible, porque no incluyen el costo de carga."}
       </p>
     </section>

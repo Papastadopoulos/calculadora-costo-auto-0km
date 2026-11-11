@@ -146,10 +146,19 @@ describe("comparador de modelos", () => {
     expect(a.kmMin).toBe(a.anualMin / 15000);
     expect(a.mensualMax).toBe(a.anualMax / 12);
   });
-  it("resalta el promedio menor de cada fila y deja empates sin ganador", () => {
-    expect(masBarato([100, 200], [140, 180])).toBe("a");
+  it("resalta un lado solo si su rango queda entero por debajo del otro", () => {
+    // Rangos separados
+    expect(masBarato([100, 130], [140, 180])).toBe("a");
     expect(masBarato([200, 300], [100, 180])).toBe("b");
-    expect(masBarato([100, 200], [150, 150])).toBeNull();
+    // Rangos superpuestos (incluye uno dentro del otro, como Cronos contra 208)
+    expect(masBarato([100, 200], [140, 180])).toBe("margen");
+    expect(masBarato([492_367, 549_867], [511_631, 541_631])).toBe("margen");
+    expect(masBarato([100, 200], [200, 300])).toBe("margen");
+    // Iguales
+    expect(masBarato([100, 200], [100, 200])).toBeNull();
+    // Filas de un solo valor
+    expect(masBarato([150, 150], [160, 160])).toBe("a");
+    expect(masBarato([150, 150], [150, 150])).toBeNull();
   });
 });
 

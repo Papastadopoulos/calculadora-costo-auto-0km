@@ -63,3 +63,42 @@ describe("comparador con eléctrico", () => {
     expect(within(screen.getByRole("row", { name: /Total mensual/ })).getByText("Sin costo de carga")).toBeInTheDocument();
   });
 });
+
+describe("eléctricos: el resultado avisa que falta la carga", () => {
+  const electrico = MODELOS.find((m) => m.combustible === "eléctrico");
+  const aviso = "Sin el costo de carga eléctrica, que no se puede calcular de forma única.";
+  it("muestra el aviso en la tarjeta con un eléctrico y no con un naftero", () => {
+    if (!electrico) throw new Error("Falta eléctrico");
+    abrir();
+    expect(screen.queryByText(aviso)).not.toBeInTheDocument();
+    elegir("Marca", electrico.marca);
+    elegir("Modelo", electrico.modelo);
+    const version = screen.getAllByRole("combobox", { name: "Versión" })[0] as HTMLSelectElement;
+    if (!version.value) fireEvent.change(version, { target: { value: electrico.id } });
+    expect(screen.getByText(aviso)).toBeInTheDocument();
+  });  it("la barra fija del celular dice que falta la carga", () => {
+    if (!electrico) throw new Error("Falta eléctrico");
+    // La tarjeta del resultado fuera de la pantalla: aparece la barra fija.
+    vi.stubGlobal("IntersectionObserver", class {
+      constructor(private cb: (e: { isIntersecting: boolean }[]) => void) {}
+      observe() { this.cb([{ isIntersecting: false }]); }
+      disconnect() {}
+    });
+    abrir();
+    elegir("Marca", electrico.marca);
+    elegir("Modelo", electrico.modelo);
+    const version = screen.getAllByRole("combobox", { name: "Versión" })[0] as HTMLSelectElement;
+    if (!version.value) fireEvent.change(version, { target: { value: electrico.id } });
+    expect(screen.getByText("Por mes, sin carga eléctrica")).toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+});
+
+describe("comparador con rangos superpuestos", () => {
+  it("Cronos contra 208: no resalta el total mensual y dice que está dentro del margen", () => {
+    render(<ComparadorModelos uso={{ kmAnio: 15000, precios: { nafta_super: 2239, nafta_premium: 2522, gasoil: 2399, gasoil_premium: 2719 }, vtvAnual: 114106, cochera: 0, otros: 0, cuota: 0 }} />);
+    const fila = screen.getByRole("row", { name: /Total mensual/ });
+    expect(within(fila).queryByText("Menor promedio")).not.toBeInTheDocument();
+    expect(within(fila).getAllByText("Diferencia dentro del margen")).toHaveLength(2);
+  });
+});

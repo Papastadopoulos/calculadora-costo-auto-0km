@@ -194,11 +194,13 @@ function Index() {
     return () => clearTimeout(t);
   }, [textoAnuncio]);
 
+  const esElectrico = combustible === "eléctrico";
+
   function compartir() {
     if (faltaDato) return;
     const auto = modeloId === "otro" ? (version.trim() || "mi auto") : modelo ? `${modelo.marca} ${modelo.modelo} ${modelo.version}` : "mi auto";
     const url = typeof window !== "undefined" ? `${window.location.origin}${window.location.pathname}` : "";
-    const txt = `Mantener ${auto} me sale entre ${ars(r.mensualMin)} y ${ars(r.mensualMax)} por mes (${ars(r.anualMin)}–${ars(r.anualMax)} al año), o sea ${ars(r.kmMin)}–${ars(r.kmMax)} por km, manejando ${kmAnio.toLocaleString("es-AR")} km/año. Calculado con "¿Cuánto te va a costar tu próximo auto?" (precios de referencia nov-2026)${url ? `: ${url}` : "."}`;
+    const txt = `Mantener ${auto} me sale entre ${ars(r.mensualMin)} y ${ars(r.mensualMax)} por mes (${ars(r.anualMin)}–${ars(r.anualMax)} al año), o sea ${ars(r.kmMin)}–${ars(r.kmMax)} por km, manejando ${kmAnio.toLocaleString("es-AR")} km/año${esElectrico ? " (sin el costo de carga eléctrica)" : ""}. Calculado con "¿Cuánto te va a costar tu próximo auto?" (precios de referencia nov-2026)${url ? `: ${url}` : "."}`;
     navigator.clipboard?.writeText(txt).then(() => { setCopiado(true); setTimeout(() => setCopiado(false), 2500); });
   }
 
@@ -339,6 +341,7 @@ function Index() {
                   entre {ars(r.mensualMin)} y {ars(r.mensualMax)} <span className="text-lg font-medium opacity-80">por mes</span>
                 </>}
               </p>
+              {esElectrico && !faltaDato && <p className="mt-2 text-sm font-medium">Sin el costo de carga eléctrica, que no se puede calcular de forma única.</p>}
               <p className="mt-2 text-sm opacity-80">{faltaDato ? "—" : `${ars(r.anualMin)} – ${ars(r.anualMax)} al año`}</p>
               <div className="mt-5 rounded-sm bg-highlight p-4 text-highlight-foreground">
                 <p className="text-xs font-bold uppercase tracking-wide">Costo por km</p>
@@ -486,7 +489,7 @@ function Index() {
       {!tarjetaVisible && (
         <a href="#resultado" className="fixed inset-x-0 bottom-0 z-30 flex flex-col items-start border-t border-primary-foreground/20 bg-primary px-5 py-2 text-primary-foreground lg:hidden">
           {/* Todo alineado a la izquierda: abajo a la derecha puede aparecer el cartel de Lovable y taparía el monto. */}
-          <span className="text-xs opacity-80">{faltaDato ? "Resultado" : eligioAuto ? "Por mes" : "Por mes (ejemplo)"}</span>
+          <span className="text-xs opacity-80">{faltaDato ? "Resultado" : `${eligioAuto ? "Por mes" : "Por mes (ejemplo)"}${esElectrico ? ", sin carga eléctrica" : ""}`}</span>
           <span className={faltaDato ? "text-sm" : "font-display text-xl tabular-nums"}>{faltaDato ? avisoFalta : `${ars(r.mensualMin)} – ${ars(r.mensualMax)}`}</span>
         </a>
       )}

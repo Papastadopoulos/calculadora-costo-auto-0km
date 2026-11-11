@@ -243,10 +243,16 @@ export function calcularModeloComparado(modelo: Modelo, uso: UsoComparador) {
 }
 
 /** Rangos solapados se comparan por su promedio, no como un ahorro garantizado. */
-export function masBarato(a: readonly [number, number], b: readonly [number, number]): "a" | "b" | null {
-  const diferencia = (a[0] + a[1]) - (b[0] + b[1]);
-  if (Math.abs(diferencia) < 0.000001) return null;
-  return diferencia < 0 ? "a" : "b";
+/**
+ * Gana un lado solo si su rango entero queda por debajo del otro (máximo de uno menor que el mínimo del otro).
+ * Rangos iguales: null. Rangos que se pisan: "margen" (la diferencia está dentro del margen de la estimación).
+ */
+export function masBarato(a: readonly [number, number], b: readonly [number, number]): "a" | "b" | "margen" | null {
+  const eps = 0.000001;
+  if (Math.abs(a[0] - b[0]) < eps && Math.abs(a[1] - b[1]) < eps) return null;
+  if (a[1] < b[0] - eps) return "a";
+  if (b[1] < a[0] - eps) return "b";
+  return "margen";
 }
 
 export type Origen = "nacional" | "mexico" | "importado";
