@@ -28,7 +28,7 @@ export const Route = createFileRoute("/")({
 /* ---------- Piezas de UI chiquitas ---------- */
 
 const Estimado = () => (
-  <span className="ml-1.5 border-b border-dotted border-estimado text-[10px] font-medium uppercase tracking-wider text-estimado">
+  <span className="ml-1.5 border-b border-dotted border-estimado text-xs font-medium uppercase tracking-wider text-estimado">
     estimado
   </span>
 );
@@ -43,7 +43,7 @@ function Campo({ label, children, nota, est }: { label: string; children: ReactN
   );
 }
 
-const inputCls = "w-full rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring";
+const inputCls = "w-full min-h-11 rounded-md border border-input bg-card px-3 py-2 text-base outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring sm:min-h-0 sm:text-sm";
 
 /**
  * Campo numérico sin flechitas: se tipea directo por teclado.
@@ -186,6 +186,14 @@ function Index() {
     return () => obs.disconnect();
   }, []);
 
+  /** Anuncio para lectores de pantalla: se actualiza cuando el resultado deja de cambiar, no en cada paso del slider. */
+  const textoAnuncio = faltaDato ? avisoFalta : `Entre ${ars(r.mensualMin)} y ${ars(r.mensualMax)} por mes`;
+  const [anuncio, setAnuncio] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setAnuncio(textoAnuncio), 800);
+    return () => clearTimeout(t);
+  }, [textoAnuncio]);
+
   function compartir() {
     if (faltaDato) return;
     const auto = modeloId === "otro" ? (version.trim() || "mi auto") : modelo ? `${modelo.marca} ${modelo.modelo} ${modelo.version}` : "mi auto";
@@ -208,7 +216,7 @@ function Index() {
             <p className="max-w-lg text-base text-muted-foreground md:text-lg">
               Antes de comprar tu 0km, descubrí cuánto te va a costar cada kilómetro: combustible, seguro, patente, VTV, service y más.
             </p>
-            <a href="#calculadora" className="inline-flex w-fit border-b-2 border-accent pb-1 font-medium transition hover:text-accent">
+            <a href="#calculadora" className="inline-flex min-h-11 w-fit items-end border-b-2 border-accent pb-1 font-medium transition hover:text-accent sm:min-h-0">
               Ir a la calculadora ↓
             </a>
           </div>
@@ -257,7 +265,7 @@ function Index() {
                 <Campo label="Precio 0km ($)"><Num value={precio0km} onChange={setPrecio0km} /></Campo>
                 <div className="sm:col-span-2">
                   <Campo label={`Kilómetros por año: ${kmAnio.toLocaleString("es-AR")} km`}>
-                    <input type="range" min={1000} max={60000} step={1000} value={kmAnio} onChange={(e) => setKmAnio(Number(e.target.value))} className="w-full accent-primary" />
+                    <input type="range" min={1000} max={60000} step={1000} value={kmAnio} onChange={(e) => setKmAnio(Number(e.target.value))} aria-valuetext={`${kmAnio.toLocaleString("es-AR")} km por año`} className="h-11 w-full accent-primary sm:h-auto" />
                   </Campo>
                 </div>
               </div>
@@ -323,6 +331,7 @@ function Index() {
           <div className="lg:sticky lg:top-6 lg:self-start">
             <div ref={tarjetaRef} id="resultado" className="scroll-mt-4">
             <Card className="bg-primary text-primary-foreground">
+              <p className="sr-only" aria-live="polite">{anuncio}</p>
               {!eligioAuto && <p className="mb-2 text-sm font-medium">Ejemplo con un {nombreAuto}. Elegí tu auto en «Tu auto» para ver el tuyo.</p>}
               <p className="text-sm opacity-80">Mantener {nombreAuto} te sale</p>
               <p className="mt-1 min-h-[2.5em] font-display text-4xl leading-tight">
@@ -335,7 +344,7 @@ function Index() {
                 <p className="text-xs font-bold uppercase tracking-wide">Costo por km</p>
                 <p className="font-display text-3xl">{faltaDato ? "—" : `${ars(r.kmMin)} – ${ars(r.kmMax)}`}</p>
               </div>
-              <button onClick={compartir} disabled={faltaDato} className="mt-5 w-full rounded-md border border-primary-foreground/30 px-4 py-2 text-sm font-medium transition hover:bg-primary-foreground/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent">
+              <button onClick={compartir} disabled={faltaDato} className="mt-5 min-h-11 w-full rounded-md border border-primary-foreground/30 px-4 py-2 text-sm font-medium transition hover:bg-primary-foreground/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent sm:min-h-0">
                 {copiado ? "¡Copiado al portapapeles!" : "Compartir mi resultado"}
               </button>
             </Card>
@@ -346,7 +355,7 @@ function Index() {
         {/* Patentamiento y desglose, debajo de la calculadora (en el celular quedan en el mismo orden que antes) */}
         <section className="grid gap-6 lg:grid-cols-2 lg:items-start">
           <Card>
-            <h2 className="text-xl">Costo único de compra: patentamiento</h2>
+            <h2 className="text-2xl">Costo único de compra: patentamiento</h2>
             <p className="mt-1 text-sm text-muted-foreground">No entra en el costo mensual ni por km.</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <Campo label="Provincia" nota="Cambia solo los sellos. La patente de arriba se estima con ARBA (PBA).">
@@ -359,7 +368,7 @@ function Index() {
                   <option value="nacional">Nacional / Mercosur</option><option value="mexico">México</option><option value="importado">Importado</option>
                 </select>
               </Campo>
-              <label className="flex items-center gap-2 self-end pb-2 text-sm">
+              <label className="flex min-h-11 items-center gap-2 self-end text-sm sm:min-h-0 sm:pb-2">
                 <input type="checkbox" aria-label="Trámite digital (0,8%)" checked={digital} onChange={(e) => setDigital(e.target.checked)} className="accent-primary" />
                 Trámite digital (0,8%)
               </label>
@@ -374,8 +383,8 @@ function Index() {
           </Card>
 
             <Card>
-              <h3 className="mb-2 text-xl">Desglose anual (promedio)</h3>
-              <div className="h-56">
+              <h3 className="mb-2 text-2xl">Desglose anual (promedio)</h3>
+              <div className="h-56" role="img" aria-label="Gráfico del desglose anual por rubro. Los montos están en la lista de abajo.">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie data={torta} dataKey="value" nameKey="name" innerRadius={50} outerRadius={90} paddingAngle={2} isAnimationActive={false}>
@@ -387,12 +396,12 @@ function Index() {
               </div>
               <ul className="space-y-1 text-sm">
                 {Object.entries(r.rubros).map(([k, [a, b]], i) => (
-                  <li key={k} className="flex items-center justify-between">
+                  <li key={k} className="flex items-center justify-between gap-2">
                     <span className="flex items-center gap-2">
                       <span className="h-2.5 w-2.5 rounded-full" style={{ background: COLORES[i] }} />{k}
                       {(k === "Seguro" || (k === "Patente" && patenteEstimada) || (k === "Service" && modelo?.serviceEstimado)) && <Estimado />}
                     </span>
-                    <span className="tabular-nums text-muted-foreground">{a === b ? ars(a) : `${ars(a)} – ${ars(b)}`}</span>
+                    <span className="whitespace-nowrap tabular-nums text-muted-foreground">{a === b ? ars(a) : `${ars(a)} – ${ars(b)}`}</span>
                   </li>
                 ))}
               </ul>
@@ -404,7 +413,7 @@ function Index() {
 
             {g && (
               <Card>
-                <h3 className="text-xl">¿Y a GNC?</h3>
+                <h3 className="text-2xl">¿Y a GNC?</h3>
                 <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                   <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Nafta / km</p><p className="font-bold">{ars(g.kmNafta)}</p></div>
                   <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">GNC / km</p><p className="font-bold">{ars(g.kmGnc)}</p></div>
@@ -421,7 +430,7 @@ function Index() {
         {/* 3. Precios de referencia */}
         <section>
           <h2 className="text-3xl">Precios de combustible de referencia</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 max-w-[62ch] text-sm text-muted-foreground">
             Valor más alto observado entre las principales estaciones de servicio de CABA (YPF, Shell, Axion y Puma), actualizado el {FECHA_PRECIOS.split("-").reverse().join("/")}. Varían por provincia y por estación: cargá tu precio local.
           </p>
           <div className="mt-4 overflow-hidden rounded-xl border border-border bg-card">
@@ -430,7 +439,7 @@ function Index() {
                 {COMBUSTIBLES.map((c) => (
                   <tr key={c.clave}>
                     <td className="p-3 font-medium">{c.nombre}</td>
-                    <td className="p-3"><div className="ml-auto w-36"><Num value={precios[c.clave] ?? 0} onChange={(n) => setPrecios((p) => ({ ...p, [c.clave]: n }))} ariaLabel={`Precio ${c.nombre} ($/${c.unidad})`} /></div></td>
+                    <td className="p-3"><div className="ml-auto w-36"><Num value={precios[c.clave] ?? 0} onChange={(n) => setPrecios((p) => ({ ...p, [c.clave]: n }))} ariaLabel={`Precio ${c.nombre} (${c.unidad})`} /></div></td>
                     <td className="w-16 p-3 text-muted-foreground">{c.unidad}</td>
                   </tr>
                 ))}
@@ -442,7 +451,7 @@ function Index() {
         {/* 5. Cómo lo calculamos */}
         <section className="space-y-3">
           <h2 className="text-3xl">Cómo lo calculamos</h2>
-          <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed">
+          <ul className="max-w-[62ch] list-disc space-y-2 pl-5 text-sm leading-relaxed">
             <li><strong>Combustible anual</strong> = (km por año ÷ 100) × consumo × precio por litro.</li>
             <li><strong>Service anual</strong> = (km por año ÷ intervalo de service) × costo del service. Cuando no hay precio oficial publicado lo marcamos <Estimado />: en la mayoría de esos casos es un rango calculado sobre el 0,75% del precio 0km por service, y en algunos se ancla en un modelo hermano de la marca.</li>
             <li><strong>Seguro</strong> <Estimado />: rango orientativo de terceros completo, con una regla calibrada con cotizaciones de prensa (se recotiza cada trimestre).</li>
@@ -452,7 +461,7 @@ function Index() {
             <li>Autos eléctricos: el consumo de combustible es 0 y no se pondera. El costo de la carga eléctrica no está incluido en el resultado porque varía según la tarifa, el tipo de carga y el uso de cada persona.</li>
             <li>Datos de referencia: noviembre 2026.</li>
           </ul>
-          <p className="text-xs text-muted-foreground">
+          <p className="max-w-[62ch] text-sm text-muted-foreground">
             Fuentes: consumo de cada versión según su propia fuente (homologado IRAM/AITA, WLTP, EPA, Inmetro, Chile MTT, medido en pruebas o estimado con ancla), indicada debajo del campo de consumo; service de concesionario oficial o estimado (0,75% del precio o anclado en hermano de marca); combustibles: se toma el valor más alto observado entre las principales estaciones de servicio de CABA (YPF, Shell, Axion y Puma) (precio vigente de cada estación) según datos oficiales de la Secretaría de Energía, Res. 314/2016, para no subestimar el gasto; el GNC sigue el mismo criterio; seguro con regla calibrada (recotización trimestral).
           </p>
         </section>
@@ -465,9 +474,9 @@ function Index() {
             ["¿Cómo se calcula el costo por kilómetro?", "Sumamos todos los gastos del año (fijos y variables) y los dividimos por los kilómetros que hacés en ese año. Por eso, cuanto más manejás, más se diluyen los gastos fijos."],
             ["¿Conviene pasar el auto a GNC?", "Si manejás mucho, el ahorro por km suele recuperar el equipo en pocos meses. Usá el comparador \"¿Y a GNC?\" con tu costo de instalación real. Solo se ofrece para autos a nafta: no aplica a diésel ni a eléctricos, y en híbridos no es habitual."],
           ].map(([q, a]) => (
-            <details key={q} className="border-b border-border py-3">
-              <summary className="cursor-pointer font-medium">{q}</summary>
-              <p className="mt-2 text-sm text-muted-foreground">{a}</p>
+            <details key={q} className="border-b border-border">
+              <summary className="cursor-pointer py-3 font-medium">{q}</summary>
+              <p className="mb-3 max-w-[62ch] text-sm text-muted-foreground">{a}</p>
             </details>
           ))}
         </section>

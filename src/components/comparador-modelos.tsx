@@ -62,9 +62,9 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
                     <td key={lado} className={`p-3 text-right tabular-nums break-words ${ganador === lado ? "bg-highlight text-highlight-foreground font-semibold" : "text-muted-foreground"}`}>
                       {rango(fila[lado])}
                        {fila.nombre === "Combustible / mes" && (lado === "a" ? a : b)?.combustible === "eléctrico" && <span className="mt-1 block text-xs font-normal text-muted-foreground">{NOTA_ELECTRICO}</span>}
-                      {sinCarga && fila.nombre !== "Combustible / mes" && (lado === "a" ? a : b)?.combustible === "eléctrico" && <span className="mt-1 block text-[10px] font-medium">Sin costo de carga</span>}
-                      {ganador === lado && <span className="mt-1 block text-[10px] font-medium">Menor promedio</span>}
-                      {ganador === null && <span className="mt-1 block text-[10px]">Igual</span>}
+                      {sinCarga && fila.nombre !== "Combustible / mes" && (lado === "a" ? a : b)?.combustible === "eléctrico" && <span className="mt-1 block text-xs font-medium">Sin costo de carga</span>}
+                      {ganador === lado && <span className="mt-1 block text-xs font-medium">Menor promedio</span>}
+                      {ganador === null && <span className="mt-1 block text-xs">Igual</span>}
                     </td>
                   ))}
                 </tr>

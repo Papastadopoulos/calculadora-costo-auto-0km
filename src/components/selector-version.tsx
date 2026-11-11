@@ -1,7 +1,7 @@
 import { useId, useState } from "react";
 import { MARCAS, ars, modelosDeMarca, versionesDeModelo, type Modelo } from "@/lib/costos";
 
-const selectCls = "w-full min-w-0 rounded-md border border-input bg-card px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring";
+const selectCls = "w-full min-w-0 min-h-11 rounded-md border border-input bg-card px-3 py-2 text-base outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring sm:min-h-0 sm:text-sm";
 // Búsqueda sin tildes, mayúsculas ni signos: "crv" encuentra "CR-V".
 const normalizar = (texto: string) => texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const CATALOGO = MARCAS.flatMap((marca) => modelosDeMarca(marca).map((modelo) => ({ marca, modelo, clave: normalizar(`${marca}${modelo}`), claveModelo: normalizar(modelo) })));
