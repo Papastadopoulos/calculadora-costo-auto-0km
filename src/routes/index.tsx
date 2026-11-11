@@ -433,7 +433,7 @@ function Index() {
         {/* 3. Precios de referencia */}
         <section>
           <h2 className="text-3xl">Precios de combustible de referencia</h2>
-          <p className="mt-1 max-w-[74ch] text-sm text-muted-foreground">
+          <p className="mt-1 max-w-[91ch] text-sm text-muted-foreground">
             Valor más alto observado entre las principales estaciones de servicio de CABA (YPF, Shell, Axion y Puma), actualizado el {FECHA_PRECIOS.split("-").reverse().join("/")}. Varían por provincia y por estación: cargá tu precio local.
           </p>
           <div className="mt-4 overflow-hidden rounded-xl border border-border bg-card">
@@ -454,7 +454,7 @@ function Index() {
         {/* 5. Cómo lo calculamos */}
         <section className="space-y-3">
           <h2 className="text-3xl">Cómo lo calculamos</h2>
-          <ul className="max-w-[74ch] list-disc space-y-2 pl-5 text-sm leading-relaxed">
+          <ul className="max-w-[91ch] list-disc space-y-2 pl-5 text-sm leading-relaxed">
             <li><strong>Combustible anual</strong> = (km por año ÷ 100) × consumo × precio por litro.</li>
             <li><strong>Service anual</strong> = (km por año ÷ intervalo de service) × costo del service. Cuando no hay precio oficial publicado lo marcamos <Estimado />: en la mayoría de esos casos es un rango calculado sobre el 0,75% del precio 0km por service, y en algunos se ancla en un modelo hermano de la marca.</li>
             <li><strong>Seguro</strong> <Estimado />: rango orientativo de terceros completo, con una regla calibrada con cotizaciones de prensa (se recotiza cada trimestre).</li>
@@ -464,7 +464,7 @@ function Index() {
             <li>Autos eléctricos: el consumo de combustible es 0 y no se pondera. El costo de la carga eléctrica no está incluido en el resultado porque varía según la tarifa, el tipo de carga y el uso de cada persona.</li>
             <li>Datos de referencia: noviembre 2026.</li>
           </ul>
-          <p className="max-w-[74ch] text-sm text-muted-foreground">
+          <p className="mt-8 max-w-[91ch] text-sm text-muted-foreground">
             Fuentes: consumo de cada versión según su propia fuente (homologado IRAM/AITA, WLTP, EPA, Inmetro, Chile MTT, medido en pruebas o estimado con ancla), indicada debajo del campo de consumo; service de concesionario oficial o estimado (0,75% del precio o anclado en hermano de marca); combustibles: se toma el valor más alto observado entre las principales estaciones de servicio de CABA (YPF, Shell, Axion y Puma) (precio vigente de cada estación) según datos oficiales de la Secretaría de Energía, Res. 314/2016, para no subestimar el gasto; el GNC sigue el mismo criterio; seguro con regla calibrada (recotización trimestral).
           </p>
         </section>
@@ -479,7 +479,7 @@ function Index() {
           ].map(([q, a]) => (
             <details key={q} className="border-b border-border">
               <summary className="cursor-pointer py-3 font-medium">{q}</summary>
-              <p className="mb-3 max-w-[74ch] text-sm text-muted-foreground">{a}</p>
+              <p className="mb-3 max-w-[91ch] text-sm text-muted-foreground">{a}</p>
             </details>
           ))}
         </section>
