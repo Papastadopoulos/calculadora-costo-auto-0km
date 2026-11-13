@@ -136,7 +136,9 @@ export const versionesDeModelo = (marca: string, modelo: string) => MODELOS.filt
  * IRAM/AITA, WLTP, EPA, Inmetro, medido…). No se clasifica ni se reescribe: se muestra el tramo
  * del CSV que describe el consumo. Si el consumo se copió de otra versión del modelo, se avisa.
  */
-export function fuenteConsumo(fuente: string): { texto: string; estimado: boolean } | null {
+export function fuenteConsumo(fuenteCompleta: string): { texto: string; estimado: boolean } | null {
+  // Lo que va después de "ANTERIOR:" es el texto viejo, guardado como historial: no describe el consumo vigente.
+  const fuente = fuenteCompleta.split(/\s*\|\s*ANTERIOR:/)[0] ?? "";
   if (/igual al del modelo, a verificar/.test(fuente)) {
     return { texto: "igual al de otra versión del modelo (otro motor o caja), a verificar", estimado: true };
   }

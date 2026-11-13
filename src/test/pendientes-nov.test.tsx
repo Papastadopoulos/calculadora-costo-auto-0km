@@ -42,6 +42,15 @@ describe("fuente del consumo por versión", () => {
     expect(fuenteConsumo("CCA oct-2026; consumo: fábrica (WLTP, punto medio de 12,0–12,7). Porsche")?.texto).toBe("fábrica (WLTP, punto medio de 12,0–12,7)");
     expect(fuenteConsumo("x; consumo: homologado IRAM/AITA. motor distinto; consumo [ESTIMADO] igual al del modelo, a verificar")?.estimado).toBe(true);
   });
+  it("ignora el texto viejo guardado después de ANTERIOR:", () => {
+    const f = "consumo: homologado IRAM/AITA 10274-2, ciclo mixto 5,8 (urbano 7,5 / extraurbano 4,8). Etiqueta oficial: toyota.com.ar. | ANTERIOR: x; consumo [ESTIMADO] igual al del modelo, a verificar";
+    expect(fuenteConsumo(f)).toEqual({ texto: "homologado IRAM/AITA 10274-2, ciclo mixto 5,8 (urbano 7,5 / extraurbano 4,8)", estimado: false });
+  });
+  it("ninguna fila corregida con etiqueta muestra el aviso de consumo copiado", () => {
+    const corregidas = MODELOS.filter((m) => m.fuente.includes("ANTERIOR:"));
+    expect(corregidas.length).toBeGreaterThan(0);
+    expect(corregidas.filter((m) => fuenteConsumo(m.fuente)?.estimado)).toEqual([]);
+  });
   it("todas las versiones no eléctricas tienen una fuente de consumo para mostrar", () => {
     expect(MODELOS.filter((m) => m.combustible !== "eléctrico" && !fuenteConsumo(m.fuente))).toEqual([]);
   });
