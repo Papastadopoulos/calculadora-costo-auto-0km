@@ -137,7 +137,7 @@ describe("comparador de modelos", () => {
     const uso = { kmAnio: 15000, precios: { nafta_super: 2000, nafta_premium: 2300, gasoil: 1400, gasoil_premium: 1500 }, vtvAnual: 120000, cochera: 10000, otros: 50000, cuota: 0 };
     const a = calcularModeloComparado(cronos, uso);
     const b = calcularModeloComparado(hilux, uso);
-    expect(a.rubros.Combustible[0]).toBeCloseTo(2_610_000);
+    expect(a.rubros.Combustible[0]).toBeCloseTo(1_800_000); // 15.000 km × 6,0 L/100 (etiqueta IRAM/AITA, 12-nov-2026) × $2.000
     expect(b.rubros.Combustible[0]).toBeCloseTo(1_777_500);
     expect(a.rubros["Seguro"]).toEqual([1_020_000, 1_710_000]);
     expect(a.rubros["Service"]).toEqual([651_000, 651_000]);
