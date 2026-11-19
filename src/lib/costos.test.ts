@@ -4,9 +4,9 @@ import matrizCsv from "@/data/base-modelos.csv?raw";
 import premiumCsv from "@/data/combustible-premium.csv?raw";
 
 describe("costos", () => {
-  it("conserva todos los valores de las 744 filas del archivo", () => {
+  it("conserva todos los valores de las 749 filas del archivo", () => {
     const filas = parseCsv(matrizCsv);
-    expect(filas).toHaveLength(744);
+    expect(filas).toHaveLength(749);
     filas.forEach((fila, i) => {
       const modelo = MODELOS[i];
       if (!modelo) throw new Error(`Falta fila ${i}`);
@@ -24,11 +24,11 @@ describe("costos", () => {
       expect(versionesDeModelo(modelo.marca, modelo.modelo).some((m) => m.id === modelo.id)).toBe(true);
     });
   });
-  it("carga 744 versiones, 53 marcas unificadas, 312 modelos y 24 provincias", () => {
-    expect(MODELOS).toHaveLength(744);
+  it("carga 749 versiones, 53 marcas unificadas, 316 modelos y 24 provincias", () => {
+    expect(MODELOS).toHaveLength(749);
     expect(MARCAS).toHaveLength(53);
-    expect(MARCAS.reduce((total, marca) => total + modelosDeMarca(marca).length, 0)).toBe(312);
-    expect(new Set(MODELOS.map((m) => m.id)).size).toBe(744);
+    expect(MARCAS.reduce((total, marca) => total + modelosDeMarca(marca).length, 0)).toBe(316);
+    expect(new Set(MODELOS.map((m) => m.id)).size).toBe(749);
     expect(SELLOS).toHaveLength(24);
     expect(COMBUSTIBLES.find((c) => c.clave === "gnc")?.precio).toBe(799);
   });
@@ -115,13 +115,13 @@ describe("comparador de modelos", () => {
     const version = versionesDeModelo("Fiat", "Cronos").find((m) => m.version === "4P 1,3 LIKE GSE 2025");
     if (!version) throw new Error("Falta la versión");
     const resultado = calcularModeloComparado(version, { kmAnio: 15000, precios: { nafta_super: 2000, nafta_premium: 2300, gasoil: 1400, gasoil_premium: 1500 }, vtvAnual: 0, cochera: 0, otros: 0, cuota: 0 });
-    expect(version.precio0km).toBe(36650000);
-    expect(resultado.rubros["Seguro"]).toEqual([876000, 1320000]);
-    expect(resultado.rubros["Patente"]?.[0]).toBe(877000);
+    expect(version.precio0km).toBe(37790000);
+    expect(resultado.rubros["Seguro"]).toEqual([912000, 1356000]);
+    expect(resultado.rubros["Patente"]?.[0]).toBe(922600);
   });
   it("los eléctricos tienen combustible cero sin eliminar los demás costos", () => {
     const electricos = MODELOS.filter((m) => m.combustible === "eléctrico");
-    expect(electricos).toHaveLength(30);
+    expect(electricos).toHaveLength(32);
     for (const modelo of electricos) {
       const resultado = calcularModeloComparado({ ...modelo, consumo: 100 }, { kmAnio: 15000, precios: { nafta_super: 2000, nafta_premium: 2300, gasoil: 1400, gasoil_premium: 1500 }, vtvAnual: 114106, cochera: 0, otros: 0, cuota: 0 });
       expect(resultado.rubros.Combustible).toEqual([0, 0]);
@@ -141,7 +141,7 @@ describe("comparador de modelos", () => {
     expect(b.rubros.Combustible[0]).toBeCloseTo(1_665_000); // primera Hilux: 15.000 km × 7,4 L/100 (etiqueta IRAM/AITA) × $1.500
     expect(a.rubros["Seguro"]).toEqual([1_020_000, 1_710_000]);
     expect(a.rubros["Service"]).toEqual([651_000, 651_000]);
-    expect(a.rubros["Patente"]?.[0]).toBe(1_201_400);
+    expect(a.rubros["Patente"]?.[0]).toBe(1_257_000);
     expect(a.rubros["Otros"]).toEqual(b.rubros["Otros"]);
     expect(a.kmMin).toBe(a.anualMin / 15000);
     expect(a.mensualMax).toBe(a.anualMax / 12);
