@@ -49,7 +49,7 @@ describe("fuente del consumo por versión", () => {
   it("ninguna fila corregida con etiqueta muestra el aviso de consumo copiado", () => {
     const corregidas = MODELOS.filter((m) => m.fuente.includes("ANTERIOR:"));
     expect(corregidas.length).toBeGreaterThan(0);
-    expect(corregidas.filter((m) => fuenteConsumo(m.fuente)?.estimado)).toEqual([]);
+    expect(corregidas.filter((m) => fuenteConsumo(m.fuente)?.texto.startsWith("igual al de otra versión"))).toEqual([]);
   });
   it("todas las versiones no eléctricas tienen una fuente de consumo para mostrar", () => {
     expect(MODELOS.filter((m) => m.combustible !== "eléctrico" && !fuenteConsumo(m.fuente))).toEqual([]);

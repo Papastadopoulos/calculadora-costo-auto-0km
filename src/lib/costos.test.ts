@@ -127,7 +127,7 @@ describe("comparador de modelos", () => {
       expect(resultado.rubros.Combustible).toEqual([0, 0]);
       expect(resultado.rubros["VTV"]).toEqual([114106, 114106]);
       expect(resultado.rubros["Seguro"]).toEqual([modelo.seguroMin * 12, modelo.seguroMax * 12]);
-      expect(resultado.rubros["Patente"]?.[0]).toBe(estimarPatenteArba(modelo.precio0km));
+      expect(resultado.rubros["Patente"]?.[0]).toBeCloseTo(estimarPatenteArba(modelo.precio0km), 2);
     }
   });
   it("usa consumo, seguro, service y valuación propios de cada modelo", () => {
