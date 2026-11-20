@@ -111,3 +111,15 @@ describe("comparador con rangos superpuestos", () => {
     expect(within(fila).getAllByText("Diferencia dentro del margen")).toHaveLength(2);
   });
 });
+
+describe("comparador sin gastos comunes", () => {
+  it("no muestra cochera, financiación ni otros, y no los suma al total", () => {
+    const uso = { kmAnio: 15000, precios: { nafta_super: 2239, nafta_premium: 2522, gasoil: 2399, gasoil_premium: 2719 }, vtvAnual: 114106, cochera: 0, otros: 0, cuota: 0 };
+    render(<ComparadorModelos uso={{ ...uso, cochera: 100000, otros: 50000, cuota: 300000 }} />);
+    for (const nombre of [/Cochera/, /Financiación/, /Otros/]) expect(screen.queryByRole("row", { name: nombre })).not.toBeInTheDocument();
+    const conGastos = within(screen.getByRole("row", { name: /Total mensual/ })).getAllByRole("cell").map((c) => c.textContent);
+    cleanup();
+    render(<ComparadorModelos uso={uso} />);
+    expect(within(screen.getByRole("row", { name: /Total mensual/ })).getAllByRole("cell").map((c) => c.textContent)).toEqual(conGastos);
+  });
+});

@@ -3,6 +3,8 @@ import { COMBUSTIBLES, MODELOS, NOTA_ELECTRICO, ars, calcularModeloComparado, ma
 import { SelectorVersion } from "@/components/selector-version";
 
 const FILAS_CON_CARGA = ["Total mensual", "Costo por km", "Combustible / mes"];
+// Cochera, financiación y otros son un solo monto para los dos lados: no se comparan ni se suman acá.
+const SIN_COMPARAR = ["Cochera", "Financiación", "Otros"];
 const rango = ([min, max]: readonly [number, number]) => min === max ? ars(min) : `${ars(min)} – ${ars(max)}`;
 
 export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
@@ -11,12 +13,13 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
   const [a, setA] = useState<Modelo | null>(inicialA ?? null);
   const [b, setB] = useState<Modelo | null>(inicialB ?? null);
   if (!inicialA || !inicialB) return null;
-  const costoA = a ? calcularModeloComparado(a, uso) : null;
-  const costoB = b ? calcularModeloComparado(b, uso) : null;
+  const usoComparado = { ...uso, cochera: 0, otros: 0, cuota: 0 };
+  const costoA = a ? calcularModeloComparado(a, usoComparado) : null;
+  const costoB = b ? calcularModeloComparado(b, usoComparado) : null;
   const filas: { nombre: string; a: [number, number]; b: [number, number] }[] = costoA && costoB ? [
     { nombre: "Total mensual", a: [costoA.mensualMin, costoA.mensualMax], b: [costoB.mensualMin, costoB.mensualMax] },
     { nombre: "Costo por km", a: [costoA.kmMin, costoA.kmMax], b: [costoB.kmMin, costoB.kmMax] },
-    ...Object.entries(costoA.rubros).map(([nombre, valores]) => ({
+    ...Object.entries(costoA.rubros).filter(([nombre]) => !SIN_COMPARAR.includes(nombre)).map(([nombre, valores]) => ({
       nombre: `${nombre} / mes`,
       a: [valores[0] / 12, valores[1] / 12] as [number, number],
       b: [(costoB.rubros[nombre]?.[0] ?? 0) / 12, (costoB.rubros[nombre]?.[1] ?? 0) / 12] as [number, number],
@@ -37,7 +40,7 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
         ))}
       </div>
       <p className="text-xs text-muted-foreground">
-        {uso.kmAnio.toLocaleString("es-AR")} km/año; VTV, cochera, financiación y otros gastos iguales a los cargados arriba.
+        {uso.kmAnio.toLocaleString("es-AR")} km/año y VTV iguales a los cargados arriba; no incluye cochera, financiación ni otros gastos.
         Consumo, combustible recomendado, seguro y service de referencia de cada modelo. Patente estimada con ARBA 2026 sobre el precio 0km, no la valuación fiscal real.
       </p>
       <div className="overflow-x-auto rounded-sm border border-border bg-card">
