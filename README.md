@@ -24,7 +24,7 @@ ni se envía a ningún lado.
 
 ## Qué incluye
 
-- **744 versiones de 312 modelos y 53 marcas**, cada una con su precio 0km,
+- **749 versiones de 316 modelos y 53 marcas**, cada una con su precio 0km,
   consumo, seguro y service de referencia.
 - Buscador por marca y modelo, y versiones ordenadas por precio.
 - Km por año ajustables (de 1.000 a 60.000) y todos los valores editables:
@@ -91,7 +91,7 @@ Toda la base está en archivos CSV que se pueden leer, descargar o reusar:
 | --- | --- |
 | [`base-modelos.csv`](src/data/base-modelos.csv) | Precio, consumo, seguro, service, fuente y fecha de cada versión |
 | [`precios-combustibles.csv`](src/data/precios-combustibles.csv) | Precio de referencia de cada combustible, con fuente |
-| [`sellos-provincias.csv`](src/data/sellos-provincias.csv) | Alícuota de sellos de patentamiento por provincia |
+| [`sellos-provincias.csv`](src/data/sellos-provincias.csv) | Alícuota de sellos de patentamiento por provincia (leyes impositivas 2026, con fuente) |
 | [`combustible-premium.csv`](src/data/combustible-premium.csv) | Versiones que usan nafta premium |
 
 ¿Encontraste un dato mal o desactualizado? Abrí un
