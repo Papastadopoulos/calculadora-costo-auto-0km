@@ -183,7 +183,7 @@ function Index() {
     .map(([name, [a, b]]) => ({ name, min: a, max: b, value: (a + b) / 2 }))
     .filter((d) => d.value > 0)
     .sort((x, y) => y.value - x.value);
-  const barraMayor = barras[0]?.value ?? 0;
+  const totalBarras = barras.reduce((s, d) => s + d.value, 0);
 
   const nombreAuto = modelo ? `${modelo.marca} ${modelo.modelo}` : "mi auto";
   /** Sin versión elegida (o en "Otro" sin consumo ni precio) no hay resultado que mostrar ni compartir. */
@@ -247,7 +247,7 @@ function Index() {
       <header className="border-b border-border">
         <div className="mx-auto max-w-5xl px-5 pb-8 pt-6 md:pb-10 md:pt-8">
           <p className="text-sm text-muted-foreground">Precios de referencia: noviembre 2026</p>
-          <h1 className="mt-6 text-4xl leading-[0.95] md:mt-6 md:text-6xl">¿Cuánto te va a costar<br />tu próximo auto?</h1>
+          <h1 className="mt-6 text-4xl leading-[0.95] md:mt-6 md:text-6xl">¿<span className="text-cuanto">Cuánto</span> te va a costar<br />tu próximo auto?</h1>
           <div className="mt-5 grid gap-4 md:mt-6 md:grid-cols-[1fr_auto] md:items-end md:gap-6">
             <p className="max-w-lg text-base text-muted-foreground md:text-lg">
               Antes de comprar tu 0km, descubrí cuánto te va a costar cada kilómetro: combustible, seguro, patente, VTV, service y más.
@@ -371,7 +371,7 @@ function Index() {
               <p className="sr-only" aria-live="polite">{anuncio}</p>
               {!eligioAuto && <p className="mb-2 text-sm font-medium">Ejemplo con un {nombreAuto}. Elegí tu auto en «Tu auto» para ver el tuyo.</p>}
               <p className="text-sm opacity-80">Mantener {nombreAuto} te sale</p>
-              <p className="mt-1 min-h-[2.5em] font-display text-4xl leading-tight">
+              <p className="mt-1 min-h-[2.5em] font-display text-4xl font-bold leading-tight tabular-nums">
                 {faltaDato ? <span className="text-2xl">{avisoFalta}</span> : <>
                   entre {ars(r.mensualMin)} y {ars(r.mensualMax)} <span className="text-lg font-medium opacity-80">por mes</span>
                 </>}
@@ -380,7 +380,7 @@ function Index() {
               <p className="mt-2 text-sm opacity-80">{faltaDato ? "—" : `${ars(r.anualMin)} – ${ars(r.anualMax)} al año`}</p>
               <div className="mt-5 rounded-sm bg-highlight p-4 text-highlight-foreground">
                 <p className="text-sm font-bold">Costo por km</p>
-                <p className="font-display text-3xl">{faltaDato ? "—" : `${ars(r.kmMin)} – ${ars(r.kmMax)}`}</p>
+                <p className="font-display text-3xl font-bold tabular-nums">{faltaDato ? "—" : `${ars(r.kmMin)} – ${ars(r.kmMax)}`}</p>
               </div>
               <button onClick={compartir} disabled={faltaDato} className="mt-5 min-h-11 w-full rounded-md border border-primary-foreground/30 px-4 py-2 text-sm font-medium transition hover:bg-primary-foreground/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent sm:min-h-0">
                 {copiado ? "¡Copiado al portapapeles!" : "Compartir mi resultado"}
@@ -434,14 +434,16 @@ function Index() {
                       </span>
                       <span className="whitespace-nowrap tabular-nums text-muted-foreground">{a === b ? ars(a) : `${ars(a)} – ${ars(b)}`}</span>
                     </div>
-                    <div className="mt-1 h-2.5 rounded-sm bg-muted" aria-hidden="true">
-                      <div className={`h-full rounded-sm ${i === 0 ? "bg-accent" : "bg-primary/70"}`} style={{ width: `${barraMayor ? Math.max(1, (value / barraMayor) * 100) : 0}%` }} />
+                    <div className="mt-1 flex h-2.5 items-center gap-2">
+                      <div className="h-full rounded-sm bg-accent" aria-hidden="true" style={{ width: `${totalBarras ? Math.max(1, (value / totalBarras) * 100) : 0}%` }} />
+                      <span className="text-xs tabular-nums text-muted-foreground">{totalBarras ? Math.round((value / totalBarras) * 100) : 0} %</span>
                     </div>
                   </li>
                 ))}
                 {barras.length === 0 && <li className="text-muted-foreground">Elegí una versión para ver el desglose.</li>}
               </ul>
               {barras.some((d) => d.min !== d.max) && <p className="mt-3 text-xs text-muted-foreground">En los rubros con rango, el largo de la barra es el promedio.</p>}
+              {barras.length > 0 && <p className="mt-1 text-xs text-muted-foreground">El largo de cada barra es su parte del gasto anual total.</p>}
               {combustible === "eléctrico" && <p className="mt-2 text-xs text-muted-foreground">{NOTA_ELECTRICO}</p>}
             </Card>
         </section>
@@ -528,7 +530,7 @@ function Index() {
         <a href="#resultado" className="fixed inset-x-0 bottom-0 z-30 flex flex-col items-start border-t border-primary-foreground/20 bg-primary px-5 py-2 text-primary-foreground lg:hidden">
           {/* Todo alineado a la izquierda: abajo a la derecha puede aparecer el cartel de Lovable y taparía el monto. */}
           <span className="text-xs opacity-80">{faltaDato ? "Resultado" : `${eligioAuto ? "Por mes" : "Por mes (ejemplo)"}${esElectrico ? ", sin carga eléctrica" : ""}`}</span>
-          <span className={faltaDato ? "text-sm" : "font-display text-xl tabular-nums"}>{faltaDato ? avisoFalta : `${ars(r.mensualMin)} – ${ars(r.mensualMax)}`}</span>
+          <span className={faltaDato ? "text-sm" : "font-display text-xl font-bold tabular-nums"}>{faltaDato ? avisoFalta : `${ars(r.mensualMin)} – ${ars(r.mensualMax)}`}</span>
         </a>
       )}
 
