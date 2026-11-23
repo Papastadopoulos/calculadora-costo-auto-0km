@@ -264,7 +264,7 @@ function Index() {
         <section id="calculadora" className="grid gap-6 lg:grid-cols-[1.15fr_1fr]">
           <div className="space-y-6">
             <Card>
-              <h2 className="mb-4 text-2xl">Tu auto</h2>
+              <h2 className="mb-4 text-2xl text-cuanto">Tu auto</h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   {avisoLink && <p className="mb-3 text-sm text-muted-foreground">El auto del link ya no está en la base. Te mostramos el ejemplo: elegí el tuyo.</p>}
