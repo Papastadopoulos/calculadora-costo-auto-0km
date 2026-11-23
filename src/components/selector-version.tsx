@@ -4,7 +4,29 @@ import { MARCAS, ars, modelosDeMarca, versionesDeModelo, type Modelo } from "@/l
 const selectCls = "w-full min-w-0 min-h-11 rounded-md border border-input bg-card px-3 py-2 text-base outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring sm:min-h-0 sm:text-sm";
 // Búsqueda sin tildes, mayúsculas ni signos: "crv" encuentra "CR-V".
 const normalizar = (texto: string) => texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
-const CATALOGO = MARCAS.flatMap((marca) => modelosDeMarca(marca).map((modelo) => ({ marca, modelo, clave: normalizar(`${marca}${modelo}`), claveModelo: normalizar(modelo) })));
+const CATALOGO = MARCAS.flatMap((marca) => modelosDeMarca(marca).map((modelo) => ({
+  marca, modelo, clave: normalizar(`${marca}${modelo}`), claveModelo: normalizar(modelo),
+  palabras: [marca, modelo, ...modelo.split(/[\s-]+/)].map(normalizar).filter(Boolean),
+})));
+
+/** Distancia de edición (letras de más, de menos o cambiadas). */
+function distancia(a: string, b: string) {
+  let previa = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const fila = [i];
+    for (let j = 1; j <= b.length; j++) {
+      fila[j] = Math.min((previa[j] ?? 0) + 1, (fila[j - 1] ?? 0) + 1, (previa[j - 1] ?? 0) + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    previa = fila;
+  }
+  return previa[b.length] ?? 0;
+}
+/** Una palabra buscada se parece a una del catálogo: 1 error de tipeo (2 si es larga), también al principio de la palabra. */
+const parecida = (buscada: string, palabra: string) => {
+  if (buscada.length < 4) return false;
+  const tope = buscada.length >= 7 ? 2 : 1;
+  return distancia(buscada, palabra) <= tope || distancia(buscada, palabra.slice(0, buscada.length)) <= tope;
+};
 const MAX_SUGERENCIAS = 8;
 
 /** Modelos de cualquier marca que contienen todas las palabras buscadas; primero los que empiezan con lo buscado. */
@@ -13,8 +35,13 @@ function sugerir(texto: string) {
   if (!palabras.length) return [];
   const junto = palabras.join("");
   const orden = (s: (typeof CATALOGO)[number]) => (s.claveModelo.startsWith(junto) ? 0 : s.clave.startsWith(junto) ? 1 : 2);
-  return CATALOGO.filter((s) => palabras.every((p) => s.clave.includes(p)))
+  const exactas = CATALOGO.filter((s) => palabras.every((p) => s.clave.includes(p)))
     .sort((a, b) => orden(a) - orden(b) || a.modelo.localeCompare(b.modelo, "es-AR") || a.marca.localeCompare(b.marca, "es-AR"));
+  if (exactas.length) return exactas;
+  // Sin coincidencia exacta: se prueba con errores de tipeo ("corola" encuentra Corolla).
+  return CATALOGO.filter((s) => palabras.every((p) => s.clave.includes(p) || s.palabras.some((w) => parecida(p, w))))
+    .sort((a, b) => a.modelo.localeCompare(b.modelo, "es-AR") || a.marca.localeCompare(b.marca, "es-AR"))
+    .map((s) => ({ ...s, aproximada: true }));
 }
 
 export function SelectorVersion({ inicial, onChange, manual = false, etiqueta = "", className = "space-y-4" }: {
@@ -68,11 +95,12 @@ export function SelectorVersion({ inicial, onChange, manual = false, etiqueta = 
           }} />
         {mostrar && <ul id={listaId} role="listbox" aria-label={nombre("Sugerencias")} className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-md border border-input bg-card py-1 text-sm shadow-md">
           {sugerencias.length === 0 && <li className="px-3 py-2 text-muted-foreground">Ningún modelo coincide</li>}
+          {sugerencias.length > 0 && "aproximada" in sugerencias[0]! && <li role="presentation" className="px-3 py-2 text-xs text-muted-foreground">¿Quisiste decir…?</li>}
           {sugerencias.map((s, i) => (
             <li key={`${s.marca}|${s.modelo}`} id={`${listaId}-${i}`} role="option" aria-selected={i === activa}
               className={`cursor-pointer px-3 py-2 ${i === activa ? "bg-muted" : ""}`}
               onMouseDown={(e) => { e.preventDefault(); elegirSugerencia(s); }} onMouseEnter={() => setActiva(i)}>
-              <span className="font-medium">{s.modelo}</span> <span className="text-muted-foreground">{s.marca}</span>
+              <span className="text-muted-foreground">{s.marca}</span> <span className="font-medium">{s.modelo}</span>
             </li>
           ))}
           {coincidencias.length > sugerencias.length && <li role="presentation" className="px-3 py-2 text-xs text-muted-foreground">

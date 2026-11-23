@@ -134,6 +134,10 @@ function Index() {
   const [copiado, setCopiado] = useState(false);
   /** Hasta que la persona elige un auto, el resultado es el del auto de ejemplo y se aclara. */
   const [eligioAuto, setEligioAuto] = useState(false);
+  /** Link compartido: abre con ese auto. Sin parámetros, la página arranca con el auto de ejemplo. */
+  const [inicialSelector, setInicialSelector] = useState(inicial);
+  const [claveSelector, setClaveSelector] = useState(0);
+  const [avisoLink, setAvisoLink] = useState(false);
 
   const modelo = MODELOS.find((m) => m.id === modeloId);
 
@@ -193,6 +197,18 @@ function Index() {
     : modeloId === "otro" ? "Cargá el consumo de tu auto."
     : fuenteCons ? `Fuente: ${fuenteCons.texto}` : modelo ? "Valor editado a mano." : null;
 
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    if (!q.has("version")) return;
+    const m = MODELOS.find((x) => x.marca === q.get("marca") && x.modelo === q.get("modelo") && x.version === q.get("version"));
+    if (!m) { setAvisoLink(true); return; }
+    elegirModelo(m, false);
+    const km = Number(q.get("km"));
+    if (km >= 1000 && km <= 60000) setKmAnio(Math.round(km / 1000) * 1000);
+    setInicialSelector(m); setClaveSelector((k) => k + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   /** En el celular, barra fija con el resultado mientras la tarjeta no está a la vista. */
   const tarjetaRef = useRef<HTMLDivElement>(null);
   const [tarjetaVisible, setTarjetaVisible] = useState(true);
@@ -217,7 +233,10 @@ function Index() {
   function compartir() {
     if (faltaDato) return;
     const auto = modeloId === "otro" ? (version.trim() || "mi auto") : modelo ? `${modelo.marca} ${modelo.modelo} ${modelo.version}` : "mi auto";
-    const url = typeof window !== "undefined" ? `${window.location.origin}${window.location.pathname}` : "";
+    const base = typeof window !== "undefined" ? `${window.location.origin}${window.location.pathname}` : "";
+    const url = base && modelo && modeloId !== "otro"
+      ? `${base}?${new URLSearchParams({ marca: modelo.marca, modelo: modelo.modelo, version: modelo.version, km: String(kmAnio) })}`
+      : base;
     const txt = `Mantener ${auto} me sale entre ${ars(r.mensualMin)} y ${ars(r.mensualMax)} por mes (${ars(r.anualMin)}–${ars(r.anualMax)} al año), o sea ${ars(r.kmMin)}–${ars(r.kmMax)} por km, manejando ${kmAnio.toLocaleString("es-AR")} km/año${esElectrico ? " (sin el costo de carga eléctrica)" : ""}. Calculado con "¿Cuánto te va a costar tu próximo auto?" (precios de referencia nov-2026)${url ? `: ${url}` : "."}`;
     navigator.clipboard?.writeText(txt).then(() => { setCopiado(true); setTimeout(() => setCopiado(false), 2500); });
   }
@@ -226,10 +245,10 @@ function Index() {
     <div className={`min-h-screen ${tarjetaVisible ? "" : "pb-14 lg:pb-0"}`}>
       {/* 1. Hero */}
       <header className="border-b border-border">
-        <div className="mx-auto max-w-5xl px-5 pb-8 pt-6 md:pb-20 md:pt-14">
+        <div className="mx-auto max-w-5xl px-5 pb-8 pt-6 md:pb-10 md:pt-8">
           <p className="text-sm text-muted-foreground">Precios de referencia: noviembre 2026</p>
-          <h1 className="mt-6 text-4xl leading-[0.95] md:mt-10 md:text-8xl">¿Cuánto te va a costar<br />tu próximo auto?</h1>
-          <div className="mt-5 grid gap-4 md:mt-8 md:grid-cols-[1fr_auto] md:items-end md:gap-6">
+          <h1 className="mt-6 text-4xl leading-[0.95] md:mt-6 md:text-6xl">¿Cuánto te va a costar<br />tu próximo auto?</h1>
+          <div className="mt-5 grid gap-4 md:mt-6 md:grid-cols-[1fr_auto] md:items-end md:gap-6">
             <p className="max-w-lg text-base text-muted-foreground md:text-lg">
               Antes de comprar tu 0km, descubrí cuánto te va a costar cada kilómetro: combustible, seguro, patente, VTV, service y más.
             </p>
@@ -248,7 +267,8 @@ function Index() {
               <h2 className="mb-4 text-2xl">Tu auto</h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <SelectorVersion inicial={inicial} manual onChange={elegirModelo} />
+                  {avisoLink && <p className="mb-3 text-sm text-muted-foreground">El auto del link ya no está en la base. Te mostramos el ejemplo: elegí el tuyo.</p>}
+                  <SelectorVersion key={claveSelector} inicial={inicialSelector} manual onChange={elegirModelo} />
                 </div>
                 {modeloId === "otro" && <div className="sm:col-span-2">
                   <Campo label="Versión">

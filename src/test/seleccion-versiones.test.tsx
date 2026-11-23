@@ -58,7 +58,7 @@ describe("cascada de versiones", () => {
     fireEvent.focus(buscador);
     fireEvent.change(buscador, { target: { value: "crv" } });
     const sugerencias = screen.getByRole("listbox", { name: "Sugerencias Modelo A" });
-    expect(within(sugerencias).getAllByRole("option").map((o) => o.textContent)).toEqual(["CR-V Honda"]);
+    expect(within(sugerencias).getAllByRole("option").map((o) => o.textContent)).toEqual(["Honda CR-V"]);
     fireEvent.mouseDown(within(sugerencias).getByRole("option"));
     expect(screen.getByLabelText("Marca Modelo A")).toHaveValue("Honda");
     expect(screen.getByLabelText("Modelo Modelo A")).toHaveValue("CR-V");
@@ -67,7 +67,7 @@ describe("cascada de versiones", () => {
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
     expect(screen.getByLabelText("Versión Modelo B")).toHaveValue(versionB);
     fireEvent.change(buscador, { target: { value: "toyota hilux" } });
-    expect(within(screen.getByRole("listbox")).getAllByRole("option").map((o) => o.textContent)).toEqual(["Hilux Toyota", "Hilux SW4 Toyota"]);
+    expect(within(screen.getByRole("listbox")).getAllByRole("option").map((o) => o.textContent)).toEqual(["Toyota Hilux", "Toyota Hilux SW4"]);
     fireEvent.keyDown(buscador, { key: "ArrowDown" });
     fireEvent.keyDown(buscador, { key: "Enter" });
     expect(screen.getByLabelText("Modelo Modelo A")).toHaveValue("Hilux SW4");
