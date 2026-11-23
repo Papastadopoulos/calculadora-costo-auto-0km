@@ -1,11 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { ComparadorModelos } from "@/components/comparador-modelos";
 import { SelectorVersion } from "@/components/selector-version";
 import {
   MODELOS, COMBUSTIBLES, SELLOS, VTV_REF, EQUIPO_GNC_DEFAULT,
-  ars, calcular, patentamiento, gnc, estimarPatenteArba, fuenteConsumo, NOTA_ELECTRICO, type Modelo, type Combustible, type Origen,
+  ars, calcular, calcularModeloComparado, patentamiento, gnc, estimarPatenteArba, fuenteConsumo, NOTA_ELECTRICO, type Modelo, type Combustible, type Origen,
 } from "@/lib/costos";
 
 const TITLE = "¿Cuánto te va a costar tu próximo auto? | Calculadora de costo por km";
@@ -28,7 +27,7 @@ export const Route = createFileRoute("/")({
 /* ---------- Piezas de UI chiquitas ---------- */
 
 const Estimado = () => (
-  <span className="ml-1.5 border-b border-dotted border-estimado text-xs font-medium uppercase tracking-wider text-estimado">
+  <span className="ml-1.5 border-b border-dotted border-estimado text-xs font-medium text-estimado">
     estimado
   </span>
 );
@@ -85,8 +84,14 @@ const Card = ({ children, className = "" }: { children: ReactNode; className?: s
   <div className={`rounded-sm border border-border bg-card p-5 ${className}`}>{children}</div>
 );
 
-const COLORES = Array.from({ length: 8 }, (_, i) => `var(--chart-${i + 1})`);
 const FECHA_PRECIOS = COMBUSTIBLES[0]?.fecha ?? "2026-10";
+/** Ejemplo real para la primera pregunta frecuente: el auto de ejemplo con 15.000 km/año, VTV PBA y precios de referencia. */
+const EJEMPLO_FAQ = (() => {
+  const m = MODELOS[0];
+  const c = m ? calcularModeloComparado(m, { kmAnio: 15000, vtvAnual: VTV_REF.PBA, cochera: 0, otros: 0, cuota: 0,
+    precios: Object.fromEntries(COMBUSTIBLES.map((x) => [x.clave, x.precio])) }) : null;
+  return { auto: m ? `${m.marca} ${m.modelo}` : "auto", mensualMin: c?.mensualMin ?? 0, mensualMax: c?.mensualMax ?? 0 };
+})();
 
 /* ---------- Página ---------- */
 
@@ -159,9 +164,12 @@ function Index() {
   const pat = patentamiento(precio0km, sellosPct, digital, origen);
   const g = combustible === "nafta" ? gnc(kmAnio, consumo, precios[tipoNafta] ?? 0, precios["gnc"] ?? 0, equipoGnc) : null;
 
-  const torta = Object.entries(r.rubros)
-    .map(([name, [a, b]]) => ({ name, value: (a + b) / 2 }))
-    .filter((d) => d.value > 0);
+  /** Desglose en barras: de mayor a menor, sin los rubros en $0. */
+  const barras = Object.entries(r.rubros)
+    .map(([name, [a, b]]) => ({ name, min: a, max: b, value: (a + b) / 2 }))
+    .filter((d) => d.value > 0)
+    .sort((x, y) => y.value - x.value);
+  const barraMayor = barras[0]?.value ?? 0;
 
   const nombreAuto = modelo ? `${modelo.marca} ${modelo.modelo}` : "mi auto";
   /** Sin versión elegida (o en "Otro" sin consumo ni precio) no hay resultado que mostrar ni compartir. */
@@ -209,17 +217,14 @@ function Index() {
       {/* 1. Hero */}
       <header className="border-b border-border">
         <div className="mx-auto max-w-5xl px-5 pb-8 pt-6 md:pb-20 md:pt-14">
-          <div className="flex items-center justify-between border-b border-foreground pb-3 text-xs uppercase tracking-[0.18em]">
-            <span>Costo real · Argentina</span>
-            <span className="text-muted-foreground">Ref. noviembre 2026</span>
-          </div>
-          <h1 className="mt-6 text-4xl leading-[0.95] md:mt-10 md:text-8xl">¿Cuánto te va a costar<br /><em className="text-accent">tu próximo auto?</em></h1>
+          <p className="text-sm text-muted-foreground">Precios de referencia: noviembre 2026</p>
+          <h1 className="mt-6 text-4xl leading-[0.95] md:mt-10 md:text-8xl">¿Cuánto te va a costar<br />tu próximo auto?</h1>
           <div className="mt-5 grid gap-4 md:mt-8 md:grid-cols-[1fr_auto] md:items-end md:gap-6">
             <p className="max-w-lg text-base text-muted-foreground md:text-lg">
               Antes de comprar tu 0km, descubrí cuánto te va a costar cada kilómetro: combustible, seguro, patente, VTV, service y más.
             </p>
             <a href="#calculadora" className="inline-flex min-h-11 w-fit items-end border-b-2 border-accent pb-1 font-medium transition hover:text-accent sm:min-h-0">
-              Ir a la calculadora ↓
+              Ir a la calculadora
             </a>
           </div>
         </div>
@@ -344,7 +349,7 @@ function Index() {
               {esElectrico && !faltaDato && <p className="mt-2 text-sm font-medium">Sin el costo de carga eléctrica, que no se puede calcular de forma única.</p>}
               <p className="mt-2 text-sm opacity-80">{faltaDato ? "—" : `${ars(r.anualMin)} – ${ars(r.anualMax)} al año`}</p>
               <div className="mt-5 rounded-sm bg-highlight p-4 text-highlight-foreground">
-                <p className="text-xs font-bold uppercase tracking-wide">Costo por km</p>
+                <p className="text-sm font-bold">Costo por km</p>
                 <p className="font-display text-3xl">{faltaDato ? "—" : `${ars(r.kmMin)} – ${ars(r.kmMax)}`}</p>
               </div>
               <button onClick={compartir} disabled={faltaDato} className="mt-5 min-h-11 w-full rounded-md border border-primary-foreground/30 px-4 py-2 text-sm font-medium transition hover:bg-primary-foreground/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent sm:min-h-0">
@@ -387,27 +392,24 @@ function Index() {
 
             <Card>
               <h3 className="mb-2 text-2xl">Desglose anual (promedio)</h3>
-              <div className="h-56" role="img" aria-label="Gráfico del desglose anual por rubro. Los montos están en la lista de abajo.">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={torta} dataKey="value" nameKey="name" innerRadius={50} outerRadius={90} paddingAngle={2} isAnimationActive={false}>
-                      {torta.map((d) => <Cell key={d.name} fill={COLORES[Object.keys(r.rubros).indexOf(d.name)]} />)}
-                    </Pie>
-                    <Tooltip formatter={(v: number) => ars(v)} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <ul className="space-y-1 text-sm">
-                {Object.entries(r.rubros).map(([k, [a, b]], i) => (
-                  <li key={k} className="flex items-center justify-between gap-2">
-                    <span className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full" style={{ background: COLORES[i] }} />{k}
-                      {(k === "Seguro" || (k === "Patente" && patenteEstimada) || (k === "Service" && modelo?.serviceEstimado)) && <Estimado />}
-                    </span>
-                    <span className="whitespace-nowrap tabular-nums text-muted-foreground">{a === b ? ars(a) : `${ars(a)} – ${ars(b)}`}</span>
+              <ul className="space-y-3 text-sm">
+                {barras.map(({ name: k, min: a, max: b, value }, i) => (
+                  <li key={k}>
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="flex items-center">
+                        {k}
+                        {(k === "Seguro" || (k === "Patente" && patenteEstimada) || (k === "Service" && modelo?.serviceEstimado)) && <Estimado />}
+                      </span>
+                      <span className="whitespace-nowrap tabular-nums text-muted-foreground">{a === b ? ars(a) : `${ars(a)} – ${ars(b)}`}</span>
+                    </div>
+                    <div className="mt-1 h-2.5 rounded-sm bg-muted" aria-hidden="true">
+                      <div className={`h-full rounded-sm ${i === 0 ? "bg-accent" : "bg-primary/70"}`} style={{ width: `${barraMayor ? Math.max(1, (value / barraMayor) * 100) : 0}%` }} />
+                    </div>
                   </li>
                 ))}
+                {barras.length === 0 && <li className="text-muted-foreground">Elegí una versión para ver el desglose.</li>}
               </ul>
+              {barras.some((d) => d.min !== d.max) && <p className="mt-3 text-xs text-muted-foreground">En los rubros con rango, el largo de la barra es el promedio.</p>}
               {combustible === "eléctrico" && <p className="mt-2 text-xs text-muted-foreground">{NOTA_ELECTRICO}</p>}
             </Card>
         </section>
@@ -464,16 +466,20 @@ function Index() {
             <li>Autos eléctricos: el consumo de combustible es 0 y no se pondera. El costo de la carga eléctrica no está incluido en el resultado porque varía según la tarifa, el tipo de carga y el uso de cada persona.</li>
             <li>Datos de referencia: noviembre 2026.</li>
           </ul>
-          <p className="mt-8 max-w-[91ch] text-sm text-muted-foreground">
-            Fuentes: consumo de cada versión según su propia fuente (homologado IRAM/AITA, WLTP, EPA, Inmetro, Chile MTT, medido en pruebas o estimado con ancla), indicada debajo del campo de consumo; service de concesionario oficial o estimado (0,75% del precio o anclado en hermano de marca); combustibles: se toma el valor más alto observado entre las principales estaciones de servicio de CABA (YPF, Shell, Axion y Puma) (precio vigente de cada estación) según datos oficiales de la Secretaría de Energía, Res. 314/2016, para no subestimar el gasto; el GNC sigue el mismo criterio; seguro con regla calibrada (recotización trimestral).
-          </p>
+          <h3 className="mt-8 text-lg font-medium">Fuentes</h3>
+          <ul className="max-w-[91ch] list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+            <li>Consumo: la fuente de cada versión (homologado IRAM/AITA, WLTP, EPA, Inmetro, Chile MTT, medido en pruebas o estimado con ancla), indicada debajo del campo de consumo.</li>
+            <li>Service: concesionario oficial, o estimado (0,75% del precio o anclado en hermano de marca).</li>
+            <li>Combustibles: el valor más alto observado entre las principales estaciones de servicio de CABA (YPF, Shell, Axion y Puma), con el precio vigente de cada estación, según datos oficiales de la Secretaría de Energía (Res. 314/2016), para no subestimar el gasto. El GNC sigue el mismo criterio.</li>
+            <li>Seguro: regla calibrada, con recotización trimestral.</li>
+          </ul>
         </section>
 
         {/* 6. FAQ */}
         <section>
           <h2 className="mb-3 text-3xl">Preguntas frecuentes</h2>
           {[
-            ["¿Cuánto cuesta mantener un auto por mes en Argentina?", "Depende del modelo y de cuánto manejes. Para un 0km chico manejando 15.000 km al año, sumando combustible, seguro, patente, VTV y service, el costo suele ir de varios cientos de miles de pesos por mes. Elegí tu modelo arriba para ver tu rango."],
+            ["¿Cuánto cuesta mantener un auto por mes en Argentina?", `Depende del modelo y de cuánto manejes. Por ejemplo, un ${EJEMPLO_FAQ.auto} manejando 15.000 km al año, sumando combustible, seguro, patente, VTV y service, sale entre ${ars(EJEMPLO_FAQ.mensualMin)} y ${ars(EJEMPLO_FAQ.mensualMax)} por mes. Elegí tu modelo arriba para ver tu rango.`],
             ["¿Cómo se calcula el costo por kilómetro?", "Sumamos todos los gastos del año (fijos y variables) y los dividimos por los kilómetros que hacés en ese año. Por eso, cuanto más manejás, más se diluyen los gastos fijos."],
             ["¿Conviene pasar el auto a GNC?", "Si manejás mucho, el ahorro por km suele recuperar el equipo en pocos meses. Usá el comparador \"¿Y a GNC?\" con tu costo de instalación real. Solo se ofrece para autos a nafta: no aplica a diésel ni a eléctricos, y en híbridos no es habitual."],
           ].map(([q, a]) => (

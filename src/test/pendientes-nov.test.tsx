@@ -123,3 +123,14 @@ describe("comparador sin gastos comunes", () => {
     expect(within(screen.getByRole("row", { name: /Total mensual/ })).getAllByRole("cell").map((c) => c.textContent)).toEqual(conGastos);
   });
 });
+
+describe("desglose en barras", () => {
+  it("ordena de mayor a menor y no muestra rubros en $0", () => {
+    abrir();
+    const lista = screen.getByText("Desglose anual (promedio)").parentElement!;
+    const rubros = [...lista.querySelectorAll("li")].map((li) => li.querySelector("span")?.textContent?.replace("estimado", ""));
+    expect(rubros).not.toContain("Cochera");
+    expect(rubros[0]).toBe("Combustible");
+    expect(rubros).toContain("VTV");
+  });
+});

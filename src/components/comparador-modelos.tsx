@@ -30,7 +30,7 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
   return (
     <section aria-labelledby="comparador-titulo" className="space-y-4">
       <h2 id="comparador-titulo" className="text-3xl">Compará dos modelos</h2>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         {[{ inicial: inicialA, cambiar: setA, modelo: a, etiqueta: "Modelo A" }, { inicial: inicialB, cambiar: setB, modelo: b, etiqueta: "Modelo B" }].map(({ inicial, cambiar, modelo, etiqueta }) => (
           <div key={etiqueta} className="min-w-0">
             <p className="mb-1 text-sm font-medium">{etiqueta}</p>
