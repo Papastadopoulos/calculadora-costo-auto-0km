@@ -42,14 +42,18 @@ function Campo({ label, children, nota, est }: { label: string; children: ReactN
   );
 }
 
+/** Topes de los campos numéricos (muy por encima de cualquier valor real de la base). */
+const TOPE_MENSUAL = 50_000_000;
+const TOPE_PRECIO = 5_000_000_000;
 const inputCls = "w-full min-h-11 rounded-md border border-input bg-card px-3 py-2 text-base outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring sm:min-h-0 sm:text-sm";
 
 /**
  * Campo numérico sin flechitas: se tipea directo por teclado.
  * Al enfocar se selecciona todo el valor; al salir se formatea con separador de miles.
  * El valor mensual se usa tal cual (×1) en el total por mes; el ×12 aparece solo en el desglose anual.
+ * Tope (max): un número exagerado se corta en el máximo para que el resultado no se desborde.
  */
-function Num({ value, onChange, step = 1, ariaLabel }: { value: number; onChange: (n: number) => void; step?: number; ariaLabel?: string }) {
+function Num({ value, onChange, step = 1, ariaLabel, max = TOPE_MENSUAL }: { value: number; onChange: (n: number) => void; step?: number; ariaLabel?: string; max?: number }) {
   const decimales = step < 1 ? Math.max(1, (String(value).split(".")[1] ?? "").length) : 0;
   const [txt, setTxt] = useState<string | null>(null);
   const fmt = (n: number) =>
@@ -74,7 +78,11 @@ function Num({ value, onChange, step = 1, ariaLabel }: { value: number; onChange
         setTxt(String(Number.isFinite(value) ? value : 0).replace(".", ","));
         requestAnimationFrame(() => e.target.select());
       }}
-      onChange={(e) => { setTxt(e.target.value); onChange(parse(e.target.value)); }}
+      onChange={(e) => {
+        const n = parse(e.target.value);
+        setTxt(n > max ? String(max).replace(".", ",") : e.target.value);
+        onChange(Math.min(n, max));
+      }}
       onBlur={() => setTxt(null)}
     />
   );
@@ -269,9 +277,9 @@ function Index() {
                   )}
                 </Campo>}
                 <Campo label="Consumo (L/100 km)" est={!!fuenteCons?.estimado} nota={notaConsumo}>
-                  <Num value={consumoCalculado} step={0.1} onChange={setConsumo} />
+                  <Num value={consumoCalculado} step={0.1} onChange={setConsumo} max={50} />
                 </Campo>
-                <Campo label="Precio 0km ($)"><Num value={precio0km} onChange={setPrecio0km} /></Campo>
+                <Campo label="Precio 0km ($)"><Num value={precio0km} onChange={setPrecio0km} max={TOPE_PRECIO} /></Campo>
                 <div className="sm:col-span-2">
                   <Campo label={`Kilómetros por año: ${kmAnio.toLocaleString("es-AR")} km`}>
                     <input type="range" min={1000} max={60000} step={1000} value={kmAnio} onChange={(e) => setKmAnio(Number(e.target.value))} aria-valuetext={`${kmAnio.toLocaleString("es-AR")} km por año`} className="h-11 w-full accent-primary sm:h-auto" />
@@ -294,10 +302,10 @@ function Index() {
                 {modelo?.serviceEstimado ? (
                   <Campo label="Service máx." est><Num value={serviceMax} onChange={setServiceMax} /></Campo>
                 ) : (
-                  <Campo label="Service cada (km)"><Num value={intervaloKm} step={1000} onChange={setIntervaloKm} /></Campo>
+                  <Campo label="Service cada (km)"><Num value={intervaloKm} step={1000} onChange={setIntervaloKm} max={100_000} /></Campo>
                 )}
                 {modelo?.serviceEstimado && (
-                  <Campo label="Service cada (km)"><Num value={intervaloKm} step={1000} onChange={setIntervaloKm} /></Campo>
+                  <Campo label="Service cada (km)"><Num value={intervaloKm} step={1000} onChange={setIntervaloKm} max={100_000} /></Campo>
                 )}
                 <Campo label="Patente ($)" est={patenteEstimada} nota={<>
                   ARBA 2026 (PBA): escala progresiva sobre el precio 0km como aproximación de la valuación fiscal. El monto queda editable.
@@ -319,7 +327,7 @@ function Index() {
                     <select aria-label="Jurisdicción de la VTV" className={`${inputCls} w-28`} value={vtvJur} onChange={(e) => { const j = e.target.value as "PBA" | "CABA"; setVtvJur(j); setVtv(VTV_REF[j]); }}>
                       <option>PBA</option><option>CABA</option>
                     </select>
-                    <Num value={vtv} onChange={setVtv} ariaLabel="VTV anual ($)" />
+                    <Num value={vtv} onChange={setVtv} ariaLabel="VTV anual ($)" max={5_000_000} />
                   </div>
                 </Campo>
               </div>
@@ -448,7 +456,7 @@ function Index() {
                 {COMBUSTIBLES.map((c) => (
                   <tr key={c.clave}>
                     <td className="p-3 font-medium">{c.nombre}</td>
-                    <td className="p-3"><div className="ml-auto w-36"><Num value={precios[c.clave] ?? 0} onChange={(n) => setPrecios((p) => ({ ...p, [c.clave]: n }))} ariaLabel={`Precio ${c.nombre} (${c.unidad})`} /></div></td>
+                    <td className="p-3"><div className="ml-auto w-36"><Num value={precios[c.clave] ?? 0} onChange={(n) => setPrecios((p) => ({ ...p, [c.clave]: n }))} ariaLabel={`Precio ${c.nombre} (${c.unidad})`} max={100_000} /></div></td>
                     <td className="w-16 p-3 text-muted-foreground">{c.unidad}</td>
                   </tr>
                 ))}

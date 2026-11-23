@@ -134,3 +134,13 @@ describe("desglose en barras", () => {
     expect(rubros).toContain("VTV");
   });
 });
+
+describe("topes de los campos", () => {
+  it("un número exagerado en cochera se corta en el tope y el resultado no se desborda", () => {
+    abrir();
+    const cochera = screen.getByLabelText("Cochera mensual");
+    fireEvent.change(cochera, { target: { value: "9".repeat(40) } });
+    expect(cochera).toHaveValue("50000000");
+    expect(screen.queryByText(/\$\d{1,3}(\.\d{3}){5,}/)).not.toBeInTheDocument();
+  });
+});
