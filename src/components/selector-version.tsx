@@ -9,23 +9,29 @@ const CATALOGO = MARCAS.flatMap((marca) => modelosDeMarca(marca).map((modelo) =>
   palabras: [marca, modelo, ...modelo.split(/[\s-]+/)].map(normalizar).filter(Boolean),
 })));
 
-/** Distancia de edición (letras de más, de menos o cambiadas). */
+/** Distancia de edición: letras de más, de menos, cambiadas o dos vecinas invertidas ("cronso" → "cronos" es 1). */
 function distancia(a: string, b: string) {
-  let previa = Array.from({ length: b.length + 1 }, (_, j) => j);
+  const d: number[][] = Array.from({ length: a.length + 1 }, (_, i) => Array.from({ length: b.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)));
   for (let i = 1; i <= a.length; i++) {
-    const fila = [i];
     for (let j = 1; j <= b.length; j++) {
-      fila[j] = Math.min((previa[j] ?? 0) + 1, (fila[j - 1] ?? 0) + 1, (previa[j - 1] ?? 0) + (a[i - 1] === b[j - 1] ? 0 : 1));
+      const fila = d[i]!, previa = d[i - 1]!;
+      fila[j] = Math.min(previa[j]! + 1, fila[j - 1]! + 1, previa[j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) fila[j] = Math.min(fila[j]!, d[i - 2]![j - 2]! + 1);
     }
-    previa = fila;
   }
-  return previa[b.length] ?? 0;
+  return d[a.length]![b.length]!;
 }
-/** Una palabra buscada se parece a una del catálogo: 1 error de tipeo (2 si es larga), también al principio de la palabra. */
-const parecida = (buscada: string, palabra: string) => {
-  if (buscada.length < 4) return false;
+/**
+ * Qué tan parecida es una palabra buscada a una del catálogo: 1 error de tipeo (2 si es larga).
+ * Devuelve el puntaje (menor = más parecida; la palabra entera gana sobre el principio de una más larga) o null si no se parece.
+ */
+const parecido = (buscada: string, palabra: string): number | null => {
+  if (buscada.length < 4) return null;
   const tope = buscada.length >= 7 ? 2 : 1;
-  return distancia(buscada, palabra) <= tope || distancia(buscada, palabra.slice(0, buscada.length)) <= tope;
+  const entera = distancia(buscada, palabra);
+  if (entera <= tope) return entera;
+  const inicio = distancia(buscada, palabra.slice(0, buscada.length));
+  return inicio <= tope ? inicio + 0.5 : null;
 };
 const MAX_SUGERENCIAS = 8;
 
@@ -39,9 +45,21 @@ function sugerir(texto: string) {
     .sort((a, b) => orden(a) - orden(b) || a.modelo.localeCompare(b.modelo, "es-AR") || a.marca.localeCompare(b.marca, "es-AR"));
   if (exactas.length) return exactas;
   // Sin coincidencia exacta: se prueba con errores de tipeo ("corola" encuentra Corolla).
-  return CATALOGO.filter((s) => palabras.every((p) => s.clave.includes(p) || s.palabras.some((w) => parecida(p, w))))
-    .sort((a, b) => a.modelo.localeCompare(b.modelo, "es-AR") || a.marca.localeCompare(b.marca, "es-AR"))
-    .map((s) => ({ ...s, aproximada: true }));
+  // Primero los más parecidos; a igual parecido, por modelo y marca.
+  const puntaje = (s: (typeof CATALOGO)[number]) => {
+    let total = 0;
+    for (const p of palabras) {
+      if (s.clave.includes(p)) continue;
+      const mejores = s.palabras.map((w) => parecido(p, w)).filter((x): x is number => x !== null);
+      if (!mejores.length) return null;
+      total += Math.min(...mejores);
+    }
+    return total;
+  };
+  return CATALOGO.map((s) => ({ s, pts: puntaje(s) }))
+    .filter((x): x is { s: (typeof CATALOGO)[number]; pts: number } => x.pts !== null)
+    .sort((a, b) => a.pts - b.pts || a.s.modelo.localeCompare(b.s.modelo, "es-AR") || a.s.marca.localeCompare(b.s.marca, "es-AR"))
+    .map(({ s }) => ({ ...s, aproximada: true }));
 }
 
 export function SelectorVersion({ inicial, onChange, manual = false, etiqueta = "", className = "space-y-4" }: {

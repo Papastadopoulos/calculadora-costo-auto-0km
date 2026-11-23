@@ -21,6 +21,11 @@ describe("buscador con errores de tipeo", () => {
     expect(screen.getByText("¿Quisiste decir…?")).toBeInTheDocument();
     expect(screen.getAllByRole("option").map((o) => o.textContent)).toContain("Toyota Corolla");
   });
+  it("'cronso' (dos letras invertidas) sugiere primero el Fiat Cronos", () => {
+    abrir();
+    fireEvent.change(screen.getAllByRole("combobox", { name: "Buscar auto" })[0]!, { target: { value: "cronso" } });
+    expect(screen.getAllByRole("option")[0]!.textContent).toBe("Fiat Cronos");
+  });
 });
 
 describe("link compartido", () => {
