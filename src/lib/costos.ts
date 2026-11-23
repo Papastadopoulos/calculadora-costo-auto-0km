@@ -7,6 +7,7 @@ import modelosCsv from "@/data/base-modelos.csv?raw";
 import combustiblesCsv from "@/data/precios-combustibles.csv?raw";
 import sellosCsv from "@/data/sellos-provincias.csv?raw";
 import premiumCsv from "@/data/combustible-premium.csv?raw";
+import origenCsv from "@/data/origen-modelos.csv?raw";
 
 /** Parser CSV mínimo con soporte de comillas dobles. */
 export function parseCsv<K extends string = string>(text: string): Record<K, string>[] {
@@ -258,6 +259,18 @@ export function masBarato(a: readonly [number, number], b: readonly [number, num
 }
 
 export type Origen = "nacional" | "mexico" | "importado";
+
+const ORIGENES = parseCsv<"marca" | "modelo" | "version_contiene" | "origen" | "pais" | "fuente">(origenCsv);
+/**
+ * Origen de fabricación de la versión, según origen-modelos.csv (con fuente por fila).
+ * Una fila con version_contiene gana sobre la del modelo entero. Sin fila: null (sin dato).
+ */
+export function origenDe(m: Pick<Modelo, "marca" | "modelo" | "version">): { origen: Origen; pais: string } | null {
+  const filas = ORIGENES.filter((o) => o.marca === m.marca && o.modelo === m.modelo);
+  const fila = filas.find((o) => o.version_contiene && m.version.toUpperCase().includes(o.version_contiene.toUpperCase()))
+    ?? filas.find((o) => !o.version_contiene);
+  return fila ? { origen: fila.origen as Origen, pais: fila.pais } : null;
+}
 
 /** Formulario 01: $24.070 nacional/Mercosur vs $43.370 importado (México incluido). Fuente: elcerokm nov-2025. */
 const FORMULARIO_01: Record<Origen, number> = { nacional: 24070, mexico: 43370, importado: 43370 };

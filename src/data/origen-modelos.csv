@@ -1,0 +1,145 @@
+marca,modelo,version_contiene,origen,pais,fuente,fecha
+Chevrolet,Tracker,,nacional,Argentina,"iProfesional 16-oct-2026, 'Qué marcas y modelos de autos se producen en las 12 fábricas que tiene Argentina'; algunas versiones vienen de Brasil (Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'), también Mercosur",2026-11-23
+Fiat,Cronos,,nacional,Argentina,"iProfesional 16-oct-2026, 'Qué marcas y modelos de autos se producen en las 12 fábricas que tiene Argentina'",2026-11-23
+Fiat,Titano,,nacional,Argentina,"iProfesional 16-oct-2026, 'Qué marcas y modelos de autos se producen en las 12 fábricas que tiene Argentina'",2026-11-23
+Ram,Dakota,,nacional,Argentina,"iProfesional 16-oct-2026, 'Qué marcas y modelos de autos se producen en las 12 fábricas que tiene Argentina'",2026-11-23
+Ford,Ranger,,nacional,Argentina,"iProfesional 16-oct-2026, 'Qué marcas y modelos de autos se producen en las 12 fábricas que tiene Argentina'; G1 11-nov-2026 (modelos hechos en Argentina: Ranger, excepto la Raptor)",2026-11-23
+Ford,Ranger,RAPTOR,importado,fuera del Mercosur,"G1 11-nov-2026 (modelos hechos en Argentina: Ranger, excepto la Raptor): la Raptor no se fabrica en Argentina",2026-11-23
+Mercedes-Benz,Sprinter,,nacional,Argentina,"iProfesional 16-oct-2026, 'Qué marcas y modelos de autos se producen en las 12 fábricas que tiene Argentina'",2026-11-23
+Peugeot,208,,nacional,Argentina,"iProfesional 16-oct-2026, 'Qué marcas y modelos de autos se producen en las 12 fábricas que tiene Argentina'",2026-11-23
+Peugeot,2008,,nacional,Argentina,"iProfesional 16-oct-2026, 'Qué marcas y modelos de autos se producen en las 12 fábricas que tiene Argentina'",2026-11-23
+Renault,Kangoo II Express,,nacional,Argentina,"iProfesional 16-oct-2026, 'Qué marcas y modelos de autos se producen en las 12 fábricas que tiene Argentina'",2026-11-23
+Renault,Kangoo II Version Pasajeros,,nacional,Argentina,"iProfesional 16-oct-2026, 'Qué marcas y modelos de autos se producen en las 12 fábricas que tiene Argentina'",2026-11-23
+Toyota,Hilux,,nacional,Argentina,"iProfesional 16-oct-2026, 'Qué marcas y modelos de autos se producen en las 12 fábricas que tiene Argentina'",2026-11-23
+Toyota,Hilux SW4,,nacional,Argentina,"iProfesional 16-oct-2026, 'Qué marcas y modelos de autos se producen en las 12 fábricas que tiene Argentina'",2026-11-23
+Toyota,Hiace,,nacional,Argentina,"iProfesional 16-oct-2026, 'Qué marcas y modelos de autos se producen en las 12 fábricas que tiene Argentina'",2026-11-23
+Volkswagen,Amarok,,nacional,Argentina,"iProfesional 16-oct-2026, 'Qué marcas y modelos de autos se producen en las 12 fábricas que tiene Argentina'",2026-11-23
+Toyota,Corolla Cross,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Toyota,Corolla,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Toyota,Yaris Cross,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Toyota,Yaris,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Volkswagen,Tera,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Volkswagen,Polo,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Volkswagen,Nivus,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Volkswagen,Virtus,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Volkswagen,T-Cross,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Volkswagen,Saveiro,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Fiat,Mobi,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Fiat,Argo,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Fiat,Pulse,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Fiat,Fastback,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Fiat,Fiorino,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Fiat,Strada,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Fiat,Toro,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Chevrolet,Onix,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Chevrolet,Sonic,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Chevrolet,Spin,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Chevrolet,Trailblazer,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Chevrolet,Montana,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Chevrolet,S-10,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Renault,Kardian,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Renault,Kwid,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Renault,Boreal,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Renault,Duster Oroch,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Peugeot,Partner Rapid,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Citroën,C3,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Citroën,Basalt,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Citroën,C3 Aircross,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Jeep,Renegade,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Jeep,Compass,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Jeep,Commander,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Ram,Rampage,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Nissan,Kicks,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Nissan,Kait,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Hyundai,HB20,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Hyundai,Creta,,nacional,Brasil,"Infobae 27-jul-2026, 'Cuál es el peso de la industria automotriz brasileña en la Argentina'",2026-11-23
+Ford,Maverick,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados'",2026-11-23
+Ford,Bronco Sport,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados'",2026-11-23
+Ford,Mustang Mach-E,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados'",2026-11-23
+Volkswagen,Vento,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados'",2026-11-23
+Volkswagen,Taos,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados'",2026-11-23
+Volkswagen,Tiguan Allspace,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados'",2026-11-23
+Nissan,Versa,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados'",2026-11-23
+Nissan,Sentra,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados'",2026-11-23
+Honda,ZR-V,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados'",2026-11-23
+Kia,K3,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados'",2026-11-23
+Kia,K4,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados'",2026-11-23
+Kia,K3 Cross,,mexico,México,"Infobae 2-ene-2026, 'Boom de autos importados': K3 de México en sus versiones de dos y tres volúmenes",2026-11-23
+Chevrolet,Silverado,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados'",2026-11-23
+Ram,2500,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados'",2026-11-23
+Audi,Q5,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados'",2026-11-23
+Bmw,320,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados' (Serie 3 y Serie 2 Coupé)",2026-11-23
+Bmw,330,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados' (Serie 3 y Serie 2 Coupé)",2026-11-23
+Bmw,M340i,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados' (Serie 3 y Serie 2 Coupé)",2026-11-23
+Bmw,220i,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados' (Serie 3 y Serie 2 Coupé)",2026-11-23
+Bmw,M240i,,mexico,México,"Clarín 13-abr-2026, 'Caída del acuerdo de libre comercio automotor con México: qué autos están involucrados' (Serie 3 y Serie 2 Coupé)",2026-11-23
+Audi,A3,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Audi,A5,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Audi,A6,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Audi,A6 Allroad,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Audi,Q3,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Audi,Q6,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Audi,Q7,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Audi,Q8,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Audi,Q8 E-Tron,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Audi,RS Q8,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Audi,RS3,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Audi,S3,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Audi,S5,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Baic,BJ30,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Baic,BJ40,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Baic,BJ60,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Baic,EU5,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Baic,U5 Plus,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Baic,X35 Crossover,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Baic,X55 Crossover,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Byd,Atto 2,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Byd,Seal 5,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Byd,Seal U DM-i,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Byd,Shark DMO,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Byd,Yuan Pro,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Changan,CS55,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Changan,Eado,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Chery,Arrizo 8,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Chery,Himla,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Chery,Tiggo 2,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Chery,Tiggo 4,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Haval,Jolion,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Lexus,ES,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Lexus,GX 550,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Lexus,IS,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Lexus,LBX,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Lexus,LS,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Lexus,LX,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Lexus,NX,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Lexus,RX,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Lexus,RZ,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Lexus,UX,,importado,fuera del Mercosur,"Infobae 2-ene-2026, 'Boom de autos importados': Audi y Lexus se importan de otros continentes",2026-11-23
+Mercedes-Benz,A 200,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,A 250,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,A 35,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,A 45,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,C 300,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,C 43,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,CLA 200,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,CLE 53,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,E 450,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,G 63,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,GLA 200,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,GLA 250,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,GLB 200,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,GLB 250,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,GLC 200,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,GLC 300,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,GLC 43,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,GLC 63,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,GLE 450,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,GLE 53,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,GLE 63 S,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,GT 43,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,GT 63,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mercedes-Benz,SL 63,,importado,Alemania,"Infobae 2-ene-2026, 'Boom de autos importados': gama de autos premium importados de Alemania",2026-11-23
+Mg,3 Hybrid,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Mg,Cyberster,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Mg,HS,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23
+Mg,ZS,,importado,China,"CIDOA vía El Economista 13-jul-2026 (origen China: BYD, Chery, BAIC, Haval, MG, Changan)",2026-11-23

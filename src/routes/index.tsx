@@ -4,7 +4,7 @@ import { ComparadorModelos } from "@/components/comparador-modelos";
 import { SelectorVersion } from "@/components/selector-version";
 import {
   MODELOS, COMBUSTIBLES, SELLOS, VTV_REF, EQUIPO_GNC_DEFAULT,
-  ars, calcular, calcularModeloComparado, patentamiento, gnc, estimarPatenteArba, fuenteConsumo, NOTA_ELECTRICO, type Modelo, type Combustible, type Origen,
+  ars, calcular, calcularModeloComparado, origenDe, patentamiento, gnc, estimarPatenteArba, fuenteConsumo, NOTA_ELECTRICO, type Modelo, type Combustible, type Origen,
 } from "@/lib/costos";
 
 const TITLE = "¿Cuánto te va a costar tu próximo auto? | Calculadora de costo por km";
@@ -143,6 +143,7 @@ function Index() {
     if (m.combustiblePredeterminado === "gasoil_premium") setTipoGasoil("gasoil_premium");
     else if (m.combustiblePredeterminado) setTipoNafta(m.combustiblePredeterminado);
     setPatenteManual(null);
+    setOrigen(origenDe(m)?.origen ?? "nacional");
     setPrecio0km(m.precio0km); setSeguroMin(m.seguroMin); setSeguroMax(m.seguroMax);
     setServiceMin(m.serviceMin); setServiceMax(m.serviceMax); setIntervaloKm(m.intervaloKm);
   }
@@ -160,6 +161,7 @@ function Index() {
     patente, patenteFrecuencia: patenteFrec, vtvAnual: vtv, cochera, otros, cuota,
   }), [kmAnio, consumoCalculado, precioLitro, seguroMin, seguroMax, serviceMin, serviceMax, intervaloKm, patente, patenteFrec, vtv, cochera, otros, cuota]);
 
+  const origenModelo = modelo ? origenDe(modelo) : null;
   const sellosPct = SELLOS.find((s) => s.provincia === provincia)?.pct ?? 0;
   const pat = patentamiento(precio0km, sellosPct, digital, origen);
   const g = combustible === "nafta" ? gnc(kmAnio, consumo, precios[tipoNafta] ?? 0, precios["gnc"] ?? 0, equipoGnc) : null;
@@ -371,7 +373,9 @@ function Index() {
                   {SELLOS.map((s) => <option key={s.provincia}>{s.provincia}</option>)}
                 </select>
               </Campo>
-              <Campo label="Origen">
+              <Campo label="Origen" nota={!modelo ? null : origenModelo
+                ? `Según el modelo: fabricado en ${origenModelo.pais}${origenModelo.pais === "Argentina" || origenModelo.pais === "Brasil" ? " (Mercosur)" : ""}.`
+                : "Sin dato del origen de este modelo: elegilo."}>
                 <select aria-label="Origen" className={inputCls} value={origen} onChange={(e) => setOrigen(e.target.value as Origen)}>
                   <option value="nacional">Nacional / Mercosur</option><option value="mexico">México</option><option value="importado">Importado</option>
                 </select>
