@@ -302,7 +302,7 @@ function Index() {
                 <Campo label="Precio 0km ($)"><Num value={precio0km} onChange={setPrecio0km} max={TOPE_PRECIO} /></Campo>
                 <div className="sm:col-span-2">
                   <Campo label={`Kilómetros por año: ${kmAnio.toLocaleString("es-AR")} km`}>
-                    <input type="range" min={1000} max={60000} step={1000} value={kmAnio} onChange={(e) => setKmAnio(Number(e.target.value))} aria-valuetext={`${kmAnio.toLocaleString("es-AR")} km por año`} className="h-11 w-full accent-primary sm:h-auto" />
+                    <input type="range" min={1000} max={60000} step={1000} value={kmAnio} onChange={(e) => setKmAnio(Number(e.target.value))} aria-valuetext={`${kmAnio.toLocaleString("es-AR")} km por año`} className="h-11 w-full accent-cuanto sm:h-auto" />
                   </Campo>
                 </div>
               </div>
@@ -354,7 +354,7 @@ function Index() {
             </Card>
 
             <Card>
-              <h2 className="mb-4 text-2xl">Extras</h2>
+              <h2 className="mb-4 text-2xl text-cuanto">Extras</h2>
               <div className="grid gap-4 sm:grid-cols-3">
                 <Campo label="Cochera mensual"><Num value={cochera} onChange={setCochera} /></Campo>
                 <Campo label="Otros gastos/mes"><Num value={otros} onChange={setOtros} /></Campo>
@@ -391,7 +391,7 @@ function Index() {
         </section>
 
         {/* Patentamiento y desglose, debajo de la calculadora (en el celular quedan en el mismo orden que antes) */}
-        <section className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <section className="grid gap-6 lg:grid-cols-[1.15fr_1fr] lg:items-start">
           <Card>
             <h2 className="text-2xl">Costo único de compra: patentamiento</h2>
             <p className="mt-1 text-sm text-muted-foreground">No entra en el costo mensual ni por km.</p>
@@ -434,9 +434,11 @@ function Index() {
                       </span>
                       <span className="whitespace-nowrap tabular-nums text-muted-foreground">{a === b ? ars(a) : `${ars(a)} – ${ars(b)}`}</span>
                     </div>
-                    <div className="mt-1 flex h-2.5 items-center gap-2">
-                      <div className="h-full rounded-sm bg-accent" aria-hidden="true" style={{ width: `${totalBarras ? Math.max(1, (value / totalBarras) * 100) : 0}%` }} />
-                      <span className="text-xs tabular-nums text-muted-foreground">{totalBarras ? Math.round((value / totalBarras) * 100) : 0} %</span>
+                    <div className="mt-1 flex items-center gap-3">
+                      <div className="h-2.5 flex-1" aria-hidden="true">
+                        <div className="h-full rounded-sm bg-accent" style={{ width: `${totalBarras ? Math.max(1, (value / totalBarras) * 100) : 0}%` }} />
+                      </div>
+                      <span className="w-10 shrink-0 text-right text-xs tabular-nums text-muted-foreground">{totalBarras ? Math.round((value / totalBarras) * 100) : 0} %</span>
                     </div>
                   </li>
                 ))}
