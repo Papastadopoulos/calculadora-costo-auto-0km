@@ -16,6 +16,9 @@ describe("origen de fabricación por modelo", () => {
     expect(origenDe(MODELOS.find((m) => m.modelo === "Ranger" && !m.version.includes("RAPTOR"))!)?.origen).toBe("nacional");
   });
   it("sin fuente no hay origen", () => {
-    expect(origenDe(buscar("Byd", "Dolphin Mini")!)).toBeNull();
+    expect(origenDe(buscar("Rely", "R8")!)).toBeNull();
+    // El Jimny 5 puertas viene de India (fuente Suzuki); el de 3 puertas todavía no tiene fuente.
+    expect(origenDe(buscar("Suzuki", "Jimny", "5P")!)?.pais).toBe("India");
+    expect(origenDe(buscar("Suzuki", "Jimny", "3P")!)).toBeNull();
   });
 });
