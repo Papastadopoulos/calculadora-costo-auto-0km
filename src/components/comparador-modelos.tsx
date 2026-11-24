@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { COMBUSTIBLES, MODELOS, NOTA_ELECTRICO, ars, calcularModeloComparado, masBarato, type Modelo, type UsoComparador } from "@/lib/costos";
 import { SelectorVersion } from "@/components/selector-version";
 
@@ -7,10 +7,19 @@ const FILAS_CON_CARGA = ["Total mensual", "Costo por km", "Combustible / mes"];
 const SIN_COMPARAR = ["Cochera", "Financiación", "Otros"];
 const rango = ([min, max]: readonly [number, number]) => min === max ? ars(min) : `${ars(min)} – ${ars(max)}`;
 
-export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
-  const inicialA = MODELOS[0];
-  const inicialB = MODELOS.find((m) => m.marca !== inicialA?.marca) ?? MODELOS[1];
-  const [a, setA] = useState<Modelo | null>(inicialA ?? null);
+export function ComparadorModelos({ uso, autoArriba }: { uso: UsoComparador; autoArriba?: Modelo | null }) {
+  // El Modelo A sigue al auto elegido arriba hasta que se lo cambia a mano en el comparador.
+  const ultimoArriba = useRef(autoArriba ?? MODELOS[0]);
+  if (autoArriba) ultimoArriba.current = autoArriba;
+  const inicialA = ultimoArriba.current;
+  const inicialB = MODELOS.find((m) => m.marca !== MODELOS[0]?.marca) ?? MODELOS[1];
+  const [elegidoA, setElegidoA] = useState<Modelo | null | undefined>(undefined);
+  const sigueArriba = elegidoA === undefined;
+  const a = sigueArriba ? inicialA ?? null : elegidoA;
+  const setA = (m: Modelo | null) => setElegidoA(m);
+  // Mientras sigue al de arriba, el selector se rearma con cada auto nuevo; al cambiarlo a mano queda como está.
+  const claveA = useRef(`arriba-${inicialA?.id}`);
+  if (sigueArriba) claveA.current = `arriba-${inicialA?.id}`;
   const [b, setB] = useState<Modelo | null>(inicialB ?? null);
   if (!inicialA || !inicialB) return null;
   const usoComparado = { ...uso, cochera: 0, otros: 0, cuota: 0 };
@@ -31,10 +40,10 @@ export function ComparadorModelos({ uso }: { uso: UsoComparador }) {
     <section aria-labelledby="comparador-titulo" className="space-y-4">
       <h2 id="comparador-titulo" className="text-3xl">Compará dos modelos</h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:gap-6">
-        {[{ inicial: inicialA, cambiar: setA, modelo: a, etiqueta: "Modelo A" }, { inicial: inicialB, cambiar: setB, modelo: b, etiqueta: "Modelo B" }].map(({ inicial, cambiar, modelo, etiqueta }) => (
+        {[{ inicial: inicialA, cambiar: setA, modelo: a, etiqueta: "Modelo A", clave: claveA.current }, { inicial: inicialB, cambiar: setB, modelo: b, etiqueta: "Modelo B", clave: "b" }].map(({ inicial, cambiar, modelo, etiqueta, clave }) => (
           <div key={etiqueta} className="min-w-0">
             <p className="mb-1 text-sm font-medium">{etiqueta}</p>
-            <SelectorVersion inicial={inicial} etiqueta={etiqueta} onChange={(m) => cambiar(m)} />
+            <SelectorVersion key={clave} inicial={inicial} etiqueta={etiqueta} onChange={(m) => cambiar(m)} />
             {modelo && <p className="mt-2 break-words text-xs text-muted-foreground">{modelo.version}{modelo.combustiblePredeterminado && ` · ${COMBUSTIBLES.find((c) => c.clave === modelo.combustiblePredeterminado)?.nombre ?? ""}`}</p>}
           </div>
         ))}

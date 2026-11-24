@@ -450,7 +450,7 @@ function Index() {
             </Card>
         </section>
 
-        <ComparadorModelos uso={{ kmAnio, vtvAnual: vtv, cochera, otros, cuota, precios }} />
+        <ComparadorModelos autoArriba={modelo ?? null} uso={{ kmAnio, vtvAnual: vtv, cochera, otros, cuota, precios }} />
 
             {g && (
               <Card>

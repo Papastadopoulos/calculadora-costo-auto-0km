@@ -46,3 +46,16 @@ describe("link compartido", () => {
     expect(screen.getByText(/Ejemplo con un Fiat Cronos/)).toBeInTheDocument();
   });
 });
+
+describe("comparador arranca con el auto de arriba", () => {
+  it("el Modelo A sigue al auto elegido arriba hasta que se lo cambia a mano", () => {
+    const hilux = MODELOS.find((m) => m.modelo === "Hilux")!;
+    window.history.replaceState(null, "", `/?${new URLSearchParams({ marca: hilux.marca, modelo: hilux.modelo, version: hilux.version })}`);
+    abrir();
+    expect(screen.getByLabelText("Marca Modelo A")).toHaveValue("Toyota");
+    expect(screen.getByLabelText("Modelo Modelo A")).toHaveValue("Hilux");
+    expect(screen.getByLabelText("Versión Modelo A")).toHaveValue(hilux.id);
+    fireEvent.change(screen.getByLabelText("Marca Modelo A"), { target: { value: "Honda" } });
+    expect(screen.getByLabelText("Marca Modelo A")).toHaveValue("Honda");
+  });
+});
