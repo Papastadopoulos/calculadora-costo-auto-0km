@@ -4,7 +4,7 @@ import { ComparadorModelos } from "@/components/comparador-modelos";
 import { SelectorVersion } from "@/components/selector-version";
 import {
   MODELOS, COMBUSTIBLES, SELLOS, VTV_REF, EQUIPO_GNC_DEFAULT,
-  ars, calcular, calcularModeloComparado, origenDe, patentamiento, gnc, estimarPatenteArba, fuenteConsumo, NOTA_ELECTRICO, type Modelo, type Combustible, type Origen,
+  ars, calcular, calcularModeloComparado, origenDe, consumoElectricoDe, patentamiento, gnc, estimarPatenteArba, fuenteConsumo, NOTA_ELECTRICO, type Modelo, type Combustible, type Origen,
 } from "@/lib/costos";
 
 const TITLE = "¿Cuánto te va a costar tu próximo auto? | Calculadora de costo por km";
@@ -152,9 +152,10 @@ function Index() {
     if (!m) {
       // Sin versión o "Otro (manual)": se vacía todo para no arrastrar datos del auto anterior.
       setVersion(""); setConsumo(0); setPrecio0km(0); setSeguroMin(0); setSeguroMax(0); setServiceMin(0); setServiceMax(0);
-      setIntervaloKm(10000); return;
+      setIntervaloKm(10000); setKwh100(0); return;
     }
     setVersion(m.version); setCombustible(m.combustible); setConsumo(m.consumo);
+    setKwh100(consumoElectricoDe(m)?.kwh ?? 0);
     if (m.combustiblePredeterminado === "gasoil_premium") setTipoGasoil("gasoil_premium");
     else if (m.combustiblePredeterminado) setTipoNafta(m.combustiblePredeterminado);
     setPatenteManual(null);
@@ -234,6 +235,9 @@ function Index() {
   }, [textoAnuncio]);
 
   const esElectrico = combustible === "eléctrico";
+  /** Consumo eléctrico de fábrica de la versión: se muestra la fuente mientras no se lo cambie a mano. */
+  const datoKwh = modelo && esElectrico ? consumoElectricoDe(modelo) : null;
+  const fuenteKwh = datoKwh && kwh100 === datoKwh.kwh ? datoKwh : null;
   /** Eléctrico sin consumo o sin precio del kWh: el resultado no incluye la carga y se aclara. */
   const sinCarga = esElectrico && !cargaIncluida;
 
@@ -304,7 +308,9 @@ function Index() {
                   )}
                 </Campo>}
                 {combustible === "eléctrico" ? <>
-                  <Campo label="Consumo eléctrico (kWh/100 km)" nota="Opcional. Lo dice la ficha del auto o la computadora de a bordo.">
+                  <Campo label="Consumo eléctrico (kWh/100 km)" est={!!fuenteKwh?.estimado} nota={fuenteKwh
+                    ? `Fuente: ${fuenteKwh.texto}. Podés cambiarlo por el de tu computadora de a bordo.`
+                    : "Opcional. Lo dice la ficha del auto o la computadora de a bordo."}>
                     <Num value={kwh100} step={0.1} onChange={setKwh100} max={100} />
                   </Campo>
                   <Campo label="Precio del kWh ($)" nota="Opcional. Está en tu factura de luz o en la tarifa del cargador. Con los dos datos, la carga entra en el cálculo.">

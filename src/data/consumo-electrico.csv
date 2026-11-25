@@ -1,0 +1,26 @@
+marca,modelo,version,kwh_100km,estimado,texto,fuente,fecha
+Ford,Mustang Mach-E,5P MACH-E GT PERFORMANCE AT,21.3,no,WLTP homologado (ev-database.org),"ev-database.org/car/3190 Mach-E GT (MY25): WLTP Rated Consumption TEH 213 Wh/km, incluye pérdidas de carga. Lectura 25-nov-2026",2026-11-25
+Toyota,bZ4X,5P ELECTRICA,15.9,no,WLTP homologado (ev-database.org),"ev-database.org/car/3135 bZ4X AWD 73,1 kWh (MY25): WLTP Rated TEH 159 Wh/km. La versión argentina es AWD 73,1 kWh (Motor Magazine 5-jun-2026). Lectura 25-nov-2026",2026-11-25
+Mini,Aceman,5P SE ELECTRICO,14.8,no,WLTP homologado (ev-database.org),ev-database.org/car/2191 Aceman SE: WLTP Rated TEH 148 Wh/km. Lectura 25-nov-2026,2026-11-25
+Audi,Q6,5P 50 E-TRON PERFORMANCE,19.3,no,WLTP homologado (ev-database.org),ev-database.org/car/2215 Q6 SUV e-tron performance (MY24): WLTP Rated TEH 193 Wh/km. Lectura 25-nov-2026,2026-11-25
+Porsche,Taycan Cross Turismo,5P 4 S CROSS TURISMO 2024,24.8,no,WLTP homologado (ev-database.org),"ev-database.org/car/1930 Taycan 4S Cross Turismo (MY23-24): WLTP Rated TEH 248 Wh/km (la versión es 2024, anterior al restyling MY25: 214 Wh/km). Lectura 25-nov-2026",2026-11-25
+Lexus,RZ,5P 500e LUXURY ELECTRICO,18.2,no,WLTP homologado (ev-database.org),ev-database.org/car/3294 RZ 500e (MY26): WLTP Rated TEH 182 Wh/km. Lectura 25-nov-2026,2026-11-25
+Byd,Dolphin Mini,30kWh GL,15.5,si,WLTP de la versión europea,ev-database.org/car/3193 Dolphin Surf 30 kWh Active: WLTP Rated 155 Wh/km. [ESTIMADO]: misma batería de 30 kWh pero motor europeo de 65 kW; falta el dato homologado de la GL argentina. Lectura 25-nov-2026,2026-11-25
+Geely,EX5,Pro,16.6,no,WLTP homologado (ev-database.org),"ev-database.org/car/3308 Geely E5/EX5 Pro 60,2 kWh: WLTP Rated TEH 166 Wh/km. Lectura 25-nov-2026",2026-11-25
+Mg,Cyberster,ROADSTER ELECTRICO AWD,19.1,no,WLTP homologado (ev-database.org),ev-database.org/car/2203 Cyberster GT (AWD): WLTP Rated TEL 191 Wh/km (TEH sin dato). Lectura 25-nov-2026,2026-11-25
+Baic,EU5,R500 Exclusive Electric,13.7,no,NEDC de fábrica (BAIC Argentina),"Brochure BAIC EU5 Argentina jul-2025 (baic.com.ar): consumo ≤13,7 kWh/100 km, batería 49,6 kWh, 416 km NEDC. NEDC es más optimista que WLTP. Lectura 25-nov-2026",2026-11-25
+Arcfox,Koala S,MINIVAN ELECTRICA,18.6,si,"dato de fábrica, ciclo sin declarar","Brochure Arcfox Koala S Argentina 2026 (arcfox.com.ar): 18,6 kWh/100 km. [ESTIMADO]: no dice el ciclo (CLTC/NEDC/WLTP); falta ficha homologada. Lectura 25-nov-2026",2026-11-25
+Arcfox,T1,Max,11.2,si,"dato de fábrica, ciclo sin declarar","arcfox.com.ar/arcfox-t1 y brochure Argentina 2026: 11,2 kWh/100 km. [ESTIMADO]: no dice el ciclo, probablemente CLTC/NEDC (optimistas); falta ficha homologada. Lectura 25-nov-2026",2026-11-25
+Arcfox,T5,Pro,12.5,si,"dato de fábrica, ciclo sin declarar","arcfox.com.ar/arcfox-t5: 12,5 kWh/100 km. [ESTIMADO]: no dice el ciclo, probablemente CLTC/NEDC (optimistas); falta ficha homologada. Lectura 25-nov-2026",2026-11-25
+Gac,Aion UT,5P PREMIUM ELECTRICO,16.4,no,WLTP homologado (ev-database.org),ev-database.org/car/3518 AION UT 60 kWh: WLTP Rated 164 Wh/km. La Premium argentina usa la batería de 60 kWh (gacmotorargentina.com). Lectura 25-nov-2026,2026-11-25
+Gac,Aion V,5P LUXURY ELECTRICO,16.7,no,WLTP homologado (ev-database.org),"ev-database.org/car/3559 AION V 75 kWh: WLTP Rated 167 Wh/km. La Luxury argentina usa 75,2 kWh (Autoblog 26-ago-2026). Lectura 25-nov-2026",2026-11-25
+Dongfeng,Box,5P 43.9kWh 310KM,15.6,no,WLTP homologado (ev-database.org),"ev-database.org/car/3036 Box 42,3 kWh: WLTP Rated 156 Wh/km, 310 km WLTP como la versión argentina. Lectura 25-nov-2026",2026-11-25
+Gwm,ORA 3,5P BEV ELECTRICO,16.7,no,WLTP homologado (ev-database.org),ev-database.org/car/2091 ORA 03 48 kWh: WLTP Rated 167 Wh/km. La argentina es la de 48 kWh y 310 km WLTP (Clarín 16-may-2025). Lectura 25-nov-2026,2026-11-25
+Jac,EV 30X,41kWh 405KM,15.8,no,WLTP homologado (elbilradar.com),"elbilradar.com JAC E30X 41 kWh: WLTP consumo oficial 158 Wh/km, 293 km WLTP. Lectura 25-nov-2026",2026-11-25
+Bmw,iX2,xDrive30,17.7,no,WLTP homologado (ev-database.org),ev-database.org/car/2040 iX2 xDrive30 (MY23-25): WLTP Rated TEH 177 Wh/km. Lectura 25-nov-2026,2026-11-25
+Audi,Q8 E-Tron,55 quattro,25.6,no,WLTP homologado (ev-database.org),ev-database.org/car/1770 Q8 SUV e-tron 55 quattro: WLTP Rated TEH 256 Wh/km. Lectura 25-nov-2026,2026-11-25
+Volvo,EX30,51kWh CORE,17.2,no,WLTP homologado (ev-database.org),ev-database.org/car/1909 EX30 Single Motor 51 kWh (MY24-26): WLTP Rated TEH 172 Wh/km. Lectura 25-nov-2026,2026-11-25
+Ford,E-Transit,Van Mediana,37.1,no,WLTP de fábrica (Ford Reino Unido),"Catálogo Ford E-Transit Reino Unido (ford.co.uk), batería 68 kWh: WLTP combinado 27,1-37,1 kWh/100 km; se toma el máximo. Lectura 25-nov-2026",2026-11-25
+Peugeot,E-2008,54kWh,15.7,no,WLTP homologado (ev-database.org),ev-database.org/car/1947 e-2008 54 kWh (MY24): WLTP Rated TEH 157 Wh/km. Lectura 25-nov-2026,2026-11-25
+Renault,Megane E-Tech,5P ELECTRICO,17.0,no,WLTP homologado (ev-database.org),ev-database.org/car/1521 Megane E-Tech EV60 220hp (2022-2025): WLTP Rated TEH 170 Wh/km. Lectura 25-nov-2026,2026-11-25
+Maxus,eDELIVER 9,CHASIS-CABINA L3,45.4,no,WLTP de fábrica (Maxus),"Ficha Maxus eDELIVER 9 N2 MY24 (chasis-cabina L3H1CC): WLTP combinado 33,0-45,4 kWh/100 km; se toma el máximo. Lectura 25-nov-2026",2026-11-25

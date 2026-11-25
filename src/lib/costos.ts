@@ -8,6 +8,7 @@ import combustiblesCsv from "@/data/precios-combustibles.csv?raw";
 import sellosCsv from "@/data/sellos-provincias.csv?raw";
 import premiumCsv from "@/data/combustible-premium.csv?raw";
 import origenCsv from "@/data/origen-modelos.csv?raw";
+import consumoElectricoCsv from "@/data/consumo-electrico.csv?raw";
 
 /** Parser CSV mínimo con soporte de comillas dobles. */
 export function parseCsv<K extends string = string>(text: string): Record<K, string>[] {
@@ -270,6 +271,17 @@ export function origenDe(m: Pick<Modelo, "marca" | "modelo" | "version">): { ori
   const fila = filas.find((o) => o.version_contiene && m.version.toUpperCase().includes(o.version_contiene.toUpperCase()))
     ?? filas.find((o) => !o.version_contiene);
   return fila ? { origen: fila.origen as Origen, pais: fila.pais } : null;
+}
+
+const CONSUMOS_ELECTRICOS = parseCsv<"marca" | "modelo" | "version" | "kwh_100km" | "estimado" | "texto" | "fuente">(consumoElectricoCsv);
+/**
+ * Consumo eléctrico de fábrica de la versión (kWh/100 km), según consumo-electrico.csv (con fuente por fila).
+ * Sin fila: null (sin dato; la persona lo carga si quiere).
+ */
+export function consumoElectricoDe(m: Pick<Modelo, "marca" | "modelo" | "version">): { kwh: number; texto: string; estimado: boolean } | null {
+  const f = CONSUMOS_ELECTRICOS.find((c) => c.marca === m.marca && c.modelo === m.modelo && c.version === m.version);
+  const kwh = f ? Number(f.kwh_100km) : NaN;
+  return f && kwh > 0 ? { kwh, texto: f.texto, estimado: f.estimado === "si" } : null;
 }
 
 /** Formulario 01: $24.070 nacional/Mercosur vs $43.370 importado (México incluido). Fuente: elcerokm nov-2025. */
