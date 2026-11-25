@@ -132,6 +132,9 @@ function Index() {
   const [digital, setDigital] = useState(false);
   const [equipoGnc, setEquipoGnc] = useState(EQUIPO_GNC_DEFAULT);
   const [copiado, setCopiado] = useState(false);
+  /** Eléctricos: consumo y precio del kWh que pone la persona (opcionales). Con los dos, la carga entra en el cálculo. */
+  const [kwh100, setKwh100] = useState(0);
+  const [precioKwh, setPrecioKwh] = useState(0);
   /** Hasta que la persona elige un auto, el resultado es el del auto de ejemplo y se aclara. */
   const [eligioAuto, setEligioAuto] = useState(false);
   /** Link compartido: abre con ese auto. Sin parámetros, la página arranca con el auto de ejemplo. */
@@ -165,8 +168,10 @@ function Index() {
   const patente = patenteManual ?? patenteAnualEstimada / (patenteFrec === "mensual" ? 12 : 6);
 
   const claveComb = combustible === "diésel" ? tipoGasoil : tipoNafta;
-  const precioLitro = combustible === "eléctrico" ? 0 : precios[claveComb] ?? 0;
-  const consumoCalculado = combustible === "eléctrico" ? 0 : consumo;
+  /** Solo con consumo y precio del kWh cargados se suma la carga; si falta uno, queda afuera como antes. */
+  const cargaIncluida = combustible === "eléctrico" && kwh100 > 0 && precioKwh > 0;
+  const precioLitro = combustible === "eléctrico" ? (cargaIncluida ? precioKwh : 0) : precios[claveComb] ?? 0;
+  const consumoCalculado = combustible === "eléctrico" ? (cargaIncluida ? kwh100 : 0) : consumo;
 
   const r = useMemo(() => calcular({
     kmAnio, consumo: consumoCalculado, precioLitro, seguroMin, seguroMax, serviceMin, serviceMax, intervaloKm,
@@ -180,7 +185,7 @@ function Index() {
 
   /** Desglose en barras: de mayor a menor, sin los rubros en $0. */
   const barras = Object.entries(r.rubros)
-    .map(([name, [a, b]]) => ({ name, min: a, max: b, value: (a + b) / 2 }))
+    .map(([name, [a, b]]) => ({ name: name === "Combustible" && combustible === "eléctrico" ? "Carga eléctrica" : name, min: a, max: b, value: (a + b) / 2 }))
     .filter((d) => d.value > 0)
     .sort((x, y) => y.value - x.value);
   const totalBarras = barras.reduce((s, d) => s + d.value, 0);
@@ -229,6 +234,8 @@ function Index() {
   }, [textoAnuncio]);
 
   const esElectrico = combustible === "eléctrico";
+  /** Eléctrico sin consumo o sin precio del kWh: el resultado no incluye la carga y se aclara. */
+  const sinCarga = esElectrico && !cargaIncluida;
 
   function compartir() {
     if (faltaDato) return;
@@ -237,7 +244,7 @@ function Index() {
     const url = base && modelo && modeloId !== "otro"
       ? `${base}?${new URLSearchParams({ marca: modelo.marca, modelo: modelo.modelo, version: modelo.version, km: String(kmAnio) })}`
       : base;
-    const txt = `Mantener ${auto} me sale entre ${ars(r.mensualMin)} y ${ars(r.mensualMax)} por mes (${ars(r.anualMin)}–${ars(r.anualMax)} al año), o sea ${ars(r.kmMin)}–${ars(r.kmMax)} por km, manejando ${kmAnio.toLocaleString("es-AR")} km/año${esElectrico ? " (sin el costo de carga eléctrica)" : ""}. Calculado con "¿Cuánto te va a costar tu próximo auto?" (precios de referencia nov-2026)${url ? `: ${url}` : "."}`;
+    const txt = `Mantener ${auto} me sale entre ${ars(r.mensualMin)} y ${ars(r.mensualMax)} por mes (${ars(r.anualMin)}–${ars(r.anualMax)} al año), o sea ${ars(r.kmMin)}–${ars(r.kmMax)} por km, manejando ${kmAnio.toLocaleString("es-AR")} km/año${sinCarga ? " (sin el costo de carga eléctrica)" : cargaIncluida ? ` (con la carga eléctrica a ${ars(precioKwh)} el kWh)` : ""}. Calculado con "¿Cuánto te va a costar tu próximo auto?" (precios de referencia nov-2026)${url ? `: ${url}` : "."}`;
     navigator.clipboard?.writeText(txt).then(() => { setCopiado(true); setTimeout(() => setCopiado(false), 2500); });
   }
 
@@ -296,9 +303,18 @@ function Index() {
                     </select>
                   )}
                 </Campo>}
-                <Campo label="Consumo (L/100 km)" est={!!fuenteCons?.estimado} nota={notaConsumo}>
-                  <Num value={consumoCalculado} step={0.1} onChange={setConsumo} max={50} />
-                </Campo>
+                {combustible === "eléctrico" ? <>
+                  <Campo label="Consumo eléctrico (kWh/100 km)" nota="Opcional. Lo dice la ficha del auto o la computadora de a bordo.">
+                    <Num value={kwh100} step={0.1} onChange={setKwh100} max={100} />
+                  </Campo>
+                  <Campo label="Precio del kWh ($)" nota="Opcional. Está en tu factura de luz o en la tarifa del cargador. Con los dos datos, la carga entra en el cálculo.">
+                    <Num value={precioKwh} onChange={setPrecioKwh} max={100_000} />
+                  </Campo>
+                </> : (
+                  <Campo label="Consumo (L/100 km)" est={!!fuenteCons?.estimado} nota={notaConsumo}>
+                    <Num value={consumoCalculado} step={0.1} onChange={setConsumo} max={50} />
+                  </Campo>
+                )}
                 <Campo label="Precio 0km ($)"><Num value={precio0km} onChange={setPrecio0km} max={TOPE_PRECIO} /></Campo>
                 <div className="sm:col-span-2">
                   <Campo label={`Kilómetros por año: ${kmAnio.toLocaleString("es-AR")} km`}>
@@ -376,7 +392,9 @@ function Index() {
                   entre {ars(r.mensualMin)} y {ars(r.mensualMax)} <span className="text-lg font-medium opacity-80">por mes</span>
                 </>}
               </p>
-              {esElectrico && !faltaDato && <p className="mt-2 text-sm font-medium">Sin el costo de carga eléctrica, que no se puede calcular de forma única.</p>}
+              {sinCarga && !faltaDato && <p className="mt-2 text-sm font-medium">Sin el costo de carga eléctrica, que no se puede calcular de forma única.</p>}
+              {sinCarga && !faltaDato && <p className="mt-1 text-sm opacity-80">Para sumarla, cargá tu consumo eléctrico y el precio del kWh en «Tu auto».</p>}
+              {cargaIncluida && !faltaDato && <p className="mt-2 text-sm font-medium">Incluye la carga eléctrica con tu consumo y tu precio del kWh.</p>}
               <p className="mt-2 text-sm opacity-80">{faltaDato ? "—" : `${ars(r.anualMin)} – ${ars(r.anualMax)} al año`}</p>
               <div className="mt-5 rounded-sm bg-highlight p-4 text-highlight-foreground">
                 <p className="text-sm font-bold">Costo por km</p>
@@ -446,7 +464,7 @@ function Index() {
               </ul>
               {barras.some((d) => d.min !== d.max) && <p className="mt-3 text-xs text-muted-foreground">En los rubros con rango, el largo de la barra es el promedio.</p>}
               {barras.length > 0 && <p className="mt-1 text-xs text-muted-foreground">El largo de cada barra es su parte del gasto anual total.</p>}
-              {combustible === "eléctrico" && <p className="mt-2 text-xs text-muted-foreground">{NOTA_ELECTRICO}</p>}
+              {sinCarga && <p className="mt-2 text-xs text-muted-foreground">{NOTA_ELECTRICO}</p>}
             </Card>
         </section>
 
@@ -499,7 +517,7 @@ function Index() {
             <li><strong>Patente, VTV, cochera, cuota y otros</strong>: pasados a valor anual.</li>
             <li><strong>Rango total</strong>: el mínimo suma todos los mínimos; el máximo suma todos los máximos. El costo por km es ese total dividido por los km anuales.</li>
             <li>Los valores de precio, consumo, seguro y service corresponden a la versión elegida: cada versión tiene sus propios datos.</li>
-            <li>Autos eléctricos: el consumo de combustible es 0 y no se pondera. El costo de la carga eléctrica no está incluido en el resultado porque varía según la tarifa, el tipo de carga y el uso de cada persona.</li>
+            <li>Autos eléctricos: el consumo de combustible es 0 y no se pondera. El costo de la carga eléctrica no está incluido en el resultado porque varía según la tarifa, el tipo de carga y el uso de cada persona, salvo que cargues tu consumo (kWh/100 km) y el precio del kWh: ahí se suma como (km por año ÷ 100) × consumo × precio del kWh.</li>
             <li>Datos de referencia: noviembre 2026.</li>
           </ul>
           <h3 className="mt-8 text-lg font-medium">Fuentes</h3>
@@ -531,7 +549,7 @@ function Index() {
       {!tarjetaVisible && (
         <a href="#resultado" className="fixed inset-x-0 bottom-0 z-30 flex flex-col items-start border-t border-primary-foreground/20 bg-primary px-5 py-2 text-primary-foreground lg:hidden">
           {/* Todo alineado a la izquierda: abajo a la derecha puede aparecer el cartel de Lovable y taparía el monto. */}
-          <span className="text-xs opacity-80">{faltaDato ? "Resultado" : `${eligioAuto ? "Por mes" : "Por mes (ejemplo)"}${esElectrico ? ", sin carga eléctrica" : ""}`}</span>
+          <span className="text-xs opacity-80">{faltaDato ? "Resultado" : `${eligioAuto ? "Por mes" : "Por mes (ejemplo)"}${sinCarga ? ", sin carga eléctrica" : ""}`}</span>
           <span className={faltaDato ? "text-sm" : "font-display text-xl font-bold tabular-nums"}>{faltaDato ? avisoFalta : `${ars(r.mensualMin)} – ${ars(r.mensualMax)}`}</span>
         </a>
       )}
